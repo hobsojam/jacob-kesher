@@ -1,0 +1,93 @@
+export interface Exit {
+  destinationId: string
+  label: string
+  requires?: {
+    itemId?: string
+    skillId?: string
+    skillLevel?: number
+    flag?: string
+  }
+  hidden?: boolean
+}
+
+export interface Addendum {
+  flag: string
+  text: string
+}
+
+export interface ExamineTarget {
+  id: string
+  label: string
+  description: string
+}
+
+export interface RoomData {
+  id: string
+  label: string
+  description: string
+  addenda: Addendum[]
+  exits: Exit[]
+  itemIds: string[]
+  hiddenItemIds: string[]
+  examineTargets: ExamineTarget[]
+  searchDifficulty?: number
+}
+
+export type ItemType =
+  | 'gadget'
+  | 'weapon_melee'
+  | 'weapon_ranged'
+  | 'keycard'
+  | 'document'
+  | 'consumable'
+
+export interface ItemData {
+  id: string
+  label: string
+  description: string
+  type: ItemType
+}
+
+export type EnemyType =
+  | 'guard'
+  | 'henchman'
+  | 'villain'
+  | 'dog'
+  | 'civilian'
+  | 'contact'
+
+export interface EnemyTemplate {
+  id: string
+  type: EnemyType
+  stats: {
+    strength: number
+    agility: number
+    health: number
+  }
+  detectionRadius: number
+  canBeBluffed: boolean
+  canBeDisguised: boolean
+  wakeAfterTurns?: number
+}
+
+export interface PatrolRoute {
+  roomIds: string[]
+  cycleTime: number
+  startOffset?: number
+}
+
+export interface EnemyData {
+  id: string
+  name: string
+  templateId: string
+  roomId: string
+  patrol?: PatrolRoute
+  inventory: string[]
+}
+
+export interface GameData {
+  roomIndex: Record<string, RoomData>
+  itemData: Record<string, ItemData>
+  enemyTemplates: Record<string, EnemyTemplate>
+  enemyData: Record<string, EnemyData>
+}
