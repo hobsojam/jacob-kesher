@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { handleUse } from '../../src/engine/use'
-import type { ItemData } from '../../src/types/data'
-import { emptyInventory, makeItem, makeRoomState, makeState, makeGameData } from '../helpers'
+import { emptyInventory, makeItem, makeRoomState, makeState, makeItemsData } from '../helpers'
 
-const makeData = (items: ItemData[]) =>
-  makeGameData({ itemData: Object.fromEntries(items.map((i) => [i.id, i])) })
+const makeData = makeItemsData
 
 const healthKit: ItemData = {
   id: 'health_kit',

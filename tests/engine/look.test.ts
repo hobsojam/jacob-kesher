@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { handleLook } from '../../src/engine/look'
-import type { RoomData } from '../../src/types/data'
-import { makeRoom, makeRoomState, makeState, makeGameData } from '../helpers'
+import { makeRoom, makeRoomState, makeState, makeRoomsData } from '../helpers'
 
-const makeData = (rooms: RoomData[]) =>
-  makeGameData({ roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])) })
+const makeData = makeRoomsData
 
 describe('handleLook', () => {
   it('returns base room description', () => {

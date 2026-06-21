@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { handleTake, handleDrop, handleLoot } from '../../src/engine/inventory'
 import type { GameData } from '../../src/types/data'
 import type { EnemyState } from '../../src/types/state'
-import { emptyInventory, makeItem, makeRoomState, makeState, makeGameData } from '../helpers'
 
-const makeData = (items: ReturnType<typeof makeItem>[] = []): GameData =>
-  makeGameData({ itemData: Object.fromEntries(items.map((i) => [i.id, i])) })
+import { emptyInventory, makeItem, makeRoomState, makeState, makeItemsData } from '../helpers'
+
+const makeData = makeItemsData
 
 // --- handleTake ---
 

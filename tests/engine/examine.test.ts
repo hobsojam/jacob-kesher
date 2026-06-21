@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { handleExamine } from '../../src/engine/examine'
-import type { RoomData } from '../../src/types/data'
-import { makeRoom, makeState, makeGameData } from '../helpers'
+import { makeRoom, makeState, makeRoomsData } from '../helpers'
 
-const makeData = (rooms: RoomData[]) =>
-  makeGameData({ roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])) })
+const makeData = makeRoomsData
 
 describe('handleExamine', () => {
   it('returns target description when found', () => {

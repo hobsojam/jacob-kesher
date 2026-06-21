@@ -61,3 +61,9 @@ export const makeGameData = (partial: Partial<GameData> = {}): GameData => ({
   enemyData: {},
   ...partial,
 })
+
+export const makeRoomsData = (rooms: RoomData[]): GameData =>
+  makeGameData({ roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])) })
+
+export const makeItemsData = (items: ItemData[]): GameData =>
+  makeGameData({ itemData: Object.fromEntries(items.map((i) => [i.id, i])) })
