@@ -7,6 +7,10 @@ import { handleMove } from './movement'
 import { handleTake, handleDrop, handleLoot } from './inventory'
 import { handleSearch } from './search'
 import { handleAttack, handleStealthTakedown, handleFlee } from './combat'
+import { handleExamine } from './examine'
+import { handleLook } from './look'
+import { handleUse } from './use'
+import { applyNoise } from './alarm'
 
 export interface EngineResult {
   state: GameState
@@ -20,10 +24,20 @@ export function processAction(
   data: GameData,
 ): EngineResult {
   const result = dispatch(action, state, data)
-  const advanced = advanceTime(action.type, result.state, result.timeCost)
-  const { state: finalState, gameOver } = checkDeadlines(advanced)
+  const messages = [...result.messages]
 
-  return { state: finalState, messages: result.messages, gameOver }
+  const noised = result.noise
+    ? { ...result.state, alarmLevel: applyNoise(result.noise, result.state.alarmLevel) }
+    : result.state
+
+  const advanced = advanceTime(action.type, noised, result.timeCost)
+
+  const { state: woken, messages: wakeMessages } = wakeEnemies(advanced, data)
+  messages.push(...wakeMessages)
+
+  const { state: finalState, gameOver } = checkDeadlines(woken)
+
+  return { state: finalState, messages, gameOver }
 }
 
 function dispatch(
@@ -48,8 +62,12 @@ function dispatch(
       return handleStealthTakedown(action.enemyId, action.intent, state, data)
     case 'flee':
       return handleFlee(state, data)
-    default:
-      return { state, messages: [`Action "${action.type}" not yet implemented.`] }
+    case 'examine':
+      return handleExamine(action.targetId, state, data)
+    case 'look':
+      return handleLook(state, data)
+    case 'use':
+      return handleUse(action.itemId, state, data)
   }
 }
 
@@ -58,6 +76,33 @@ function advanceTime(actionType: string, state: GameState, timeCost?: number): G
   return {
     ...state,
     time: { ...state.time, elapsed: state.time.elapsed + cost },
+  }
+}
+
+function wakeEnemies(
+  state: GameState,
+  data: GameData,
+): { state: GameState; messages: string[] } {
+  const messages: string[] = []
+  const updatedEnemyStates = { ...state.enemyStates }
+  let changed = false
+
+  for (const [id, enemyState] of Object.entries(updatedEnemyStates)) {
+    if (
+      enemyState.status === 'unconscious' &&
+      enemyState.unconsciousUntil !== undefined &&
+      state.time.elapsed >= enemyState.unconsciousUntil
+    ) {
+      updatedEnemyStates[id] = { ...enemyState, status: 'active', unconsciousUntil: undefined }
+      const name = data.enemyData[id]?.name ?? 'Someone'
+      messages.push(`${name} regains consciousness.`)
+      changed = true
+    }
+  }
+
+  return {
+    state: changed ? { ...state, enemyStates: updatedEnemyStates } : state,
+    messages,
   }
 }
 

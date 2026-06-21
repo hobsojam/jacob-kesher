@@ -1,8 +1,9 @@
 import type { GameData } from '../types/data'
-import type { AlarmLevel, GameState } from '../types/state'
+import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
 import { guardPosition } from './patrol'
+import { escalateAlarm } from './alarm'
 
 export function handleSearch(state: GameState, data: GameData): SubSystemResult {
   const roomId = state.protagonist.currentRoom
@@ -73,14 +74,3 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
   }
 }
 
-function escalateAlarm(current: AlarmLevel): AlarmLevel {
-  const levels: AlarmLevel[] = [
-    'undetected',
-    'suspicious',
-    'searching',
-    'alert',
-    'lockdown',
-  ]
-  const index = levels.indexOf(current)
-  return levels[Math.min(index + 1, levels.length - 1)]
-}

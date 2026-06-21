@@ -1,49 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { handleMove } from '../../src/engine/movement'
-import type { GameData, RoomData } from '../../src/types/data'
-import type { GameState } from '../../src/types/state'
+import { makeRoom, makeState, makeRoomsData } from '../helpers'
 
-const makeRoom = (partial: Partial<RoomData> & { id: string }): RoomData => ({
-  label: partial.id,
-  description: `You are in ${partial.id}.`,
-  addenda: [],
-  exits: [],
-  itemIds: [],
-  hiddenItemIds: [],
-  examineTargets: [],
-  ...partial,
-})
-
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: {
-      weapons: [null, null],
-      gadgets: [null, null],
-      small: [null, null, null],
-      special: null,
-    },
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: {},
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (rooms: RoomData[]): GameData => ({
-  roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])),
-  itemData: {},
-  enemyTemplates: {},
-  enemyData: {},
-})
+const makeData = makeRoomsData
 
 describe('handleMove', () => {
   it('moves to a valid exit', () => {
