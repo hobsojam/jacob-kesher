@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { handleUse } from '../../src/engine/use'
+import type { ItemData } from '../../src/types/data'
 import { emptyInventory, makeRoomState, makeState, makeItemsData } from '../helpers'
 
 const makeData = makeItemsData
