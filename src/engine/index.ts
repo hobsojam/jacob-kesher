@@ -1,6 +1,9 @@
 import type { Action } from '../types/actions'
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
+import type { SubSystemResult } from '../types/engine'
+import { ACTION_COSTS } from '../constants'
+import { handleMove } from './movement'
 
 export interface EngineResult {
   state: GameState
@@ -13,6 +16,43 @@ export function processAction(
   state: GameState,
   data: GameData,
 ): EngineResult {
-  void data
-  return { state, messages: [`Unknown action: ${action.type}`] }
+  const result = dispatch(action, state, data)
+  const advanced = advanceTime(action.type, result.state)
+  const { state: finalState, gameOver } = checkDeadlines(advanced)
+
+  return { state: finalState, messages: result.messages, gameOver }
+}
+
+function dispatch(
+  action: Action,
+  state: GameState,
+  data: GameData,
+): SubSystemResult {
+  switch (action.type) {
+    case 'move':
+      return handleMove(action.exitLabel, state, data)
+    default:
+      return { state, messages: [`Action "${action.type}" not yet implemented.`] }
+  }
+}
+
+function advanceTime(actionType: string, state: GameState): GameState {
+  const cost = ACTION_COSTS[actionType] ?? 1
+  return {
+    ...state,
+    time: { ...state.time, elapsed: state.time.elapsed + cost },
+  }
+}
+
+function checkDeadlines(state: GameState): {
+  state: GameState
+  gameOver?: 'dead' | 'timeout' | 'success'
+} {
+  if (state.time.elapsed >= state.time.missionDeadline) {
+    return { state, gameOver: 'timeout' }
+  }
+  if (state.protagonist.health <= 0) {
+    return { state, gameOver: 'dead' }
+  }
+  return { state }
 }
