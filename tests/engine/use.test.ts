@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { handleUse } from '../../src/engine/use'
-import { emptyInventory, makeItem, makeRoomState, makeState, makeItemsData } from '../helpers'
+import { emptyInventory, makeRoomState, makeState, makeItemsData } from '../helpers'
 
 const makeData = makeItemsData
 
