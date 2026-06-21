@@ -1,6 +1,5 @@
 import type { GameData } from '../types/data'
-import type { EnemyState, GameState, ItemState, NoiseLevel, Skill } from '../types/state'
-import type { Inventory } from '../types/state'
+import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 
 type WeaponMode = 'unarmed' | 'melee' | 'ranged'
