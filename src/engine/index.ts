@@ -4,6 +4,7 @@ import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
 import { handleMove } from './movement'
+import { handleTake, handleDrop, handleLoot } from './inventory'
 
 export interface EngineResult {
   state: GameState
@@ -31,6 +32,12 @@ function dispatch(
   switch (action.type) {
     case 'move':
       return handleMove(action.exitLabel, state, data)
+    case 'take':
+      return handleTake(action.itemId, state, data)
+    case 'drop':
+      return handleDrop(action.itemId, state, data)
+    case 'loot':
+      return handleLoot(action.enemyId, action.itemId, state, data)
     default:
       return { state, messages: [`Action "${action.type}" not yet implemented.`] }
   }
