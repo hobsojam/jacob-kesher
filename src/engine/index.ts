@@ -6,6 +6,7 @@ import { ACTION_COSTS } from '../constants'
 import { handleMove } from './movement'
 import { handleTake, handleDrop, handleLoot } from './inventory'
 import { handleSearch } from './search'
+import { handleAttack, handleStealthTakedown, handleFlee } from './combat'
 
 export interface EngineResult {
   state: GameState
@@ -41,6 +42,12 @@ function dispatch(
       return handleLoot(action.enemyId, action.itemId, state, data)
     case 'search':
       return handleSearch(state, data)
+    case 'attack':
+      return handleAttack(action.enemyId, state, data)
+    case 'stealth_takedown':
+      return handleStealthTakedown(action.enemyId, action.intent, state, data)
+    case 'flee':
+      return handleFlee(state, data)
     default:
       return { state, messages: [`Action "${action.type}" not yet implemented.`] }
   }

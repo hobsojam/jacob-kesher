@@ -43,6 +43,7 @@ export interface ItemState {
 export interface EnemyState {
   id: string
   status: 'active' | 'unconscious' | 'dead'
+  health?: number            // current health; undefined means full health from template
   unconsciousUntil?: number
   inventory: string[]
 }
