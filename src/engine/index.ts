@@ -5,6 +5,7 @@ import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
 import { handleMove } from './movement'
 import { handleTake, handleDrop, handleLoot } from './inventory'
+import { handleSearch } from './search'
 
 export interface EngineResult {
   state: GameState
@@ -18,7 +19,7 @@ export function processAction(
   data: GameData,
 ): EngineResult {
   const result = dispatch(action, state, data)
-  const advanced = advanceTime(action.type, result.state)
+  const advanced = advanceTime(action.type, result.state, result.timeCost)
   const { state: finalState, gameOver } = checkDeadlines(advanced)
 
   return { state: finalState, messages: result.messages, gameOver }
@@ -38,13 +39,15 @@ function dispatch(
       return handleDrop(action.itemId, state, data)
     case 'loot':
       return handleLoot(action.enemyId, action.itemId, state, data)
+    case 'search':
+      return handleSearch(state, data)
     default:
       return { state, messages: [`Action "${action.type}" not yet implemented.`] }
   }
 }
 
-function advanceTime(actionType: string, state: GameState): GameState {
-  const cost = ACTION_COSTS[actionType] ?? 1
+function advanceTime(actionType: string, state: GameState, timeCost?: number): GameState {
+  const cost = timeCost ?? ACTION_COSTS[actionType] ?? 1
   return {
     ...state,
     time: { ...state.time, elapsed: state.time.elapsed + cost },
