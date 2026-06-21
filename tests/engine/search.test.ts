@@ -1,55 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { handleSearch } from '../../src/engine/search'
 import { guardPosition } from '../../src/engine/patrol'
-import type { GameData, RoomData, PatrolRoute } from '../../src/types/data'
-import type { GameState, RoomState } from '../../src/types/state'
+import type { GameData, PatrolRoute } from '../../src/types/data'
+import { makeRoom, makeRoomState, makeState, makeGameData } from '../helpers'
 
-const makeRoom = (partial: Partial<RoomData> & { id: string }): RoomData => ({
-  label: partial.id,
-  description: '',
-  addenda: [],
-  exits: [],
-  itemIds: [],
-  hiddenItemIds: [],
-  examineTargets: [],
-  ...partial,
-})
-
-const makeRoomState = (partial: Partial<RoomState> = {}): RoomState => ({
-  id: 'room_a',
-  itemIds: [],
-  enemyIds: [],
-  flags: {},
-  visited: true,
-  ...partial,
-})
-
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: { weapons: [null, null], gadgets: [null, null], small: [null, null, null], special: null },
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: { room_a: makeRoomState() },
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (partial: Partial<GameData> = {}): GameData => ({
-  roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
-  itemData: {},
-  enemyTemplates: {},
-  enemyData: {},
-  ...partial,
-})
+const makeData = (partial: Partial<GameData> = {}): GameData =>
+  makeGameData({ roomIndex: { room_a: makeRoom({ id: 'room_a' }) }, ...partial })
 
 // --- guardPosition ---
 
@@ -103,14 +59,16 @@ describe('handleSearch', () => {
       },
       itemData: { secret_key: { id: 'secret_key', label: 'Secret Key', description: '', type: 'keycard' } },
     })
-    const result = handleSearch(makeState(), data)
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
 
     expect(result.state.roomStates['room_a'].itemIds).toContain('secret_key')
     expect(result.messages.some((m) => /secret key/i.test(m))).toBe(true)
   })
 
   it('marks room as searched', () => {
-    const result = handleSearch(makeState(), makeData())
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, makeData())
 
     expect(result.state.roomStates['room_a'].flags['searched']).toBe(true)
   })
@@ -125,7 +83,8 @@ describe('handleSearch', () => {
   })
 
   it('reports nothing found when room has no hidden items', () => {
-    const result = handleSearch(makeState(), makeData())
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, makeData())
 
     expect(result.messages.some((m) => /nothing of interest/i.test(m))).toBe(true)
   })
@@ -144,7 +103,8 @@ describe('handleSearch', () => {
   })
 
   it('uses base search cost of 4', () => {
-    const result = handleSearch(makeState(), makeData())
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, makeData())
     expect(result.timeCost).toBe(4)
   })
 
@@ -152,7 +112,8 @@ describe('handleSearch', () => {
     const data = makeData({
       roomIndex: { room_a: makeRoom({ id: 'room_a', searchDifficulty: 3 }) },
     })
-    const result = handleSearch(makeState(), data)
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
     expect(result.timeCost).toBe(7)
   })
 
@@ -160,7 +121,8 @@ describe('handleSearch', () => {
     const data = makeData({
       roomIndex: { room_a: makeRoom({ id: 'room_a', searchDifficulty: -2 }) },
     })
-    const result = handleSearch(makeState(), data)
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
     expect(result.timeCost).toBe(2)
   })
 
@@ -168,15 +130,14 @@ describe('handleSearch', () => {
     const data = makeData({
       roomIndex: { room_a: makeRoom({ id: 'room_a', searchDifficulty: -10 }) },
     })
-    const result = handleSearch(makeState(), data)
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
     expect(result.timeCost).toBe(1)
   })
 
   it('reports guard interruption when patrol enters room during search', () => {
-    const data: GameData = {
+    const data: GameData = makeGameData({
       roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
-      itemData: {},
-      enemyTemplates: {},
       enemyData: {
         guard_1: {
           id: 'guard_1',
@@ -187,9 +148,12 @@ describe('handleSearch', () => {
           patrol: { roomIds: ['room_b', 'room_a'], cycleTime: 4 },
         },
       },
-    }
+    })
     // At elapsed=0: guard is in room_b. At elapsed=2: guard is in room_a (during search)
-    const state = makeState({ time: { elapsed: 0, missionDeadline: 100 } })
+    const state = makeState({
+      time: { elapsed: 0, missionDeadline: 100 },
+      roomStates: { room_a: makeRoomState() },
+    })
     const result = handleSearch(state, data)
 
     expect(result.messages.some((m) => /boris/i.test(m))).toBe(true)
@@ -197,10 +161,8 @@ describe('handleSearch', () => {
   })
 
   it('escalates alarm when guard interrupts', () => {
-    const data: GameData = {
+    const data: GameData = makeGameData({
       roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
-      itemData: {},
-      enemyTemplates: {},
       enemyData: {
         guard_1: {
           id: 'guard_1',
@@ -211,18 +173,19 @@ describe('handleSearch', () => {
           patrol: { roomIds: ['room_b', 'room_a'], cycleTime: 4 },
         },
       },
-    }
-    const state = makeState({ alarmLevel: 'undetected' })
+    })
+    const state = makeState({
+      alarmLevel: 'undetected',
+      roomStates: { room_a: makeRoomState() },
+    })
     const result = handleSearch(state, data)
 
     expect(result.state.alarmLevel).toBe('suspicious')
   })
 
   it('does not report interruption from unconscious guard', () => {
-    const data: GameData = {
+    const data: GameData = makeGameData({
       roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
-      itemData: {},
-      enemyTemplates: {},
       enemyData: {
         guard_1: {
           id: 'guard_1',
@@ -233,8 +196,9 @@ describe('handleSearch', () => {
           patrol: { roomIds: ['room_b', 'room_a'], cycleTime: 4 },
         },
       },
-    }
+    })
     const state = makeState({
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] } },
     })
     const result = handleSearch(state, data)
@@ -244,10 +208,8 @@ describe('handleSearch', () => {
   })
 
   it('does not report interruption from guard patrolling a different room', () => {
-    const data: GameData = {
+    const data: GameData = makeGameData({
       roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
-      itemData: {},
-      enemyTemplates: {},
       enemyData: {
         guard_1: {
           id: 'guard_1',
@@ -258,8 +220,9 @@ describe('handleSearch', () => {
           patrol: { roomIds: ['room_c', 'room_d'], cycleTime: 4 },
         },
       },
-    }
-    const result = handleSearch(makeState(), data)
+    })
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
 
     expect(result.messages.some((m) => /interrupted/i.test(m))).toBe(false)
   })

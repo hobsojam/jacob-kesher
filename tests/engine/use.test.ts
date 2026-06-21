@@ -1,52 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { handleUse } from '../../src/engine/use'
-import type { GameData, ItemData, RoomData } from '../../src/types/data'
-import type { GameState, RoomState } from '../../src/types/state'
+import type { ItemData } from '../../src/types/data'
+import { emptyInventory, makeItem, makeRoomState, makeState, makeGameData } from '../helpers'
 
-const makeRoom = (partial: Partial<RoomData> & { id: string }): RoomData => ({
-  label: partial.id,
-  description: '',
-  addenda: [],
-  exits: [],
-  itemIds: [],
-  hiddenItemIds: [],
-  examineTargets: [],
-  ...partial,
-})
-
-const makeRoomState = (partial: Partial<RoomState> & { id: string }): RoomState => ({
-  itemIds: [],
-  enemyIds: [],
-  flags: {},
-  visited: false,
-  ...partial,
-})
-
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 5,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: { weapons: [null, null], gadgets: [null, null], small: [null, null, null], special: null },
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (items: ItemData[], rooms: RoomData[] = []): GameData => ({
-  roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])),
-  itemData: Object.fromEntries(items.map((i) => [i.id, i])),
-  enemyTemplates: {},
-  enemyData: {},
-})
+const makeData = (items: ItemData[]) =>
+  makeGameData({ itemData: Object.fromEntries(items.map((i) => [i.id, i])) })
 
 const healthKit: ItemData = {
   id: 'health_kit',
@@ -85,8 +43,9 @@ describe('handleUse — heal', () => {
       protagonist: {
         ...makeState().protagonist,
         health: 5,
-        inventory: { weapons: [null, null], gadgets: [null, null], small: ['health_kit', null, null], special: null },
+        inventory: { ...emptyInventory(), small: ['health_kit', null, null] },
       },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
     })
     const data = makeData([healthKit])
 
@@ -101,7 +60,8 @@ describe('handleUse — heal', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: { weapons: [null, null], gadgets: [null, null], small: ['health_kit', null, null], special: null },
+        health: 5,
+        inventory: { ...emptyInventory(), small: ['health_kit', null, null] },
       },
       itemStates: { health_kit: { id: 'health_kit', used: true, broken: false } },
     })
@@ -119,8 +79,9 @@ describe('handleUse — set_room_flag', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: { weapons: [null, null], gadgets: ['distractor', null], small: [null, null, null], special: null },
+        inventory: { ...emptyInventory(), gadgets: ['distractor', null] },
       },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
     })
     const data = makeData([distractor])
 
@@ -136,7 +97,7 @@ describe('handleUse — set_global_flag', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: { weapons: [null, null], gadgets: ['jammer', null], small: [null, null, null], special: null },
+        inventory: { ...emptyInventory(), gadgets: ['jammer', null] },
       },
     })
     const data = makeData([jammer])
@@ -171,7 +132,7 @@ describe('handleUse — edge cases', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: { weapons: [null, null], gadgets: ['plain_gadget', null], small: [null, null, null], special: null },
+        inventory: { ...emptyInventory(), gadgets: ['plain_gadget', null] },
       },
     })
     const data = makeData([plainGadget])
@@ -185,7 +146,7 @@ describe('handleUse — edge cases', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: { weapons: [null, null], gadgets: [null, null], small: [null, null, null], special: 'jammer' },
+        inventory: { ...emptyInventory(), special: 'jammer' },
       },
     })
     const data = makeData([jammer])

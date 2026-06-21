@@ -1,52 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { handleLook } from '../../src/engine/look'
-import type { GameData, RoomData } from '../../src/types/data'
-import type { GameState, RoomState } from '../../src/types/state'
+import type { RoomData } from '../../src/types/data'
+import { makeRoom, makeRoomState, makeState, makeGameData } from '../helpers'
 
-const makeRoom = (partial: Partial<RoomData> & { id: string }): RoomData => ({
-  label: partial.id,
-  description: `You are in ${partial.id}.`,
-  addenda: [],
-  exits: [],
-  itemIds: [],
-  hiddenItemIds: [],
-  examineTargets: [],
-  ...partial,
-})
-
-const makeRoomState = (partial: Partial<RoomState> & { id: string }): RoomState => ({
-  itemIds: [],
-  enemyIds: [],
-  flags: {},
-  visited: false,
-  ...partial,
-})
-
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: { weapons: [null, null], gadgets: [null, null], small: [null, null, null], special: null },
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: {},
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (rooms: RoomData[]): GameData => ({
-  roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])),
-  itemData: {},
-  enemyTemplates: {},
-  enemyData: {},
-})
+const makeData = (rooms: RoomData[]) =>
+  makeGameData({ roomIndex: Object.fromEntries(rooms.map((r) => [r.id, r])) })
 
 describe('handleLook', () => {
   it('returns base room description', () => {
@@ -80,8 +38,7 @@ describe('handleLook', () => {
       id: 'room_a',
       addenda: [{ flag: 'lights_on', text: 'The lights are on.' }],
     })
-    const roomState = makeRoomState({ id: 'room_a' })
-    const state = makeState({ roomStates: { room_a: roomState } })
+    const state = makeState({ roomStates: { room_a: makeRoomState({ id: 'room_a' }) } })
     const data = makeData([room])
 
     const result = handleLook(state, data)

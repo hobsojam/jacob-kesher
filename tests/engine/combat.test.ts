@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { handleAttack, handleStealthTakedown, handleFlee } from '../../src/engine/combat'
 import type { GameData, EnemyData, EnemyTemplate } from '../../src/types/data'
 import type { GameState } from '../../src/types/state'
+import { makeState, makeGameData, emptyInventory } from '../helpers'
 
 const alwaysHit = () => 20
 const alwaysMiss = () => 1
@@ -26,32 +27,12 @@ const makeEnemy = (partial: Partial<EnemyData> = {}): EnemyData => ({
   ...partial,
 })
 
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: 'room_b',
-    health: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: { weapons: [null, null], gadgets: [null, null], small: [null, null, null], special: null },
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: {},
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (partial: Partial<GameData> = {}): GameData => ({
-  roomIndex: {},
-  itemData: {},
-  enemyTemplates: { guard: makeTemplate() },
-  enemyData: { guard_1: makeEnemy() },
-  ...partial,
-})
+const makeData = (partial: Partial<GameData> = {}): GameData =>
+  makeGameData({
+    enemyTemplates: { guard: makeTemplate() },
+    enemyData: { guard_1: makeEnemy() },
+    ...partial,
+  })
 
 // --- handleAttack ---
 
@@ -122,12 +103,7 @@ describe('handleAttack', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: {
-          weapons: ['pistol', null],
-          gadgets: [null, null],
-          small: [null, null, null],
-          special: null,
-        },
+        inventory: { ...emptyInventory(), weapons: ['pistol', null] },
       },
     })
     const data = makeData({
@@ -143,12 +119,7 @@ describe('handleAttack', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        inventory: {
-          weapons: ['pistol', 'knife'],
-          gadgets: [null, null],
-          small: [null, null, null],
-          special: null,
-        },
+        inventory: { ...emptyInventory(), weapons: ['pistol', 'knife'] },
       },
       itemStates: { pistol: { id: 'pistol', used: true, broken: false } },
     })
@@ -262,30 +233,30 @@ describe('handleStealthTakedown', () => {
 // --- handleFlee ---
 
 describe('handleFlee', () => {
+  const stateWithPrevRoom = (): GameState =>
+    makeState({ protagonist: { ...makeState().protagonist, previousRoomId: 'room_b' } })
+
   it('moves Jacob to previousRoomId', () => {
-    const result = handleFlee(makeState(), makeData())
+    const result = handleFlee(stateWithPrevRoom(), makeData())
 
     expect(result.state.protagonist.currentRoom).toBe('room_b')
   })
 
   it('sets previousRoomId to the room Jacob fled from', () => {
-    const result = handleFlee(makeState(), makeData())
+    const result = handleFlee(stateWithPrevRoom(), makeData())
 
     expect(result.state.protagonist.previousRoomId).toBe('room_a')
   })
 
   it('fails when there is no previousRoomId', () => {
-    const state = makeState({
-      protagonist: { ...makeState().protagonist, previousRoomId: null },
-    })
-    const result = handleFlee(state, makeData())
+    const result = handleFlee(makeState(), makeData())
 
     expect(result.state.protagonist.currentRoom).toBe('room_a')
     expect(result.messages[0]).toMatch(/nowhere to run/i)
   })
 
   it('produces quiet noise', () => {
-    const result = handleFlee(makeState(), makeData())
+    const result = handleFlee(stateWithPrevRoom(), makeData())
 
     expect(result.noise).toBe('quiet')
   })

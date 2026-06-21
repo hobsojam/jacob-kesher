@@ -1,56 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { handleTake, handleDrop, handleLoot } from '../../src/engine/inventory'
-import type { GameData, ItemData } from '../../src/types/data'
-import type { GameState, Inventory, RoomState, EnemyState } from '../../src/types/state'
+import type { GameData } from '../../src/types/data'
+import type { EnemyState } from '../../src/types/state'
+import { emptyInventory, makeItem, makeRoomState, makeState, makeGameData } from '../helpers'
 
-const emptyInventory = (): Inventory => ({
-  weapons: [null, null],
-  gadgets: [null, null],
-  small: [null, null, null],
-  special: null,
-})
-
-const makeItem = (partial: Partial<ItemData> & { id: string }): ItemData => ({
-  label: partial.id,
-  description: '',
-  type: 'keycard',
-  ...partial,
-})
-
-const makeRoomState = (partial: Partial<RoomState> = {}): RoomState => ({
-  id: 'room_a',
-  itemIds: [],
-  enemyIds: [],
-  flags: {},
-  visited: true,
-  ...partial,
-})
-
-const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: emptyInventory(),
-    flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
-  roomStates: { room_a: makeRoomState() },
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
-
-const makeData = (items: ItemData[] = []): GameData => ({
-  roomIndex: {},
-  itemData: Object.fromEntries(items.map((i) => [i.id, i])),
-  enemyTemplates: {},
-  enemyData: {},
-})
+const makeData = (items: ReturnType<typeof makeItem>[] = []): GameData =>
+  makeGameData({ itemData: Object.fromEntries(items.map((i) => [i.id, i])) })
 
 // --- handleTake ---
 
@@ -103,7 +58,7 @@ describe('handleTake', () => {
   })
 
   it('fails when item is not in the room', () => {
-    const state = makeState()
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
     const data = makeData([makeItem({ id: 'key_a', type: 'keycard' })])
     const result = handleTake('key_a', state, data)
 
@@ -155,6 +110,7 @@ describe('handleDrop', () => {
         ...makeState().protagonist,
         inventory: { ...emptyInventory(), small: ['key_a', null, null] },
       },
+      roomStates: { room_a: makeRoomState() },
     })
     const data = makeData([makeItem({ id: 'key_a', type: 'keycard', label: 'Keycard' })])
     const result = handleDrop('key_a', state, data)
@@ -170,6 +126,7 @@ describe('handleDrop', () => {
         ...makeState().protagonist,
         inventory: { ...emptyInventory(), weapons: ['pistol', null] },
       },
+      roomStates: { room_a: makeRoomState() },
     })
     const data = makeData([makeItem({ id: 'pistol', type: 'weapon_ranged' })])
     const result = handleDrop('pistol', state, data)
@@ -184,6 +141,7 @@ describe('handleDrop', () => {
         ...makeState().protagonist,
         inventory: { ...emptyInventory(), special: 'motorbike' },
       },
+      roomStates: { room_a: makeRoomState() },
     })
     const data = makeData([makeItem({ id: 'motorbike', type: 'gadget', label: 'Motorbike' })])
     const result = handleDrop('motorbike', state, data)
@@ -193,7 +151,7 @@ describe('handleDrop', () => {
   })
 
   it('fails when item is not in inventory', () => {
-    const state = makeState()
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
     const data = makeData([makeItem({ id: 'key_a', type: 'keycard' })])
     const result = handleDrop('key_a', state, data)
 
@@ -213,6 +171,7 @@ describe('handleLoot', () => {
 
   it('loots an item from a dead enemy', () => {
     const state = makeState({
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: makeEnemyState({ inventory: ['pistol'] }) },
     })
     const data: GameData = {
@@ -230,6 +189,7 @@ describe('handleLoot', () => {
 
   it('loots an item from an unconscious enemy', () => {
     const state = makeState({
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: makeEnemyState({ status: 'unconscious', inventory: ['keycard'] }) },
     })
     const data = makeData([makeItem({ id: 'keycard', type: 'keycard' })])
@@ -240,6 +200,7 @@ describe('handleLoot', () => {
 
   it('fails when enemy is still active', () => {
     const state = makeState({
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: makeEnemyState({ status: 'active', inventory: ['pistol'] }) },
     })
     const data = makeData([makeItem({ id: 'pistol', type: 'weapon_ranged' })])
@@ -251,6 +212,7 @@ describe('handleLoot', () => {
 
   it('fails when item is not on the enemy', () => {
     const state = makeState({
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: makeEnemyState({ inventory: [] }) },
     })
     const data = makeData([makeItem({ id: 'pistol', type: 'weapon_ranged' })])
@@ -265,6 +227,7 @@ describe('handleLoot', () => {
         ...makeState().protagonist,
         inventory: { ...emptyInventory(), weapons: ['gun_a', 'gun_b'] },
       },
+      roomStates: { room_a: makeRoomState() },
       enemyStates: { guard_1: makeEnemyState({ inventory: ['rifle'] }) },
     })
     const data = makeData([makeItem({ id: 'rifle', type: 'weapon_ranged' })])
