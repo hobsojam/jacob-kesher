@@ -1,0 +1,79 @@
+import type { GameData } from '../types/data'
+import type { GameState } from '../types/state'
+import type { SubSystemResult } from '../types/engine'
+
+export function handleUse(
+  itemId: string,
+  state: GameState,
+  data: GameData,
+): SubSystemResult {
+  const itemData = data.itemData[itemId]
+  if (!itemData) {
+    return { state, messages: ["You don't have that."] }
+  }
+
+  const inv = state.protagonist.inventory
+  const inInventory = [
+    ...inv.weapons,
+    ...inv.gadgets,
+    ...inv.small,
+    inv.special,
+  ].includes(itemId)
+  if (!inInventory) {
+    return { state, messages: ["You don't have that."] }
+  }
+
+  const itemState = state.itemStates[itemId] ?? { id: itemId, used: false, broken: false }
+  if (itemState.used) {
+    return { state, messages: [`${itemData.label} is already spent.`] }
+  }
+
+  if (!itemData.effect) {
+    return { state, messages: [`You fiddle with ${itemData.label} but nothing happens.`] }
+  }
+
+  const { effect } = itemData
+  const spentItemStates = {
+    ...state.itemStates,
+    [itemId]: { ...itemState, used: true },
+  }
+
+  if (effect.type === 'heal') {
+    return {
+      state: {
+        ...state,
+        protagonist: { ...state.protagonist, health: state.protagonist.health + effect.amount },
+        itemStates: spentItemStates,
+      },
+      messages: [`You use ${itemData.label} and recover ${effect.amount} health.`],
+    }
+  }
+
+  if (effect.type === 'set_room_flag') {
+    const roomId = state.protagonist.currentRoom
+    const roomState = state.roomStates[roomId]
+    if (!roomState) {
+      return { state, messages: ["You can't use that here."] }
+    }
+    return {
+      state: {
+        ...state,
+        roomStates: {
+          ...state.roomStates,
+          [roomId]: { ...roomState, flags: { ...roomState.flags, [effect.flag]: true } },
+        },
+        itemStates: spentItemStates,
+      },
+      messages: [`You use ${itemData.label}.`],
+    }
+  }
+
+  return {
+    state: {
+      ...state,
+      flags: { ...state.flags, [effect.flag]: true },
+      itemStates: spentItemStates,
+    },
+    messages: [`You use ${itemData.label}.`],
+  }
+}

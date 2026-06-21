@@ -85,7 +85,7 @@ All rooms, items, enemies, and dialogue are defined in JSON — not hardcoded in
 - **ESLint** with `@typescript-eslint` plugin — linting
 - **TypeScript strict mode** — `"strict": true` in tsconfig
 - **Vitest** — unit testing (natural fit with Vite)
-- **Git on main** — solo project, no feature branches unless needed
+- **Feature branches + PRs** — all changes go on a branch and are merged via pull request; never commit directly to main
 
 ## Testing
 
@@ -110,4 +110,4 @@ Full data models (Protagonist, Room, Item, Enemy, GameState, GameData) and engin
 
 ## Status
 
-Planning phase. No code written yet.
+Engine complete. Renderer and mission data remain.

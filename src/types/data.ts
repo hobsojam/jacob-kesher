@@ -41,11 +41,17 @@ export type ItemType =
   | 'document'
   | 'consumable'
 
+export type ItemEffect =
+  | { type: 'heal'; amount: number }
+  | { type: 'set_room_flag'; flag: string }
+  | { type: 'set_global_flag'; flag: string }
+
 export interface ItemData {
   id: string
   label: string
   description: string
   type: ItemType
+  effect?: ItemEffect
 }
 
 export type EnemyType =
