@@ -104,6 +104,10 @@ _To be decided — somewhere between campy Bond and grittier Cold War thriller._
 
 Full data models (Protagonist, Room, Item, Enemy, GameState, GameData) and engine architecture (processAction pipeline, sub-systems, Action union) are documented in @architecture.md
 
+## Key Invariants
+
+- An enemy with no `EnemyState` entry is considered **active** (default state). Only skip enemies that explicitly have `status !== 'active'` in state. Check `enemyState && enemyState.status !== 'active'`, never `!enemyState || enemyState.status !== 'active'`.
+
 ## Status
 
 Planning phase. No code written yet.
