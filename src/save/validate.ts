@@ -1,5 +1,3 @@
-import type { GameState } from '../types/state'
-
 export interface ValidationResult {
   ok: boolean
   errors: string[]
