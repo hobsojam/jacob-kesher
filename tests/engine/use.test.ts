@@ -270,3 +270,49 @@ describe('handleUse — edge cases', () => {
     expect(result.state.flags['cameras_disabled']).toBe(true)
   })
 })
+
+describe('handleUse — set_global_flag_if', () => {
+  const conditionalItem: ItemData = {
+    id: 'cipher_docs',
+    label: 'cipher documents',
+    description: 'Sensitive papers.',
+    type: 'document',
+    effect: {
+      type: 'set_global_flag_if',
+      condition: 'cipher_photographed',
+      flag: 'mission_complete',
+      else_flag: 'mission_failed',
+    },
+  }
+
+  const stateWithItem = makeState({
+    protagonist: {
+      ...makeState().protagonist,
+      inventory: { ...emptyInventory(), small: ['cipher_docs', null, null] },
+    },
+  })
+  const data = makeData([conditionalItem])
+
+  it('sets the success flag when condition is true', () => {
+    const state = { ...stateWithItem, flags: { cipher_photographed: true } }
+    const result = handleUse('cipher_docs', state, data)
+
+    expect(result.state.flags['mission_complete']).toBe(true)
+    expect(result.state.flags['mission_failed']).toBeFalsy()
+  })
+
+  it('sets the failure flag when condition is false', () => {
+    const result = handleUse('cipher_docs', stateWithItem, data)
+
+    expect(result.state.flags['mission_failed']).toBe(true)
+    expect(result.state.flags['mission_complete']).toBeFalsy()
+  })
+
+  it('does not set mission_complete via the set_global_flag fallthrough', () => {
+    // Regression: previously the fallthrough read effect.flag unconditionally,
+    // which would always set 'mission_complete' regardless of the condition.
+    const result = handleUse('cipher_docs', stateWithItem, data)
+
+    expect(result.state.flags['mission_complete']).toBeFalsy()
+  })
+})
