@@ -21,7 +21,7 @@ export const ACTION_COSTS: Record<string, number> = {
   examine:          1,
   search:           4,
   use:              1,
-  attack:           2,
+  attack:           1,
   stealth_takedown: 1,
   flee:             1,
   loot:             1,
