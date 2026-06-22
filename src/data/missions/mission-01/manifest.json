@@ -1,0 +1,21 @@
+{
+  "id": "mission-01",
+  "title": "The Lair",
+  "description": "Infiltrate the villain's research facility and extract the data.",
+  "startingRoomId": "entrance_hall",
+  "missionDeadline": 120,
+  "protagonist": {
+    "health": 10,
+    "stats": { "strength": 5, "agility": 5, "intelligence": 5, "charisma": 5 },
+    "skills": [
+      { "id": "hand_to_hand", "label": "Hand to Hand", "level": 2 },
+      { "id": "evasion", "label": "Evasion", "level": 1 }
+    ],
+    "inventory": {
+      "weapons": [null, null],
+      "gadgets": [null, null],
+      "small": [null, null, null],
+      "special": null
+    }
+  }
+}

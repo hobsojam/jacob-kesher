@@ -1,2 +1,23 @@
-const app = document.getElementById('app')!
-app.textContent = 'Jacob Kesher — loading...'
+import './style.css'
+import { buildGameData, initGameState } from './data/loader'
+import { startGame } from './renderer/index'
+
+import type { EnemyTemplate, ItemData } from './types/data'
+import type { MissionManifest } from './types/mission'
+
+import mapRaw from './data/missions/mission-01/map.json'
+import itemsRaw from './data/missions/mission-01/items.json'
+import enemiesRaw from './data/missions/mission-01/enemies.json'
+import manifestRaw from './data/missions/mission-01/manifest.json'
+import templatesRaw from './data/templates.json'
+
+const data = buildGameData(
+  mapRaw.rooms,
+  itemsRaw.items as ItemData[],
+  enemiesRaw.enemies,
+  templatesRaw.templates as EnemyTemplate[],
+)
+
+const state = initGameState(manifestRaw as MissionManifest, data)
+
+startGame(data, state)

@@ -1,0 +1,119 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0d0d0d;
+  color: #c8c8b4;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+/* HUD */
+#hud {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.hud-health { color: #c04040; }
+
+.hud-alarm { font-weight: bold; }
+.hud-alarm--undetected  { color: #4a9a4a; }
+.hud-alarm--suspicious  { color: #a0904a; }
+.hud-alarm--searching   { color: #c07830; }
+.hud-alarm--alert       { color: #c04040; }
+.hud-alarm--lockdown    { color: #ff2020; }
+
+.hud-time { margin-left: auto; color: #505050; }
+
+/* Narrative */
+#narrative {
+  flex: 1;
+  overflow-y: auto;
+  line-height: 1.7;
+  padding-right: 0.5rem;
+}
+
+#narrative p { margin-bottom: 0.4rem; }
+#narrative p.room-title { color: #e8e8d0; font-size: 15px; margin-bottom: 0.1rem; }
+#narrative p.separator  { color: #303030; margin: 0.6rem 0; }
+
+/* Actions */
+#actions {
+  border-top: 1px solid #2a2a2a;
+  padding: 0.75rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.action-group {
+  display: contents;
+}
+
+.action-sep {
+  width: 100%;
+  height: 0;
+}
+
+button {
+  background: #141414;
+  border: 1px solid #383838;
+  color: #b8b8a4;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 0.3rem 0.7rem;
+}
+
+button:hover:not(:disabled) {
+  background: #1e1e1e;
+  border-color: #585848;
+  color: #d8d8c4;
+}
+
+button:disabled {
+  color: #383830;
+  border-color: #222;
+  cursor: not-allowed;
+}
+
+button.btn-move     { border-color: #284860; }
+button.btn-move:hover:not(:disabled) { background: #10202c; }
+
+button.btn-combat   { border-color: #602828; }
+button.btn-combat:hover:not(:disabled) { background: #2c1010; }
+
+button.btn-take     { border-color: #485828; }
+button.btn-take:hover:not(:disabled) { background: #1c2410; }
+
+button.btn-examine  { border-color: #486048; }
+button.btn-examine:hover:not(:disabled) { background: #182418; }
+
+button.btn-inventory { border-color: #484828; }
+button.btn-inventory:hover:not(:disabled) { background: #1c1c10; }
+
+button.btn-misc     { border-color: #383838; }
