@@ -249,7 +249,7 @@ function attackStat(
   skills: Skill[],
 ): number {
   if (mode === 'ranged') return stats.agility + skillLevel(skills, 'marksmanship')
-  return stats.strength + skillLevel(skills, 'hand_to_hand')
+  return stats.strength + skillLevel(skills, 'pugilism')
 }
 
 function skillLevel(skills: Skill[], id: string): number {

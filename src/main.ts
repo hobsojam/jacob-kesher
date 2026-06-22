@@ -1,6 +1,7 @@
 import './style.css'
 import { buildGameData, initGameState } from './data/loader'
 import { startGame } from './renderer/index'
+import { showCharGen } from './renderer/chargen'
 
 import type { EnemyTemplate, ItemData, RoomData } from './types/data'
 import type { MissionManifest } from './types/mission'
@@ -21,4 +22,4 @@ const data = buildGameData(
 
 const state = initGameState(manifestRaw as MissionManifest, data)
 
-startGame(data, state)
+showCharGen(data, state, (finalState) => startGame(data, finalState))

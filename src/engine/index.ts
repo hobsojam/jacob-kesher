@@ -37,11 +37,14 @@ export function processAction(
   // Movement triggers a proximity check: nearby guards may hear Jacob enter
   let afterProximity = result.state
   if (moved) {
+    const covertLevel = result.state.protagonist.skills?.find((sk) => sk.id === 'covert')?.level ?? 0
     const { state: s, messages: m } = checkDetection(
       'quiet',
       result.state.protagonist.currentRoom,
       result.state,
       data,
+      undefined,
+      covertLevel,
     )
     afterProximity = s
     messages.push(...m)

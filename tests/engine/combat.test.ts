@@ -196,7 +196,7 @@ describe('handleAttack', () => {
       protagonist: {
         ...makeState().protagonist,
         stats: { strength: 0, agility: 5, intelligence: 5, charisma: 5 },
-        skills: [{ id: 'hand_to_hand', label: 'Hand to Hand', level: 5 }],
+        skills: [{ id: 'pugilism', label: 'Pugilism', level: 5 }],
       },
     })
     // With strength 0 + skill 5 + roll 1 = 6 vs enemy defence 10+3=13 → miss

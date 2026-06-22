@@ -10,7 +10,7 @@ export interface MissionManifest {
   protagonist: {
     health: number
     stats: { strength: number; agility: number; intelligence: number; charisma: number }
-    skills: Skill[]
+    skills?: Skill[]
     inventory: Inventory
   }
 }

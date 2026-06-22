@@ -1,9 +1,12 @@
 export type SkillId =
-  | 'hand_to_hand'
-  | 'evasion'
+  | 'pugilism'
   | 'marksmanship'
-  | 'persuasion'
-  | 'lock_picking'
+  | 'evasion'
+  | 'safecracking'
+  | 'covert'
+  | 'signals'
+  | 'disguise'
+  | 'acrobatics'
 
 export interface Skill {
   id: SkillId
