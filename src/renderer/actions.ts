@@ -19,13 +19,18 @@ export function computeActions(state: GameState, data: GameData): ActionButton[]
 
   if (!room || !roomState) return []
 
+  const activeEnemyPresent = enemiesInRoom(currentRoom, state, data).some((id) => {
+    const es = state.enemyStates[id]
+    return !es || es.status === 'active'
+  })
+
   return [
     ...moveButtons(room, roomState, state, data),
     ...takeButtons(roomState, data),
     ...examineButtons(room),
     ...enemyButtons(currentRoom, state, data),
     ...inventoryButtons(state, data),
-    ...miscButtons(previousRoomId),
+    ...miscButtons(previousRoomId, activeEnemyPresent),
   ]
 }
 
@@ -130,12 +135,12 @@ function inventoryButtons(state: GameState, data: GameData): ActionButton[] {
   })
 }
 
-function miscButtons(previousRoomId: string | null): ActionButton[] {
+function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean): ActionButton[] {
   const buttons: ActionButton[] = [
     { label: 'Search room', action: { type: 'search' }, category: 'misc' },
     { label: 'Look around', action: { type: 'look' }, category: 'misc' },
   ]
-  if (previousRoomId) {
+  if (activeEnemyPresent && previousRoomId) {
     buttons.push({ label: 'Flee!', action: { type: 'flee' }, category: 'misc' })
   }
   return buttons
