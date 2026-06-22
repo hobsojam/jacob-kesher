@@ -6,7 +6,7 @@ import { ACTION_COSTS } from '../constants'
 import { handleMove } from './movement'
 import { handleTake, handleDrop, handleLoot } from './inventory'
 import { handleSearch } from './search'
-import { handleAttack, handleStealthTakedown, handleFlee } from './combat'
+import { handleAttack, handleStealthTakedown, handleFlee, guardAmbush } from './combat'
 import { handleExamine } from './examine'
 import { handleLook } from './look'
 import { handleUse } from './use'
@@ -26,12 +26,20 @@ export function processAction(
   const result = dispatch(action, state, data)
   const messages = [...result.messages]
 
+  // Alert guards in the destination room get a free attack when Jacob walks in
+  let postMove = result.state
+  if (action.type === 'move' && postMove.protagonist.currentRoom !== state.protagonist.currentRoom) {
+    const { state: ambushed, messages: ambushMsgs } = guardAmbush(postMove, data)
+    postMove = ambushed
+    messages.push(...ambushMsgs)
+  }
+
   const noised = result.noise
     ? {
-        ...result.state,
-        enemyStates: applyNoise(result.noise, result.state.protagonist.currentRoom, result.state, data),
+        ...postMove,
+        enemyStates: applyNoise(result.noise, postMove.protagonist.currentRoom, postMove, data),
       }
-    : result.state
+    : postMove
 
   const advanced = advanceTime(action.type, noised, result.timeCost)
 
@@ -121,3 +129,4 @@ function checkDeadlines(state: GameState): {
   }
   return { state }
 }
+

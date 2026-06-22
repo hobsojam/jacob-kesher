@@ -1,6 +1,7 @@
-import type { GameData } from '../types/data'
+import type { EnemyTemplate, GameData } from '../types/data'
 import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
+import { guardPosition } from './patrol'
 
 type WeaponMode = 'unarmed' | 'melee' | 'ranged'
 
@@ -67,15 +68,9 @@ export function handleAttack(
   }
 
   if (enemyStillStanding) {
-    const enemyAttack = roll() + template.stats.strength
-    const jacobDefence =
-      10 +
-      state.protagonist.stats.agility +
-      skillLevel(state.protagonist.skills, 'evasion')
-
-    messages.push(`${enemy.name} retaliates. (${enemyAttack} vs defence ${jacobDefence})`)
-
-    if (enemyAttack >= jacobDefence) {
+    const { hit, attackRoll, defence } = resolveEnemyAttack(template, state.protagonist, roll)
+    messages.push(`${enemy.name} retaliates. (${attackRoll} vs defence ${defence})`)
+    if (hit) {
       protagonistHealth -= 1
       messages.push(`You are hit! (${protagonistHealth} health remaining)`)
     } else {
@@ -165,7 +160,54 @@ export function handleFlee(state: GameState, _data: GameData): SubSystemResult {
   }
 }
 
-// --- helpers ---
+// --- exported helpers ---
+
+function resolveEnemyAttack(
+  template: EnemyTemplate,
+  protagonist: GameState['protagonist'],
+  roll: () => number = defaultRoll,
+): { hit: boolean; attackRoll: number; defence: number } {
+  const attackRoll = roll() + template.stats.strength
+  const defence = 10 + protagonist.stats.agility + skillLevel(protagonist.skills, 'evasion')
+  return { hit: attackRoll >= defence, attackRoll, defence }
+}
+
+export function guardAmbush(
+  state: GameState,
+  data: GameData,
+  roll: () => number = defaultRoll,
+): { state: GameState; messages: string[] } {
+  const roomId = state.protagonist.currentRoom
+  const messages: string[] = []
+  let s = state
+
+  for (const enemy of Object.values(data.enemyData)) {
+    const es = s.enemyStates[enemy.id]
+    if (es && es.status !== 'active') continue
+    if ((es?.awareness ?? 'unaware') !== 'alert') continue
+
+    const guardRoom = enemy.patrol ? guardPosition(enemy.patrol, s.time.elapsed) : enemy.roomId
+    if (guardRoom !== roomId) continue
+
+    const template = data.enemyTemplates[enemy.templateId]
+    if (!template) continue
+
+    messages.push(`${enemy.name} spots you and attacks!`)
+
+    const { hit, attackRoll, defence } = resolveEnemyAttack(template, s.protagonist, roll)
+    if (hit) {
+      const health = s.protagonist.health - 1
+      s = { ...s, protagonist: { ...s.protagonist, health } }
+      messages.push(`You are hit! (${health} health remaining)`)
+    } else {
+      messages.push(`The blow misses. (${attackRoll} vs defence ${defence})`)
+    }
+  }
+
+  return { state: s, messages }
+}
+
+// --- private helpers ---
 
 function determineWeapon(
   inventory: Inventory,
