@@ -55,6 +55,7 @@ export interface ItemData {
   description: string
   type: ItemType
   effect?: ItemEffect
+  usableOn?: string[]    // ExamineTarget IDs this item can be used on in the same room
 }
 
 export type EnemyType =

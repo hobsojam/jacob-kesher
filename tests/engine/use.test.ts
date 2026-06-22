@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { handleUse } from '../../src/engine/use'
 import type { ItemData } from '../../src/types/data'
-import { emptyInventory, makeRoomState, makeState, makeItemsData } from '../helpers'
+import { emptyInventory, makeRoom, makeRoomState, makeState, makeGameData, makeItemsData } from '../helpers'
 
 const makeData = makeItemsData
 
@@ -147,6 +147,65 @@ describe('handleUse — keycard', () => {
     const second = handleUse('keycard', first.state, data)
 
     expect(second.messages[0]).not.toMatch(/already spent/i)
+  })
+})
+
+describe('handleUse — usableOn (targeted use)', () => {
+  const targetedKeycard = {
+    id: 'tk',
+    label: 'Security Keycard',
+    description: 'Opens the stairwell.',
+    type: 'keycard' as const,
+    usableOn: ['reader'],
+    effect: { type: 'set_room_flag' as const, flag: 'stairwell_unlocked' },
+  }
+
+  const roomWithReader = makeRoom({
+    id: 'room_a',
+    examineTargets: [{ id: 'reader', label: 'the keycard reader', description: '' }],
+  })
+
+  const targetedData = makeGameData({
+    roomIndex: { room_a: roomWithReader },
+    itemData: { tk: targetedKeycard },
+  })
+
+  function stateWithKeycard() {
+    return makeState({
+      protagonist: { ...makeState().protagonist, inventory: { ...emptyInventory(), small: ['tk', null, null] } },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
+    })
+  }
+
+  it('requires targetId when usableOn is set', () => {
+    const result = handleUse('tk', stateWithKeycard(), targetedData)
+    expect(result.messages[0]).toMatch(/on what/i)
+  })
+
+  it('applies effect when used on the correct target', () => {
+    const result = handleUse('tk', stateWithKeycard(), targetedData, 'reader')
+    expect(result.state.roomStates['room_a'].flags['stairwell_unlocked']).toBe(true)
+  })
+
+  it('rejects use on a target not in usableOn', () => {
+    const result = handleUse('tk', stateWithKeycard(), targetedData, 'wrong_target')
+    expect(result.messages[0]).toMatch(/can't use/i)
+  })
+
+  it('rejects when target is not in current room', () => {
+    const dataNoReader = makeGameData({
+      roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
+      itemData: { tk: targetedKeycard },
+    })
+    const result = handleUse('tk', stateWithKeycard(), dataNoReader, 'reader')
+    expect(result.messages[0]).toMatch(/isn't here/i)
+  })
+
+  it('does not consume a keycard after targeted use', () => {
+    const state = stateWithKeycard()
+    handleUse('tk', state, targetedData, 'reader')
+    const result2 = handleUse('tk', state, targetedData, 'reader')
+    expect(result2.messages[0]).not.toMatch(/already spent/i)
   })
 })
 
