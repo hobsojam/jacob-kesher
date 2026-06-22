@@ -1,5 +1,12 @@
+export type SkillId =
+  | 'hand_to_hand'
+  | 'evasion'
+  | 'marksmanship'
+  | 'persuasion'
+  | 'lock_picking'
+
 export interface Skill {
-  id: string
+  id: SkillId
   label: string
   level: number
 }

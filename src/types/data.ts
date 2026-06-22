@@ -1,9 +1,11 @@
+import type { SkillId } from './state'
+
 export interface Exit {
   destinationId: string
   label: string
   requires?: {
     itemId?: string
-    skillId?: string
+    skillId?: SkillId
     skillLevel?: number
     flag?: string
   }
