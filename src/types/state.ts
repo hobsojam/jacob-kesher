@@ -22,6 +22,7 @@ export interface Protagonist {
   currentRoom: string
   previousRoomId: string | null
   health: number
+  maxHealth: number
   stats: {
     strength: number
     agility: number

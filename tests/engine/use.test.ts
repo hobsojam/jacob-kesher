@@ -37,6 +37,20 @@ const plainGadget: ItemData = {
 }
 
 describe('handleUse — heal', () => {
+  it('does not heal above maxHealth', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        health: 9,
+        maxHealth: 10,
+        inventory: { ...emptyInventory(), small: ['health_kit', null, null] },
+      },
+    })
+    const result = handleUse('health_kit', state, makeData([healthKit]))
+
+    expect(result.state.protagonist.health).toBe(10)
+  })
+
   it('restores health and marks item used', () => {
     const state = makeState({
       protagonist: {

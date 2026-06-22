@@ -57,10 +57,11 @@ export function handleUse(
     : state.itemStates
 
   if (effect.type === 'heal') {
+    const health = Math.min(state.protagonist.health + effect.amount, state.protagonist.maxHealth)
     return {
       state: {
         ...state,
-        protagonist: { ...state.protagonist, health: state.protagonist.health + effect.amount },
+        protagonist: { ...state.protagonist, health },
         itemStates: spentItemStates,
       },
       messages: [`You use ${itemData.label} and recover ${effect.amount} health.`],
