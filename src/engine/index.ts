@@ -10,6 +10,7 @@ import { handleAttack, handleStealthTakedown, handleFlee } from './combat'
 import { handleExamine } from './examine'
 import { handleLook } from './look'
 import { handleUse } from './use'
+import { handleInteract } from './interact'
 import { applyNoise } from './alarm'
 
 export interface EngineResult {
@@ -71,6 +72,8 @@ function dispatch(
       return handleLook(state, data)
     case 'use':
       return handleUse(action.itemId, state, data)
+    case 'interact':
+      return handleInteract(action.targetId, state, data)
   }
 }
 
@@ -118,6 +121,9 @@ function checkDeadlines(state: GameState): {
   }
   if (state.protagonist.health <= 0) {
     return { state, gameOver: 'dead' }
+  }
+  if (state.flags['mission_complete']) {
+    return { state, gameOver: 'success' }
   }
   return { state }
 }
