@@ -4,6 +4,8 @@ import { processAction } from '../engine/index'
 import { renderHud } from './hud'
 import { currentRoomLines } from './room'
 import { computeActions } from './actions'
+import { saveGame } from '../save/save'
+import { loadGame } from '../save/load'
 
 function carriedItems(inventory: GameState['protagonist']['inventory']): string[] {
   return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special]
@@ -80,21 +82,44 @@ function render(): void {
   const actionsEl = document.getElementById('actions')!
   actionsEl.innerHTML = ''
 
-  if (gameOver) return
-
-  const buttons = computeActions(currentState, gameData)
-  for (const btn of buttons) {
-    const el = document.createElement('button')
-    el.textContent = btn.label
-    el.className = `btn-${btn.category}`
-    if (btn.disabled) {
-      el.disabled = true
-      if (btn.disabledReason) el.title = btn.disabledReason
-    } else {
-      el.addEventListener('click', () => dispatch(btn.action))
+  if (!gameOver) {
+    const buttons = computeActions(currentState, gameData)
+    for (const btn of buttons) {
+      const el = document.createElement('button')
+      el.textContent = btn.label
+      el.className = `btn-${btn.category}`
+      if (btn.disabled) {
+        el.disabled = true
+        if (btn.disabledReason) el.title = btn.disabledReason
+      } else {
+        el.addEventListener('click', () => dispatch(btn.action))
+      }
+      actionsEl.appendChild(el)
     }
-    actionsEl.appendChild(el)
   }
+
+  renderSaveLoad(actionsEl)
+}
+
+function renderSaveLoad(container: HTMLElement): void {
+  const saveBtn = document.createElement('button')
+  saveBtn.textContent = 'Save game'
+  saveBtn.className = 'btn-misc'
+  saveBtn.addEventListener('click', () => saveGame(currentState))
+  container.appendChild(saveBtn)
+
+  const loadBtn = document.createElement('button')
+  loadBtn.textContent = 'Load game'
+  loadBtn.className = 'btn-misc'
+  loadBtn.addEventListener('click', () =>
+    loadGame((loaded) => {
+      currentState = loaded
+      gameOver = false
+      appendMessages(['Game loaded.'])
+      render()
+    }),
+  )
+  container.appendChild(loadBtn)
 }
 
 function dispatch(action: Parameters<typeof processAction>[0]): void {
