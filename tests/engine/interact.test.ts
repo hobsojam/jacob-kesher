@@ -147,7 +147,7 @@ describe('handleInteract — interactRequires skill', () => {
         label: 'the drawer',
         description: 'A locked drawer.',
         interactLabel: 'Pick the lock',
-        interactRequires: { skillId: 'lock_picking', skillLevel: 2 },
+        interactRequires: { skillId: 'safecracking', skillLevel: 2 },
         effect: [{ type: 'set_room_flag', flag: 'drawer_unlocked' }],
       },
     ],
@@ -158,28 +158,28 @@ describe('handleInteract — interactRequires skill', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 1 }],
+        skills: [{ id: 'safecracking', label: 'Safecracking', level: 1 }],
       },
       roomStates: { room_a: makeRoomState() },
     })
     const result = handleInteract('drawer', state, drawerData)
 
     expect(result.state.roomStates['room_a']?.flags['drawer_unlocked']).toBeFalsy()
-    expect(result.messages[0]).toMatch(/lock picking.*high enough/i)
+    expect(result.messages[0]).toMatch(/safecracking.*high enough/i)
   })
 
   it('blocks when the skill is absent entirely', () => {
     const state = makeState({ roomStates: { room_a: makeRoomState() } })
     const result = handleInteract('drawer', state, drawerData)
 
-    expect(result.messages[0]).toMatch(/lock picking.*high enough/i)
+    expect(result.messages[0]).toMatch(/safecracking.*high enough/i)
   })
 
   it('allows the interact when the skill level meets the threshold', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 2 }],
+        skills: [{ id: 'safecracking', label: 'Safecracking', level: 2 }],
       },
       roomStates: { room_a: makeRoomState() },
     })
@@ -192,7 +192,7 @@ describe('handleInteract — interactRequires skill', () => {
     const state = makeState({
       protagonist: {
         ...makeState().protagonist,
-        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 5 }],
+        skills: [{ id: 'safecracking', label: 'Safecracking', level: 5 }],
       },
       roomStates: { room_a: makeRoomState() },
     })
