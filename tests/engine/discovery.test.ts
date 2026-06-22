@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { checkDiscoveries } from '../../src/engine/discovery'
 import { makeState, makeGameData } from '../helpers'
 import type { EnemyData, EnemyTemplate } from '../../src/types/data'
@@ -38,6 +38,25 @@ function withEnemies(enemyData: Record<string, EnemyData>, enemyStates: Record<s
     state: makeState({ enemyStates }),
   }
 }
+
+describe('checkDiscoveries — alarm already raised', () => {
+  it('returns immediately without rolling dice', () => {
+    const roll = vi.fn(() => 0)  // would always trigger if called
+    const { data } = withEnemies(
+      { g1: guard },
+      { g1: { id: 'g1', status: 'unconscious', inventory: [] } },
+    )
+    const state = makeState({
+      flags: { alarm_raised: true },
+      enemyStates: { g1: { id: 'g1', status: 'unconscious', inventory: [] } },
+    })
+    const result = checkDiscoveries(state, data, roll)
+
+    expect(roll).not.toHaveBeenCalled()
+    expect(result.state).toBe(state)
+    expect(result.messages).toHaveLength(0)
+  })
+})
 
 describe('checkDiscoveries — no trigger', () => {
   it('returns unchanged state when no enemies are downed', () => {

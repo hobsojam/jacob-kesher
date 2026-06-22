@@ -6,6 +6,8 @@ export function checkDiscoveries(
   data: GameData,
   roll: () => number = Math.random,
 ): { state: GameState; messages: string[] } {
+  if (state.flags['alarm_raised']) return { state, messages: [] }
+
   const found: string[] = []
 
   for (const [id, enemyState] of Object.entries(state.enemyStates)) {
@@ -22,7 +24,6 @@ export function checkDiscoveries(
     }
   }
 
-  if (state.flags['alarm_raised']) return { state, messages: [] }
   if (found.length === 0) return { state, messages: [] }
 
   const updatedEnemyStates = { ...state.enemyStates }
