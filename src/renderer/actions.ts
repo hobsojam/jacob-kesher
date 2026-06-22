@@ -92,9 +92,11 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
     if (!enemy) continue
 
     if (!enemyState || enemyState.status === 'active') {
-      buttons.push({ label: `Attack ${enemy.name}`, action: { type: 'attack', enemyId }, category: 'combat' })
-      buttons.push({ label: `Take down ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' })
-      buttons.push({ label: `Eliminate ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' })
+      buttons.push(
+        { label: `Attack ${enemy.name}`, action: { type: 'attack', enemyId }, category: 'combat' },
+        { label: `Take down ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
+        { label: `Eliminate ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
+      )
     } else {
       buttons.push(...lootButtons(enemyId, enemy.name, enemyState.inventory, data))
     }
