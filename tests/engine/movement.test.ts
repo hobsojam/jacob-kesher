@@ -136,7 +136,7 @@ describe('handleMove', () => {
     const data = makeData([
       makeRoom({
         id: 'room_a',
-        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'climbing', skillLevel: 5 } }],
+        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'evasion', skillLevel: 5 } }],
       }),
       makeRoom({ id: 'room_b' }),
     ])
@@ -149,12 +149,12 @@ describe('handleMove', () => {
     const data = makeData([
       makeRoom({
         id: 'room_a',
-        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'climbing', skillLevel: 5 } }],
+        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'evasion', skillLevel: 5 } }],
       }),
       makeRoom({ id: 'room_b' }),
     ])
     const state = makeState()
-    state.protagonist.skills = [{ id: 'climbing', label: 'Climbing', level: 5 }]
+    state.protagonist.skills = [{ id: 'evasion', label: 'Evasion', level: 5 }]
     const result = handleMove('climb the shaft', state, data)
 
     expect(result.state.protagonist.currentRoom).toBe('room_b')
