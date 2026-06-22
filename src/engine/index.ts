@@ -96,7 +96,7 @@ function wakeEnemies(
       enemyState.unconsciousUntil !== undefined &&
       state.time.elapsed >= enemyState.unconsciousUntil
     ) {
-      updatedEnemyStates[id] = { ...enemyState, status: 'active', unconsciousUntil: undefined }
+      updatedEnemyStates[id] = { ...enemyState, status: 'active', unconsciousUntil: undefined, awareness: 'alert' }
       const name = data.enemyData[id]?.name ?? 'Someone'
       messages.push(`${name} regains consciousness.`)
       changed = true
