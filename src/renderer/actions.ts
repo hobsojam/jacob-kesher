@@ -100,9 +100,9 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
     const displayName = enemyDisplayName(enemy, data)
     if (!enemyState || enemyState.status === 'active') {
       buttons.push(
-        { label: `Attack ${displayName}`, action: { type: 'attack', enemyId }, category: 'combat' },
-        { label: `Take down ${displayName}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
-        { label: `Eliminate ${displayName}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
+        { label: `Attack ${displayName}`,         action: { type: 'attack', enemyId }, category: 'combat' },
+        { label: `Knock out ${displayName}`,       action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
+        { label: `Kill ${displayName} (silent)`,   action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
       )
     } else {
       buttons.push(...lootButtons(enemyId, displayName, enemyState.inventory, data))

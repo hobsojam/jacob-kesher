@@ -36,11 +36,20 @@ export function currentRoomLines(state: GameState, data: GameData): string[] {
     const enemy = data.enemyData[enemyId]
     const enemyState = state.enemyStates[enemyId]
     if (!enemy) continue
+    const isActive = !enemyState || enemyState.status === 'active'
     const suffix = enemyStatusSuffix(enemyState?.status)
-    lines.push(`${enemyDisplayName(enemy, data)} is here${suffix}.`)
+    const who = cap(enemyDisplayName(enemy, data))
+    const line = isActive && enemy.description
+      ? `${who} is here. ${enemy.description}`
+      : `${who} is here${suffix}.`
+    lines.push(line)
   }
 
   return lines
+}
+
+function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 function enemyStatusSuffix(status: string | undefined): string {
