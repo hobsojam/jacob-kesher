@@ -29,14 +29,16 @@ export function handleMove(
     const { itemId, skillId, skillLevel, flag } = exit.requires
 
     if (itemId && !inventoryContains(state.protagonist.inventory, itemId)) {
-      return { state, messages: ['You need something to use this exit.'] }
+      const label = data.itemData[itemId]?.label ?? itemId
+      return { state, messages: [`You need the ${label} to use this exit.`] }
     }
 
     if (skillId) {
       const skill = state.protagonist.skills.find((s) => s.id === skillId)
       const requiredLevel = skillLevel ?? 1
       if (!skill || skill.level < requiredLevel) {
-        return { state, messages: ["You don't have the skill to use this exit."] }
+        const skillLabel = skill?.label ?? skillId
+        return { state, messages: [`Your ${skillLabel} isn't high enough (level ${requiredLevel} required).`] }
       }
     }
 

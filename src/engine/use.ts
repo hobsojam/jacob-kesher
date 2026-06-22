@@ -99,13 +99,17 @@ export function handleUse(
     }
   }
 
-  // set_global_flag
-  return {
-    state: {
-      ...state,
-      flags: { ...state.flags, [effect.flag]: true },
-      itemStates: spentItemStates,
-    },
-    messages: [`You use ${itemData.label}.`],
+  if (effect.type === 'set_global_flag') {
+    return {
+      state: {
+        ...state,
+        flags: { ...state.flags, [effect.flag]: true },
+        itemStates: spentItemStates,
+      },
+      messages: [`You use ${itemData.label}.`],
+    }
   }
+
+  effect satisfies never
+  return { state, messages: [`You fiddle with ${itemData.label} but nothing happens.`] }
 }
