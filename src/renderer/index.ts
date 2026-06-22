@@ -52,16 +52,22 @@ function render(): void {
 }
 
 function dispatch(action: Parameters<typeof processAction>[0]): void {
+  if (action.type === 'look') {
+    // 'Look around' is a pure UI refresh — reads directly from currentState,
+    // never touches engine state. This guarantees an accurate view of all
+    // action conditionals regardless of how state was last modified.
+    appendSeparator()
+    appendMessages(currentRoomLines(currentState, gameData), true)
+    render()
+    return
+  }
+
   const roomBefore = currentState.protagonist.currentRoom
   const result = processAction(action, currentState, gameData)
   currentState = result.state
-
   const movedRoom = action.type === 'move' && currentState.protagonist.currentRoom !== roomBefore
 
-  if (action.type === 'look' || movedRoom) {
-    // currentRoomLines is authoritative: includes items and enemies.
-    // The engine's result.messages for these actions is just the base room
-    // description — showing both would duplicate it.
+  if (movedRoom) {
     appendSeparator()
     appendMessages(currentRoomLines(currentState, gameData), true)
   } else {
