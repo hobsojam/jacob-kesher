@@ -1,6 +1,12 @@
 import type { ItemEffect, GameData } from '../types/data'
-import type { GameState } from '../types/state'
+import type { GameState, Inventory } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
+
+function hasItem(itemId: string, inv: Inventory): boolean {
+  return ([...inv.weapons, ...inv.gadgets, ...inv.small, inv.special] as (string | null)[]).includes(
+    itemId,
+  )
+}
 
 export function handleInteract(
   targetId: string,
@@ -14,6 +20,22 @@ export function handleInteract(
   const target = room.examineTargets.find((t) => t.id === targetId)
   if (!target || !target.effect || target.effect.length === 0) {
     return { state, messages: ['Nothing happens.'] }
+  }
+
+  if (target.interactRequires) {
+    const req = target.interactRequires
+    if (req.itemId && !hasItem(req.itemId, state.protagonist.inventory)) {
+      const label = data.itemData[req.itemId]?.label ?? req.itemId
+      return { state, messages: [`You need the ${label.toLowerCase()} to do that.`] }
+    }
+    if (req.skillId !== undefined) {
+      const have = state.protagonist.skills.find((s) => s.id === req.skillId)?.level ?? 0
+      const need = req.skillLevel ?? 1
+      if (have < need) {
+        const skillLabel = req.skillId.replace(/_/g, ' ')
+        return { state, messages: [`Your ${skillLabel} isn't high enough.`] }
+      }
+    }
   }
 
   let next = state

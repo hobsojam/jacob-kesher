@@ -7,7 +7,8 @@
       "detectionRadius": 1,
       "canBeBluffed": false,
       "canBeDisguised": false,
-      "wakeAfterTurns": 15
+      "wakeAfterTurns": 15,
+      "discoveryRisk": 0.1
     },
     {
       "id": "henchman",
