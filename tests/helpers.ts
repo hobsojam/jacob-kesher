@@ -33,6 +33,7 @@ export const makeState = (partial: Partial<GameState> = {}): GameState => ({
     currentRoom: 'room_a',
     previousRoomId: null,
     health: 10,
+    maxHealth: 10,
     stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
     skills: [],
     inventory: emptyInventory(),

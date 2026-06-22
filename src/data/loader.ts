@@ -34,6 +34,7 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
       currentRoom:    manifest.startingRoomId,
       previousRoomId: null,
       health:         manifest.protagonist.health,
+      maxHealth:      manifest.protagonist.health,
       stats:          manifest.protagonist.stats,
       skills:         manifest.protagonist.skills,
       inventory:      manifest.protagonist.inventory,

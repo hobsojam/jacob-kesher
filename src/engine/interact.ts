@@ -53,7 +53,7 @@ function applyEffect(effect: ItemEffect, state: GameState, messages: string[]): 
   const roomId = state.protagonist.currentRoom
 
   if (effect.type === 'heal') {
-    const health = state.protagonist.health + effect.amount
+    const health = Math.min(state.protagonist.health + effect.amount, state.protagonist.maxHealth)
     messages.push(`You recover ${effect.amount} health.`)
     return { ...state, protagonist: { ...state.protagonist, health } }
   }

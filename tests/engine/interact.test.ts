@@ -68,6 +68,19 @@ describe('handleInteract', () => {
     expect(result.state.protagonist.health).toBe(9)
   })
 
+  it('does not heal above maxHealth', () => {
+    const roomWithHeal = makeRoom({
+      id: 'room_a',
+      examineTargets: [
+        { id: 'medkit', label: 'a wall-mounted medkit', description: '', effect: [{ type: 'heal', amount: 5 }] },
+      ],
+    })
+    const state = makeState({ protagonist: { ...makeState().protagonist, health: 8, maxHealth: 10 }, roomStates: { room_a: makeRoomState() } })
+    const result = handleInteract('medkit', state, makeGameData({ roomIndex: { room_a: roomWithHeal } }))
+
+    expect(result.state.protagonist.health).toBe(10)
+  })
+
   it('does not mutate state when target is unknown', () => {
     const state = makeState({ roomStates: { room_a: makeRoomState() } })
     const result = handleInteract('missing', state, data)

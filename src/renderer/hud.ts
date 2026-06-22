@@ -22,8 +22,9 @@ export function renderHud(el: HTMLElement, state: GameState): void {
   const { elapsed, missionDeadline } = state.time
   const awareness = deriveAwareness(state)
 
+  const { maxHealth } = state.protagonist
   el.innerHTML =
-    `<span class="hud-health">♥ ${health}</span>` +
+    `<span class="hud-health">♥ ${health}/${maxHealth}</span>` +
     `<span class="hud-alarm hud-alarm--${awareness}">${AWARENESS_LABEL[awareness]}</span>` +
     `<span class="hud-time">Turn ${elapsed} / ${missionDeadline}</span>`
 }
