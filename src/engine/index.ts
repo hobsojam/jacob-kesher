@@ -18,7 +18,7 @@ import { checkDiscoveries } from './discovery'
 export interface EngineResult {
   state: GameState
   messages: string[]
-  gameOver?: 'dead' | 'timeout' | 'success'
+  gameOver?: 'dead' | 'timeout' | 'success' | 'failed'
 }
 
 export function processAction(
@@ -52,7 +52,8 @@ export function processAction(
   const { state: discovered, messages: discoveryMessages } = checkDiscoveries(woken, data)
   messages.push(...discoveryMessages)
 
-  const { state: finalState, gameOver } = checkDeadlines(discovered)
+  const { state: finalState, messages: deadlineMessages, gameOver } = checkDeadlines(discovered, data)
+  messages.push(...deadlineMessages)
 
   return { state: finalState, messages, gameOver }
 }
@@ -127,19 +128,38 @@ function wakeEnemies(
   }
 }
 
-function checkDeadlines(state: GameState): {
-  state: GameState
-  gameOver?: 'dead' | 'timeout' | 'success'
-} {
-  if (state.time.elapsed >= state.time.missionDeadline) {
-    return { state, gameOver: 'timeout' }
-  }
+function checkDeadlines(
+  state: GameState,
+  data: GameData,
+): { state: GameState; messages: string[]; gameOver?: 'dead' | 'timeout' | 'success' | 'failed' } {
   if (state.protagonist.health <= 0) {
-    return { state, gameOver: 'dead' }
+    return { state, messages: [], gameOver: 'dead' }
   }
   if (state.flags['mission_complete']) {
-    return { state, gameOver: 'success' }
+    return { state, messages: [], gameOver: 'success' }
   }
-  return { state }
+  if (state.flags['mission_failed']) {
+    return { state, messages: [], gameOver: 'failed' }
+  }
+  if (state.time.elapsed >= state.time.missionDeadline && !state.flags['deadline_passed']) {
+    const updatedEnemyStates = { ...state.enemyStates }
+    for (const enemy of Object.values(data.enemyData)) {
+      const es = updatedEnemyStates[enemy.id]
+      if (es && es.status !== 'active') continue
+      updatedEnemyStates[enemy.id] = {
+        ...(es ?? { id: enemy.id, status: 'active', inventory: [...enemy.inventory] }),
+        awareness: 'alert',
+      }
+    }
+    return {
+      state: {
+        ...state,
+        enemyStates: updatedEnemyStates,
+        flags: { ...state.flags, alarm_raised: true, deadline_passed: true },
+      },
+      messages: ['A door opens at the end of the corridor. Footsteps. The cipher officer is back.'],
+    }
+  }
+  return { state, messages: [] }
 }
 

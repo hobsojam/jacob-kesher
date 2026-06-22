@@ -48,6 +48,7 @@ export type ItemEffect =
   | { type: 'heal'; amount: number }
   | { type: 'set_room_flag'; flag: string }
   | { type: 'set_global_flag'; flag: string }
+  | { type: 'set_global_flag_if'; condition: string; flag: string; else_flag: string }
 
 export interface ItemData {
   id: string
