@@ -27,7 +27,7 @@ export interface ExamineTarget {
   // Item or skill required before the interact can fire
   interactRequires?: {
     itemId?: string
-    skillId?: string
+    skillId?: SkillId
     skillLevel?: number
   }
 }
