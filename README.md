@@ -5,7 +5,7 @@ A browser-based text adventure in the tradition of Zork — but set in the world
 ## Concept
 
 - Classic room-based exploration with choice-driven interaction
-- Stealth-first gameplay — combat is possible but noisy and risky
+- Stealth-first gameplay — combat is possible but noisy and risky; firearms are not unlimited (this is a spy thriller, not Rambo)
 - D20-style skill checks for combat, sneaking, hacking, and persuasion
 - Mission objectives, inventory, and guard state tracked throughout
 - Spy thriller aesthetic — henchmen, laser grids, villain monologues
