@@ -92,6 +92,23 @@ Chokepoint: if alarm is raised, main corridor is blocked — must use ventilatio
 
 ---
 
+## 4b. Discovery Risk (Prerequisite Engine Feature)
+
+Each downed guard (unconscious or dead) has a per-turn chance of being found by another guard. When discovered:
+- All active guards escalate to `awareness: 'alert'`
+- Global flag `alarm_raised` is set
+- A message is shown to the player
+
+`discoveryRisk` is a 0–1 probability on `EnemyTemplate`, checked each turn per downed enemy. Default 0 (no risk) so existing missions are unaffected.
+
+Guards in this mission use `discoveryRisk: 0.1` (10% per turn).
+
+The perimeter fence guard (Pvt. Morozov) has a short patrol route that loops past the cut fence. He discovers the cut naturally when his patrol brings him back to it — no separate timer needed.
+
+**Engine work required before mission JSON:** `discoveryRisk` field on `EnemyTemplate`; `checkDiscoveries` step in the `processAction` pipeline. Tracked as a separate PR.
+
+---
+
 ## 5. Room Detail
 
 _To be filled in once area plan is approved._
