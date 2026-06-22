@@ -13,6 +13,7 @@ import { handleUse } from './use'
 import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
 import { applyNoise } from './alarm'
+import { checkDiscoveries } from './discovery'
 
 export interface EngineResult {
   state: GameState
@@ -48,7 +49,10 @@ export function processAction(
   const { state: woken, messages: wakeMessages } = wakeEnemies(advanced, data)
   messages.push(...wakeMessages)
 
-  const { state: finalState, gameOver } = checkDeadlines(woken)
+  const { state: discovered, messages: discoveryMessages } = checkDiscoveries(woken, data)
+  messages.push(...discoveryMessages)
+
+  const { state: finalState, gameOver } = checkDeadlines(discovered)
 
   return { state: finalState, messages, gameOver }
 }
