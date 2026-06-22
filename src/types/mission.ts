@@ -6,6 +6,7 @@ export interface MissionManifest {
   description: string
   startingRoomId: string
   missionDeadline: number
+  deadlineMessage: string
   protagonist: {
     health: number
     stats: { strength: number; agility: number; intelligence: number; charisma: number }

@@ -8,12 +8,14 @@ export function buildGameData(
   items: ItemData[],
   enemies: EnemyData[],
   templates: EnemyTemplate[],
+  manifest: MissionManifest,
 ): GameData {
   return {
-    roomIndex:      Object.fromEntries(rooms.map((r) => [r.id, r])),
-    itemData:       Object.fromEntries(items.map((i) => [i.id, i])),
-    enemyData:      Object.fromEntries(enemies.map((e) => [e.id, e])),
-    enemyTemplates: Object.fromEntries(templates.map((t) => [t.id, t])),
+    roomIndex:       Object.fromEntries(rooms.map((r) => [r.id, r])),
+    itemData:        Object.fromEntries(items.map((i) => [i.id, i])),
+    enemyData:       Object.fromEntries(enemies.map((e) => [e.id, e])),
+    enemyTemplates:  Object.fromEntries(templates.map((t) => [t.id, t])),
+    deadlineMessage: manifest.deadlineMessage,
   }
 }
 

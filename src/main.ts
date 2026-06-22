@@ -16,6 +16,7 @@ const data = buildGameData(
   itemsRaw.items as ItemData[],
   enemiesRaw.enemies,
   templatesRaw.templates as EnemyTemplate[],
+  manifestRaw as MissionManifest,
 )
 
 const state = initGameState(manifestRaw as MissionManifest, data)

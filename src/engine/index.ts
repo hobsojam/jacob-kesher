@@ -161,7 +161,7 @@ function checkDeadlines(
         enemyStates: updatedEnemyStates,
         flags: { ...state.flags, alarm_raised: true, deadline_passed: true },
       },
-      messages: ['A door opens at the end of the corridor. Footsteps. The cipher officer is back.'],
+      messages: [data.deadlineMessage],
     }
   }
   return { state, messages: [] }
