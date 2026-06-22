@@ -1,0 +1,120 @@
+{
+  "$ref": "#/definitions/ItemsFile",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ItemData": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "effect": {
+          "$ref": "#/definitions/ItemEffect"
+        },
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ItemType"
+        },
+        "usableOn": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "description",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ItemEffect": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "type": {
+              "const": "heal",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "amount"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "flag": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_room_flag",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "flag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "flag": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_global_flag",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "flag"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "ItemType": {
+      "enum": [
+        "gadget",
+        "weapon_melee",
+        "weapon_ranged",
+        "keycard",
+        "document",
+        "consumable"
+      ],
+      "type": "string"
+    },
+    "ItemsFile": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/definitions/ItemData"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "type": "object"
+    }
+  }
+}

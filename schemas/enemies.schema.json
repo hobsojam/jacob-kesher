@@ -1,0 +1,83 @@
+{
+  "$ref": "#/definitions/EnemiesFile",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "EnemiesFile": {
+      "additionalProperties": false,
+      "properties": {
+        "enemies": {
+          "items": {
+            "$ref": "#/definitions/EnemyData"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "enemies"
+      ],
+      "type": "object"
+    },
+    "EnemyData": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "inventory": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "known": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "patrol": {
+          "$ref": "#/definitions/PatrolRoute"
+        },
+        "roomId": {
+          "type": "string"
+        },
+        "templateId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "templateId",
+        "roomId",
+        "inventory"
+      ],
+      "type": "object"
+    },
+    "PatrolRoute": {
+      "additionalProperties": false,
+      "properties": {
+        "cycleTime": {
+          "type": "number"
+        },
+        "roomIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "startOffset": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "roomIds",
+        "cycleTime"
+      ],
+      "type": "object"
+    }
+  }
+}

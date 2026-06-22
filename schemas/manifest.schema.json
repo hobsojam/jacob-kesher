@@ -1,0 +1,164 @@
+{
+  "$ref": "#/definitions/MissionManifest",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Inventory": {
+      "additionalProperties": false,
+      "properties": {
+        "gadgets": {
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "small": {
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "special": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "weapons": {
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        }
+      },
+      "required": [
+        "weapons",
+        "gadgets",
+        "small",
+        "special"
+      ],
+      "type": "object"
+    },
+    "MissionManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "missionDeadline": {
+          "type": "number"
+        },
+        "protagonist": {
+          "additionalProperties": false,
+          "properties": {
+            "health": {
+              "type": "number"
+            },
+            "inventory": {
+              "$ref": "#/definitions/Inventory"
+            },
+            "skills": {
+              "items": {
+                "$ref": "#/definitions/Skill"
+              },
+              "type": "array"
+            },
+            "stats": {
+              "additionalProperties": false,
+              "properties": {
+                "agility": {
+                  "type": "number"
+                },
+                "charisma": {
+                  "type": "number"
+                },
+                "intelligence": {
+                  "type": "number"
+                },
+                "strength": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "strength",
+                "agility",
+                "intelligence",
+                "charisma"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "health",
+            "stats",
+            "skills",
+            "inventory"
+          ],
+          "type": "object"
+        },
+        "startingRoomId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "startingRoomId",
+        "missionDeadline",
+        "protagonist"
+      ],
+      "type": "object"
+    },
+    "Skill": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/SkillId"
+        },
+        "label": {
+          "type": "string"
+        },
+        "level": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "level"
+      ],
+      "type": "object"
+    },
+    "SkillId": {
+      "enum": [
+        "hand_to_hand",
+        "evasion",
+        "marksmanship",
+        "persuasion",
+        "lock_picking"
+      ],
+      "type": "string"
+    }
+  }
+}

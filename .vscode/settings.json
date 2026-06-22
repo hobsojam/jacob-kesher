@@ -1,0 +1,24 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["**/missions/*/map.json"],
+      "url": "./schemas/map.schema.json"
+    },
+    {
+      "fileMatch": ["**/missions/*/items.json"],
+      "url": "./schemas/items.schema.json"
+    },
+    {
+      "fileMatch": ["**/missions/*/enemies.json"],
+      "url": "./schemas/enemies.schema.json"
+    },
+    {
+      "fileMatch": ["**/missions/*/manifest.json"],
+      "url": "./schemas/manifest.schema.json"
+    },
+    {
+      "fileMatch": ["**/data/templates.json"],
+      "url": "./schemas/templates.schema.json"
+    }
+  ]
+}

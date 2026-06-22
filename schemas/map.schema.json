@@ -1,0 +1,263 @@
+{
+  "$ref": "#/definitions/MapFile",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Addendum": {
+      "additionalProperties": false,
+      "properties": {
+        "flag": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flag",
+        "text"
+      ],
+      "type": "object"
+    },
+    "ExamineTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "effect": {
+          "items": {
+            "$ref": "#/definitions/ItemEffect"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "interactLabel": {
+          "type": "string"
+        },
+        "interactRequires": {
+          "additionalProperties": false,
+          "properties": {
+            "itemId": {
+              "type": "string"
+            },
+            "skillId": {
+              "$ref": "#/definitions/SkillId"
+            },
+            "skillLevel": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "description"
+      ],
+      "type": "object"
+    },
+    "Exit": {
+      "additionalProperties": false,
+      "properties": {
+        "destinationId": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "requires": {
+          "additionalProperties": false,
+          "properties": {
+            "flag": {
+              "type": "string"
+            },
+            "itemId": {
+              "type": "string"
+            },
+            "skillId": {
+              "$ref": "#/definitions/SkillId"
+            },
+            "skillLevel": {
+              "type": "number"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "destinationId",
+        "label"
+      ],
+      "type": "object"
+    },
+    "FlagReveal": {
+      "additionalProperties": false,
+      "properties": {
+        "flag": {
+          "type": "string"
+        },
+        "itemId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "flag",
+        "itemId"
+      ],
+      "type": "object"
+    },
+    "ItemEffect": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "type": {
+              "const": "heal",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "amount"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "flag": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_room_flag",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "flag"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "flag": {
+              "type": "string"
+            },
+            "type": {
+              "const": "set_global_flag",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "flag"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "MapFile": {
+      "additionalProperties": false,
+      "properties": {
+        "rooms": {
+          "items": {
+            "$ref": "#/definitions/RoomData"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "rooms"
+      ],
+      "type": "object"
+    },
+    "RoomData": {
+      "additionalProperties": false,
+      "properties": {
+        "addenda": {
+          "items": {
+            "$ref": "#/definitions/Addendum"
+          },
+          "type": "array"
+        },
+        "description": {
+          "type": "string"
+        },
+        "examineTargets": {
+          "items": {
+            "$ref": "#/definitions/ExamineTarget"
+          },
+          "type": "array"
+        },
+        "exits": {
+          "items": {
+            "$ref": "#/definitions/Exit"
+          },
+          "type": "array"
+        },
+        "hiddenItemIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "itemIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "label": {
+          "type": "string"
+        },
+        "reveals": {
+          "items": {
+            "$ref": "#/definitions/FlagReveal"
+          },
+          "type": "array"
+        },
+        "searchDifficulty": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "description",
+        "addenda",
+        "exits",
+        "itemIds",
+        "hiddenItemIds",
+        "examineTargets"
+      ],
+      "type": "object"
+    },
+    "SkillId": {
+      "enum": [
+        "hand_to_hand",
+        "evasion",
+        "marksmanship",
+        "persuasion",
+        "lock_picking"
+      ],
+      "type": "string"
+    }
+  }
+}
