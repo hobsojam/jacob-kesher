@@ -22,6 +22,7 @@ export function checkDiscoveries(
     }
   }
 
+  if (state.flags['alarm_raised']) return { state, messages: [] }
   if (found.length === 0) return { state, messages: [] }
 
   const updatedEnemyStates = { ...state.enemyStates }

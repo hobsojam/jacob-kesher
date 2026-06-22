@@ -14,6 +14,7 @@ import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
 import { applyNoise } from './alarm'
 import { checkDiscoveries } from './discovery'
+import { checkReveals } from './reveals'
 
 export interface EngineResult {
   state: GameState
@@ -44,7 +45,10 @@ export function processAction(
       }
     : postMove
 
-  const advanced = advanceTime(action.type, noised, result.timeCost)
+  // Promote hidden items unblocked by room flags set this turn
+  const revealed = checkReveals(noised, data)
+
+  const advanced = advanceTime(action.type, revealed, result.timeCost)
 
   const { state: woken, messages: wakeMessages } = wakeEnemies(advanced, data)
   messages.push(...wakeMessages)
