@@ -52,9 +52,21 @@ function render(): void {
 }
 
 function dispatch(action: Parameters<typeof processAction>[0]): void {
+  const roomBefore = currentState.protagonist.currentRoom
   const result = processAction(action, currentState, gameData)
   currentState = result.state
-  appendMessages(result.messages)
+
+  const movedRoom = action.type === 'move' && currentState.protagonist.currentRoom !== roomBefore
+
+  if (action.type === 'look' || movedRoom) {
+    // currentRoomLines is authoritative: includes items and enemies.
+    // The engine's result.messages for these actions is just the base room
+    // description — showing both would duplicate it.
+    appendSeparator()
+    appendMessages(currentRoomLines(currentState, gameData), true)
+  } else {
+    appendMessages(result.messages)
+  }
 
   if (result.gameOver) {
     gameOver = true
@@ -64,11 +76,6 @@ function dispatch(action: Parameters<typeof processAction>[0]): void {
       success: '--- Mission complete. ---',
     }
     appendMessages([endings[result.gameOver] ?? '--- Game over. ---'])
-  }
-
-  if (action.type === 'move' || action.type === 'look') {
-    appendSeparator()
-    appendMessages(currentRoomLines(currentState, gameData), true)
   }
 
   render()
