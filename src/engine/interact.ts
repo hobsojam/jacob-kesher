@@ -75,8 +75,12 @@ function applyEffect(effect: ItemEffect, state: GameState, messages: string[]): 
     return applyGlobalFlag(flag, state, messages)
   }
 
-  // set_global_flag
-  return applyGlobalFlag(effect.flag, state, messages)
+  if (effect.type === 'set_global_flag') {
+    return applyGlobalFlag(effect.flag, state, messages)
+  }
+
+  effect satisfies never
+  return state
 }
 
 function applyGlobalFlag(flag: string, state: GameState, messages: string[]): GameState {

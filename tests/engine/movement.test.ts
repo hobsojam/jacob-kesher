@@ -136,28 +136,64 @@ describe('handleMove', () => {
     const data = makeData([
       makeRoom({
         id: 'room_a',
-        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'evasion', skillLevel: 5 } }],
+        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'acrobatics', skillLevel: 3 } }],
       }),
       makeRoom({ id: 'room_b' }),
     ])
     const result = handleMove('climb the shaft', makeState(), data)
 
     expect(result.state.protagonist.currentRoom).toBe('room_a')
+    expect(result.messages[0]).toMatch(/acrobatics/i)
+    expect(result.messages[0]).toMatch(/level 3/i)
+  })
+
+  it('blocks an exit when protagonist has the skill but below the required level', () => {
+    const data = makeData([
+      makeRoom({
+        id: 'room_a',
+        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'acrobatics', skillLevel: 3 } }],
+      }),
+      makeRoom({ id: 'room_b' }),
+    ])
+    const state = makeState()
+    state.protagonist.skills = [{ id: 'acrobatics', label: 'Acrobatics', level: 2 }]
+    const result = handleMove('climb the shaft', state, data)
+
+    expect(result.state.protagonist.currentRoom).toBe('room_a')
+    expect(result.messages[0]).toMatch(/acrobatics/i)
+    expect(result.messages[0]).toMatch(/level 3/i)
   })
 
   it('allows an exit when protagonist has sufficient skill level', () => {
     const data = makeData([
       makeRoom({
         id: 'room_a',
-        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'evasion', skillLevel: 5 } }],
+        exits: [{ destinationId: 'room_b', label: 'climb the shaft', requires: { skillId: 'acrobatics', skillLevel: 3 } }],
       }),
       makeRoom({ id: 'room_b' }),
     ])
     const state = makeState()
-    state.protagonist.skills = [{ id: 'evasion', label: 'Evasion', level: 5 }]
+    state.protagonist.skills = [{ id: 'acrobatics', label: 'Acrobatics', level: 3 }]
     const result = handleMove('climb the shaft', state, data)
 
     expect(result.state.protagonist.currentRoom).toBe('room_b')
+  })
+
+  it('names the required item in the failure message', () => {
+    const data = {
+      ...makeData([
+        makeRoom({
+          id: 'room_a',
+          exits: [{ destinationId: 'room_b', label: 'through the door', requires: { itemId: 'keycard_b' } }],
+        }),
+        makeRoom({ id: 'room_b' }),
+      ]),
+      itemData: { keycard_b: { id: 'keycard_b', label: 'Level B Keycard', description: '', type: 'keycard' as const } },
+    }
+    const result = handleMove('through the door', makeState(), data)
+
+    expect(result.state.protagonist.currentRoom).toBe('room_a')
+    expect(result.messages[0]).toMatch(/Level B Keycard/i)
   })
 
   it('returns no messages on successful move (renderer handles room display)', () => {

@@ -15,13 +15,19 @@ export const SKILLS: { id: SkillId; label: string; description: string }[] = [
 ]
 
 export const ACTION_COSTS: Record<string, number> = {
-  move: 1,
-  examine: 1,
-  take: 1,
-  use: 1,
-  look: 0,
-  combat: 2,
-  search: 4,
+  move:             1,
+  take:             1,
+  drop:             0,
+  examine:          1,
+  search:           4,
+  use:              1,
+  attack:           2,
+  stealth_takedown: 1,
+  flee:             1,
+  loot:             1,
+  look:             0,
+  interact:         1,
+  talk:             1,
 }
 
 export const FALLBACK_ROOM: RoomData = {

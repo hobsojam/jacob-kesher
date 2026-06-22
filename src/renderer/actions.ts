@@ -1,8 +1,7 @@
 import type { Exit, GameData, RoomData } from '../types/data'
 import type { GameState, RoomState } from '../types/state'
 import type { Action } from '../types/actions'
-import { guardPosition } from '../engine/patrol'
-import { enemyDisplayName } from './room'
+import { enemyDisplayName, enemiesInRoom } from './room'
 
 export interface ActionButton {
   label: string
@@ -163,12 +162,4 @@ function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean)
 
 function inventoryHas(inventory: GameState['protagonist']['inventory'], itemId: string): boolean {
   return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special].includes(itemId)
-}
-
-function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {
-  const stationary = state.roomStates[roomId]?.enemyIds ?? []
-  const patrolling = Object.values(data.enemyData)
-    .filter((e) => e.patrol && guardPosition(e.patrol, state.time.elapsed) === roomId)
-    .map((e) => e.id)
-  return [...new Set([...stationary, ...patrolling])]
 }
