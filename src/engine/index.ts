@@ -12,7 +12,7 @@ import { handleLook } from './look'
 import { handleUse } from './use'
 import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
-import { applyNoise } from './alarm'
+import { checkDetection } from './detection'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
 
@@ -30,23 +30,46 @@ export function processAction(
   const result = dispatch(action, state, data)
   const messages = [...result.messages]
 
-  // Alert guards in the destination room get a free attack when Jacob walks in
-  let postMove = result.state
-  if (action.type === 'move' && postMove.protagonist.currentRoom !== state.protagonist.currentRoom) {
-    const { state: ambushed, messages: ambushMsgs } = guardAmbush(postMove, data)
-    postMove = ambushed
-    messages.push(...ambushMsgs)
+  const moved =
+    action.type === 'move' &&
+    result.state.protagonist.currentRoom !== state.protagonist.currentRoom
+
+  // Movement triggers a proximity check: nearby guards may hear Jacob enter
+  let afterProximity = result.state
+  if (moved) {
+    const { state: s, messages: m } = checkDetection(
+      'quiet',
+      result.state.protagonist.currentRoom,
+      result.state,
+      data,
+    )
+    afterProximity = s
+    messages.push(...m)
   }
 
-  const noised = result.noise
-    ? {
-        ...postMove,
-        enemyStates: applyNoise(result.noise, postMove.protagonist.currentRoom, postMove, data),
-      }
-    : postMove
+  // Alert guards in the new room get a free attack (after detection resolves)
+  let afterAmbush = afterProximity
+  if (moved) {
+    const { state: s, messages: m } = guardAmbush(afterProximity, data)
+    afterAmbush = s
+    messages.push(...m)
+  }
+
+  // Noise from the action reaches guards within their detection radius
+  let afterNoise = afterAmbush
+  if (result.noise) {
+    const { state: s, messages: m } = checkDetection(
+      result.noise,
+      afterAmbush.protagonist.currentRoom,
+      afterAmbush,
+      data,
+    )
+    afterNoise = s
+    messages.push(...m)
+  }
 
   // Promote hidden items unblocked by room flags set this turn
-  const revealed = checkReveals(noised, data)
+  const revealed = checkReveals(afterNoise, data)
 
   const advanced = advanceTime(action.type, revealed, result.timeCost)
 

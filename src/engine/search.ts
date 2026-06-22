@@ -77,7 +77,7 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
       roomStates: { ...state.roomStates, [roomId]: newRoomState },
     },
     messages,
-    noise: 'silent',
+    noise: 'quiet',
     timeCost: searchCost,
   }
 }
