@@ -1,41 +1,188 @@
 {
   "rooms": [
     {
-      "id": "entrance_hall",
-      "label": "Entrance Hall",
-      "description": "A marble-floored entrance hall. Surveillance cameras sweep the room in lazy arcs. The place looks recently evacuated.",
-      "addenda": [],
-      "exits": [
-        { "destinationId": "east_corridor", "label": "head east through the double doors" }
+      "id": "mountain_road",
+      "label": "Mountain Road",
+      "description": "A dirt track through pine trees. The outpost fence is visible ahead, lit by a single floodlight. Somewhere in the darkness, an engine ticks as it cools.",
+      "addenda": [
+        {
+          "flag": "machine_photographed",
+          "text": "The car in the treeline flashes its lights once. Your ride is waiting."
+        }
       ],
-      "itemIds": ["security_keycard"],
+      "exits": [
+        { "destinationId": "perimeter_fence", "label": "Approach the fence" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["wire_cutters"],
+      "examineTargets": [
+        {
+          "id": "treeline",
+          "label": "the treeline",
+          "description": "Pine trees, thick enough to hide a car. Or a man."
+        },
+        {
+          "id": "extraction_vehicle",
+          "label": "the black Volga",
+          "description": "A black Volga, engine off, driver watching the fence.",
+          "interactLabel": "Get in",
+          "effect": [
+            { "type": "set_global_flag", "flag": "mission_complete" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "perimeter_fence",
+      "label": "Perimeter Fence",
+      "description": "Chain-link topped with barbed wire, ten feet high. A guardhouse sits to the east, light on inside. The fence runs out of sight in both directions.",
+      "addenda": [
+        {
+          "flag": "fence_cut",
+          "text": "A gap in the lower wire marks where you've been through."
+        },
+        {
+          "flag": "alarm_raised",
+          "text": "A siren wails from inside the compound."
+        }
+      ],
+      "exits": [
+        { "destinationId": "mountain_road", "label": "Return to the road" },
+        {
+          "destinationId": "service_yard",
+          "label": "Crawl through the fence",
+          "requires": { "flag": "fence_cut" }
+        }
+      ],
+      "itemIds": [],
       "hiddenItemIds": [],
       "examineTargets": [
         {
-          "id": "reception_desk",
-          "label": "the reception desk",
-          "description": "A large oak desk. A visitor log lies open — the last entry is dated three days ago. Someone left in a hurry."
+          "id": "fence",
+          "label": "the perimeter fence",
+          "description": "Chain-link, well-maintained. The lower section near the ditch looks weaker."
         },
         {
-          "id": "security_camera",
-          "label": "the security cameras",
-          "description": "Standard pan-tilt units on a 30-second sweep cycle. You count four covering the hall. Avoid moving when they're facing you."
+          "id": "guardhouse",
+          "label": "the guardhouse",
+          "description": "A small booth. Light on, shadow moving inside. Morozov."
         }
-      ],
-      "searchDifficulty": 0
+      ]
     },
     {
-      "id": "east_corridor",
-      "label": "East Corridor",
-      "description": "A long corridor lit by humming strip lights. The air smells of cleaning fluid. At the far end, a heavy door bears a red keycard reader.",
-      "addenda": [],
-      "exits": [
-        { "destinationId": "entrance_hall", "label": "return west to the entrance hall" },
+      "id": "service_yard",
+      "label": "Service Yard",
+      "description": "A concrete yard between the fence and the building. A bulkhead light flickers above the loading bay door. Supply crates are stacked along the near wall.",
+      "addenda": [
         {
-          "destinationId": "server_room",
-          "label": "take the stairs down to the server room",
-          "requires": { "flag": "stairwell_unlocked" }
+          "flag": "alarm_raised",
+          "text": "The yard is flooded with light. Someone has hit the exterior floods."
         }
+      ],
+      "exits": [
+        { "destinationId": "perimeter_fence", "label": "Back to the fence" },
+        {
+          "destinationId": "loading_bay",
+          "label": "Loading bay door",
+          "requires": { "flag": "loading_bay_door_open" }
+        },
+        { "destinationId": "ventilation_shaft", "label": "Ventilation grille" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "crates",
+          "label": "the supply crates",
+          "description": "Wooden supply crates, stencilled in Cyrillic. Good cover, nothing useful."
+        },
+        {
+          "id": "keycard_reader",
+          "label": "the keycard reader",
+          "description": "A heavy steel door with a keycard reader mounted beside it. Red light."
+        },
+        {
+          "id": "bulkhead_light",
+          "label": "the bulkhead light",
+          "description": "Flickering on a short cycle. Annoying, but it helps."
+        }
+      ]
+    },
+    {
+      "id": "loading_bay",
+      "label": "Loading Bay",
+      "description": "Pallets, a forklift that hasn't moved in years, the smell of diesel. A door at the far end leads into the building proper.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Volkov is posted here, rifle unslung."
+        }
+      ],
+      "exits": [
+        { "destinationId": "service_yard", "label": "Back to the yard" },
+        { "destinationId": "ground_floor_corridor", "label": "Into the building" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["maintenance_key"],
+      "examineTargets": [
+        {
+          "id": "forklift",
+          "label": "the forklift",
+          "description": "Soviet-era, rusted solid. Not going anywhere."
+        },
+        {
+          "id": "pallets",
+          "label": "the pallets",
+          "description": "Empty. Whatever was here has been moved inside."
+        },
+        {
+          "id": "loading_bay_keycard_reader",
+          "label": "the keycard reader",
+          "description": "Same model as the exterior. The door is open from this side."
+        }
+      ],
+      "searchDifficulty": 2
+    },
+    {
+      "id": "ventilation_shaft",
+      "label": "Ventilation Shaft",
+      "description": "Tight crawl space, barely wide enough for your shoulders. The metal is cold. Air moves in both directions depending on which fan is running.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "The ventilation fan kicks into high gear, air rushing past your face."
+        }
+      ],
+      "exits": [
+        { "destinationId": "service_yard", "label": "Crawl toward the service yard" },
+        { "destinationId": "ground_floor_corridor", "label": "Crawl toward the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "shaft_junction",
+          "label": "the shaft junction",
+          "description": "A junction. Through the grille below you can hear voices — the comms room, directly beneath. Two men, radio static."
+        }
+      ]
+    },
+    {
+      "id": "ground_floor_corridor",
+      "label": "Ground Floor Corridor",
+      "description": "Long, low-ceilinged. Strip lighting, linoleum floor, numbered doors. At the far end, Petrov stands with his back to the wall, rifle slung.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Red warning lights pulse along the ceiling. Somewhere a door slams."
+        }
+      ],
+      "exits": [
+        { "destinationId": "loading_bay", "label": "Loading bay" },
+        { "destinationId": "ventilation_shaft", "label": "Ventilation grille (low, near the loading bay end)" },
+        { "destinationId": "mess_hall", "label": "Mess hall" },
+        { "destinationId": "comms_room", "label": "Comms room" },
+        { "destinationId": "duty_office", "label": "Duty office" }
       ],
       "itemIds": [],
       "hiddenItemIds": [],
@@ -43,49 +190,180 @@
         {
           "id": "notice_board",
           "label": "the notice board",
-          "description": "Maintenance rosters and a fire exit plan. One sheet catches your eye — a handwritten schedule. The overnight guard rotation starts at 0200."
+          "description": "A patrol rota, handwritten. Volkov's name appears every six entries."
         },
         {
-          "id": "keycard_reader",
-          "label": "the keycard reader",
-          "description": "A red panel with a slot. Requires a security keycard to unlock the stairwell door."
+          "id": "petrov",
+          "label": "Cpl. Petrov",
+          "description": "Armed, bored, but alert. He has a clear line of sight down the corridor."
+        }
+      ],
+      "searchDifficulty": 3
+    },
+    {
+      "id": "mess_hall",
+      "label": "Mess Hall",
+      "description": "Four tables, benches, the smell of boiled cabbage. The samovar in the corner is warm. The men are at dinner somewhere else — this room is empty.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Chairs pushed back, bowls half-eaten. Whoever was here left in a hurry."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["duty_office_key"],
+      "examineTargets": [
+        {
+          "id": "samovar",
+          "label": "the samovar",
+          "description": "Still warm. Dinner started recently. You don't have long."
+        },
+        {
+          "id": "jacket",
+          "label": "the guard's jacket",
+          "description": "A guard's jacket on a hook. Empty pockets, wrong size."
+        },
+        {
+          "id": "table",
+          "label": "the table",
+          "description": "Bowls of food, barely touched."
         }
       ],
       "searchDifficulty": 1
     },
     {
-      "id": "server_room",
-      "label": "Server Room",
-      "description": "Rows of servers hum in the cold recycled air. LEDs blink in the dark. A terminal in the corner is still logged in.",
+      "id": "comms_room",
+      "label": "Comms Room",
+      "description": "Banks of radio equipment lining three walls. Pvt. Nikitin sits at the main console with headphones on, back to the door, absorbed in traffic.",
       "addenda": [
         {
-          "flag": "data_downloaded",
-          "text": "The download bar on the terminal reads 100%. The files are on your drive. Get out."
+          "flag": "alarm_raised",
+          "text": "Nikitin is on his feet, shouting into a handset."
         }
       ],
       "exits": [
-        { "destinationId": "east_corridor", "label": "take the stairs back up to the corridor" }
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
       ],
       "itemIds": [],
-      "hiddenItemIds": ["field_medkit"],
+      "hiddenItemIds": ["cipher_room_key_b"],
       "examineTargets": [
         {
-          "id": "main_terminal",
-          "label": "the main terminal",
-          "description": "The terminal is unlocked and showing a file directory. Someone left mid-session. The research files are right there.",
-          "interactLabel": "Download files",
+          "id": "radio_equipment",
+          "label": "the radio equipment",
+          "description": "Soviet military band. Encrypted traffic, layered and continuous."
+        },
+        {
+          "id": "nikitin",
+          "label": "Pvt. Nikitin",
+          "description": "Headphones on, pen moving. He hasn't heard you. Keep it that way."
+        },
+        {
+          "id": "supply_cabinet",
+          "label": "the supply cabinet",
+          "description": "A locked metal cabinet on the far wall.",
+          "interactLabel": "Unlock with maintenance key",
+          "interactRequires": { "itemId": "maintenance_key" },
           "effect": [
-            { "type": "set_room_flag", "flag": "data_downloaded" },
-            { "type": "set_global_flag", "flag": "mission_complete" }
+            { "type": "set_room_flag", "flag": "supply_cabinet_open" }
+          ]
+        }
+      ],
+      "searchDifficulty": 4,
+      "reveals": [
+        { "flag": "supply_cabinet_open", "itemId": "cipher_room_key_b" }
+      ]
+    },
+    {
+      "id": "duty_office",
+      "label": "Duty Officer's Office",
+      "description": "Small and cluttered. A desk covered in papers, a framed photograph of a family — summer, a lake. The camera sits on the corner of the desk.",
+      "addenda": [
+        {
+          "flag": "drawer_unlocked",
+          "text": "The desk drawer hangs open."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" },
+        {
+          "destinationId": "cipher_room",
+          "label": "Cipher room door",
+          "requires": { "flag": "cipher_room_accessible" }
+        }
+      ],
+      "itemIds": ["camera"],
+      "hiddenItemIds": ["cipher_room_key"],
+      "examineTargets": [
+        {
+          "id": "desk",
+          "label": "the desk",
+          "description": "Papers, a coffee cup, an ashtray. Someone works long hours here."
+        },
+        {
+          "id": "family_photo",
+          "label": "the family photograph",
+          "description": "A man in uniform, a woman, two children. A lake somewhere warm."
+        },
+        {
+          "id": "duty_office_drawer",
+          "label": "the desk drawer",
+          "description": "A locked drawer. The lock looks standard.",
+          "interactLabel": "Pick the lock",
+          "interactRequires": { "skillId": "lock_picking", "skillLevel": 2 },
+          "effect": [
+            { "type": "set_room_flag", "flag": "drawer_unlocked" }
           ]
         },
         {
-          "id": "server_rack",
-          "label": "the server racks",
-          "description": "Dozens of blinking units. Labels suggest this is the primary data store for Project LAZARUS."
+          "id": "cipher_room_door",
+          "label": "the cipher room door",
+          "description": "A steel door with a numeric keypad. Cipher room access only."
         }
       ],
-      "searchDifficulty": -1
+      "searchDifficulty": 1,
+      "reveals": [
+        { "flag": "drawer_unlocked", "itemId": "cipher_room_key" }
+      ]
+    },
+    {
+      "id": "cipher_room",
+      "label": "Cipher Room",
+      "description": "Temperature-controlled, barely larger than a cupboard. The hum of electronics, cool recycled air. The SOVA-7 sits on a dedicated table under a desk lamp — rotors, key plugs, a Soviet star on the housing. No one is here.",
+      "addenda": [
+        {
+          "flag": "machine_photographed",
+          "text": "The camera is back in your pocket. You have what you came for."
+        },
+        {
+          "flag": "alarm_raised",
+          "text": "Muffled shouting from somewhere in the building. You need to move."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "sova_7",
+          "label": "the SOVA-7",
+          "description": "The SOVA-7. Heavier than it looks. The rotors are set for today's key. GCHQ will want every angle."
+        },
+        {
+          "id": "wall_clock",
+          "label": "the wall clock",
+          "description": "Quarter past eight. Dinner ends at nine. Probably."
+        },
+        {
+          "id": "filing_cabinet",
+          "label": "the filing cabinet",
+          "description": "Locked. Not worth the time."
+        }
+      ]
     }
   ]
 }

@@ -1,19 +1,60 @@
 {
   "items": [
     {
-      "id": "security_keycard",
-      "label": "Security Keycard",
-      "description": "A red magnetic keycard. Stencilled with the facility logo.",
-      "type": "keycard",
-      "usableOn": ["keycard_reader"],
-      "effect": { "type": "set_room_flag", "flag": "stairwell_unlocked" }
+      "id": "wire_cutters",
+      "label": "Wire Cutters",
+      "description": "Heavy-duty cutters. Enough to open a gap in chain-link. Not consumed on use.",
+      "type": "gadget",
+      "usableOn": ["fence"],
+      "effect": { "type": "set_room_flag", "flag": "fence_cut" }
     },
     {
-      "id": "field_medkit",
-      "label": "Field Medkit",
-      "description": "Standard-issue first aid kit. Restores 3 health.",
-      "type": "consumable",
-      "effect": { "type": "heal", "amount": 3 }
+      "id": "service_keycard",
+      "label": "Service Keycard",
+      "description": "A Soviet military-issue keycard. Stencilled with a facility code.",
+      "type": "keycard",
+      "usableOn": ["keycard_reader"],
+      "effect": { "type": "set_room_flag", "flag": "loading_bay_door_open" }
+    },
+    {
+      "id": "camera",
+      "label": "Camera",
+      "description": "A 35mm miniature camera. The film is loaded. Not consumed on use.",
+      "type": "gadget",
+      "usableOn": ["sova_7"],
+      "effect": { "type": "set_global_flag", "flag": "machine_photographed" }
+    },
+    {
+      "id": "cipher_room_key",
+      "label": "Cipher Room Key",
+      "description": "A small brass key stamped with a cipher wheel emblem. Opens the cipher room.",
+      "type": "keycard",
+      "usableOn": ["cipher_room_door"],
+      "effect": { "type": "set_room_flag", "flag": "cipher_room_accessible" }
+    },
+    {
+      "id": "cipher_room_key_b",
+      "label": "Cipher Room Key",
+      "description": "A duplicate brass key, stamped with a cipher wheel emblem. Opens the cipher room.",
+      "type": "keycard",
+      "usableOn": ["cipher_room_door"],
+      "effect": { "type": "set_room_flag", "flag": "cipher_room_accessible" }
+    },
+    {
+      "id": "duty_office_key",
+      "label": "Duty Office Key",
+      "description": "A small key, slightly bent. Someone was in a hurry when they left it behind.",
+      "type": "keycard",
+      "usableOn": ["duty_office_drawer"],
+      "effect": { "type": "set_room_flag", "flag": "drawer_unlocked" }
+    },
+    {
+      "id": "maintenance_key",
+      "label": "Maintenance Key",
+      "description": "A chunky key on a wire loop. Maintenance issue.",
+      "type": "keycard",
+      "usableOn": ["supply_cabinet"],
+      "effect": { "type": "set_room_flag", "flag": "supply_cabinet_open" }
     }
   ]
 }

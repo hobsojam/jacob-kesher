@@ -1,14 +1,15 @@
 {
   "id": "mission-01",
-  "title": "The Lair",
-  "description": "Infiltrate the villain's research facility and extract the data.",
-  "startingRoomId": "entrance_hall",
-  "missionDeadline": 120,
+  "title": "The Cipher Machine",
+  "description": "Infiltrate a Soviet mountain outpost and photograph the SOVA-7 cipher device before the cipher officer returns from dinner.",
+  "startingRoomId": "mountain_road",
+  "missionDeadline": 80,
   "protagonist": {
     "health": 10,
-    "stats": { "strength": 5, "agility": 5, "intelligence": 5, "charisma": 5 },
+    "stats": { "strength": 3, "agility": 4, "intelligence": 3, "charisma": 2 },
     "skills": [
-      { "id": "hand_to_hand", "label": "Hand to Hand", "level": 2 },
+      { "id": "hand_to_hand", "label": "Hand to Hand", "level": 1 },
+      { "id": "lock_picking", "label": "Lock Picking", "level": 2 },
       { "id": "evasion", "label": "Evasion", "level": 1 }
     ],
     "inventory": {
