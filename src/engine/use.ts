@@ -86,6 +86,19 @@ export function handleUse(
     }
   }
 
+  if (effect.type === 'set_global_flag_if') {
+    const flag = state.flags[effect.condition] ? effect.flag : effect.else_flag
+    return {
+      state: {
+        ...state,
+        flags: { ...state.flags, [flag]: true },
+        itemStates: spentItemStates,
+      },
+      messages: [`You use ${itemData.label}.`],
+    }
+  }
+
+  // set_global_flag
   return {
     state: {
       ...state,
