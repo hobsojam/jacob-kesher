@@ -150,9 +150,10 @@ Examine targets:
       interactLabel: "Get in"
       effect: [set_global_flag: mission_complete]
 Search difficulty: —
-Notes: Starting room. extraction_vehicle interact only becomes meaningful once machine_photographed is set;
-  without it the driver shakes his head (message: "Not without the photographs.") — requires engine
-  support for conditional interact or a guard-style flag check on the effect.
+Notes: Starting room. extraction_vehicle has two effects depending on machine_photographed:
+  — if machine_photographed: set_global_flag: mission_complete → gameOver 'success'
+  — if not: set_global_flag: mission_failed → gameOver 'failed' ("You left without the photographs.")
+  Requires engine support for gameOver: 'failed' (PR separate from mission JSON).
 ```
 
 ### perimeter_fence
@@ -401,7 +402,8 @@ Notes: No enemies, no items. Tension is entirely the turn counter. The camera mu
 | loading_bay_door_open | service_keycard on keycard_reader | service_yard loading bay exit | Interior door unlocked |
 | drawer_unlocked | lock_picking interact or duty_office_key | duty_office examine target | Drawer open; cipher_room_key revealed |
 | machine_photographed | camera interact on sova_7 | extraction_vehicle interact; mountain_road addendum | Photos taken; extraction now available |
-| mission_complete | extraction_vehicle interact (requires machine_photographed) | checkDeadlines() | Win condition |
+| mission_complete | extraction_vehicle interact (with machine_photographed) | checkDeadlines() | Win condition |
+| mission_failed | extraction_vehicle interact (without machine_photographed) | checkDeadlines() | Abort condition — left without photos |
 | alarm_raised | checkDiscoveries() or loud/alarming noise | escape route exits; guard behaviour; room addenda | Guards repositioned; loading bay exit closed |
 
 ---
