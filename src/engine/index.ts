@@ -11,6 +11,7 @@ import { handleExamine } from './examine'
 import { handleLook } from './look'
 import { handleUse } from './use'
 import { handleInteract } from './interact'
+import { handleTalk } from './dialogue'
 import { applyNoise } from './alarm'
 
 export interface EngineResult {
@@ -82,6 +83,8 @@ function dispatch(
       return handleUse(action.itemId, state, data)
     case 'interact':
       return handleInteract(action.targetId, state, data)
+    case 'talk':
+      return handleTalk(action.enemyId, state, data)
   }
 }
 

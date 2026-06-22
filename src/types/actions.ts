@@ -11,3 +11,4 @@ export type Action =
   | { type: 'loot'; enemyId: string; itemId: string }
   | { type: 'look' }
   | { type: 'interact'; targetId: string }
+  | { type: 'talk'; enemyId: string }
