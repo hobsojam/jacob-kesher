@@ -116,6 +116,54 @@ describe('handleAttack', () => {
     expect(result.messages[0]).toMatch(/pistol/i)
   })
 
+  it('nat 20 with ranged weapon marks it spent and emits last-round message', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), weapons: ['pistol', null] },
+      },
+    })
+    const data = makeData({
+      itemData: { pistol: { id: 'pistol', label: 'Pistol', description: '', type: 'weapon_ranged' } },
+    })
+    const result = handleAttack('guard_1', state, data, () => 20)
+
+    expect(result.state.itemStates['pistol']?.used).toBe(true)
+    expect(result.messages.some((m) => /last round/i.test(m))).toBe(true)
+  })
+
+  it('nat 20 with melee weapon does not mark it spent', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), weapons: ['knife', null] },
+      },
+    })
+    const data = makeData({
+      itemData: { knife: { id: 'knife', label: 'Knife', description: '', type: 'weapon_melee' } },
+    })
+    const result = handleAttack('guard_1', state, data, () => 20)
+
+    expect(result.state.itemStates['knife']?.used).toBeFalsy()
+    expect(result.messages.some((m) => /last round/i.test(m))).toBe(false)
+  })
+
+  it('non-20 roll with ranged weapon does not mark it spent', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), weapons: ['pistol', null] },
+      },
+    })
+    const data = makeData({
+      itemData: { pistol: { id: 'pistol', label: 'Pistol', description: '', type: 'weapon_ranged' } },
+    })
+    const result = handleAttack('guard_1', state, data, () => 19)
+
+    expect(result.state.itemStates['pistol']?.used).toBeFalsy()
+    expect(result.messages.some((m) => /last round/i.test(m))).toBe(false)
+  })
+
   it('falls back to melee weapon when ranged is used/broken', () => {
     const state = makeState({
       protagonist: {
