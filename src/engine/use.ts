@@ -33,10 +33,12 @@ export function handleUse(
   }
 
   const { effect } = itemData
-  const spentItemStates = {
-    ...state.itemStates,
-    [itemId]: { ...itemState, used: true },
-  }
+  // Keycards and documents are not consumed on use — they stay in the inventory
+  // and can be used again (e.g., to unlock further doors or re-read a file).
+  const spendable = itemData.type !== 'keycard' && itemData.type !== 'document'
+  const spentItemStates = spendable
+    ? { ...state.itemStates, [itemId]: { ...itemState, used: true } }
+    : state.itemStates
 
   if (effect.type === 'heal') {
     return {
