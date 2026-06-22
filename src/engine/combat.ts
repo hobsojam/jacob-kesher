@@ -2,16 +2,15 @@ import type { EnemyTemplate, GameData } from '../types/data'
 import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { guardPosition } from './patrol'
+import { rollD20 } from './dice'
 
 type WeaponMode = 'unarmed' | 'melee' | 'ranged'
-
-const defaultRoll = (): number => Math.floor(Math.random() * 20) + 1
 
 export function handleAttack(
   enemyId: string,
   state: GameState,
   data: GameData,
-  roll = defaultRoll,
+  roll = rollD20,
 ): SubSystemResult {
   const enemy = data.enemyData[enemyId]
   const template = enemy ? data.enemyTemplates[enemy.templateId] : undefined
@@ -165,7 +164,7 @@ export function handleFlee(state: GameState, _data: GameData): SubSystemResult {
 function resolveEnemyAttack(
   template: EnemyTemplate,
   protagonist: GameState['protagonist'],
-  roll: () => number = defaultRoll,
+  roll: () => number = rollD20,
 ): { hit: boolean; attackRoll: number; defence: number } {
   const attackRoll = roll() + template.stats.strength
   const defence = 10 + protagonist.stats.agility + skillLevel(protagonist.skills, 'evasion')
@@ -175,7 +174,7 @@ function resolveEnemyAttack(
 export function guardAmbush(
   state: GameState,
   data: GameData,
-  roll: () => number = defaultRoll,
+  roll: () => number = rollD20,
 ): { state: GameState; messages: string[] } {
   const roomId = state.protagonist.currentRoom
   const messages: string[] = []
