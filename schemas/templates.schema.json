@@ -1,0 +1,87 @@
+{
+  "$ref": "#/definitions/TemplatesFile",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "EnemyTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "canBeBluffed": {
+          "type": "boolean"
+        },
+        "canBeDisguised": {
+          "type": "boolean"
+        },
+        "detectionRadius": {
+          "type": "number"
+        },
+        "discoveryRisk": {
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "stats": {
+          "additionalProperties": false,
+          "properties": {
+            "agility": {
+              "type": "number"
+            },
+            "health": {
+              "type": "number"
+            },
+            "strength": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "strength",
+            "agility",
+            "health"
+          ],
+          "type": "object"
+        },
+        "type": {
+          "$ref": "#/definitions/EnemyType"
+        },
+        "wakeAfterTurns": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "stats",
+        "detectionRadius",
+        "canBeBluffed",
+        "canBeDisguised"
+      ],
+      "type": "object"
+    },
+    "EnemyType": {
+      "enum": [
+        "guard",
+        "henchman",
+        "villain",
+        "dog",
+        "civilian",
+        "contact"
+      ],
+      "type": "string"
+    },
+    "TemplatesFile": {
+      "additionalProperties": false,
+      "properties": {
+        "templates": {
+          "items": {
+            "$ref": "#/definitions/EnemyTemplate"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "templates"
+      ],
+      "type": "object"
+    }
+  }
+}
