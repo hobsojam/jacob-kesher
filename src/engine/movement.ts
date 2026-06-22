@@ -2,7 +2,7 @@ import type { GameData } from '../types/data'
 import type { GameState, Inventory, RoomState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { FALLBACK_ROOM } from '../constants'
-import { describeRoom, initRoomState } from './room'
+import { initRoomState } from './room'
 
 export function handleMove(
   exitLabel: string,
@@ -67,7 +67,7 @@ export function handleMove(
 
   return {
     state: newState,
-    messages: describeRoom(destination, destinationRoomState),
+    messages: [],
   }
 }
 

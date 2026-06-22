@@ -160,38 +160,13 @@ describe('handleMove', () => {
     expect(result.state.protagonist.currentRoom).toBe('room_b')
   })
 
-  it('includes room description in messages', () => {
+  it('returns no messages on successful move (renderer handles room display)', () => {
     const data = makeData([
       makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'go north' }] }),
       makeRoom({ id: 'room_b', label: 'Server Room', description: 'Racks of equipment hum quietly.' }),
     ])
     const result = handleMove('go north', makeState(), data)
 
-    expect(result.messages).toContain('Server Room')
-    expect(result.messages).toContain('Racks of equipment hum quietly.')
-  })
-
-  it('includes active addenda in room description', () => {
-    const data = makeData([
-      makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'go north' }] }),
-      makeRoom({
-        id: 'room_b',
-        addenda: [{ flag: 'lights_on', text: 'Bright lights illuminate the room.' }],
-      }),
-    ])
-    const state = makeState({
-      roomStates: {
-        room_b: {
-          id: 'room_b',
-          itemIds: [],
-          enemyIds: [],
-          flags: { lights_on: true },
-          visited: false,
-        },
-      },
-    })
-    const result = handleMove('go north', state, data)
-
-    expect(result.messages).toContain('Bright lights illuminate the room.')
+    expect(result.messages).toHaveLength(0)
   })
 })
