@@ -5,6 +5,7 @@
       "label": "Security Keycard",
       "description": "A red magnetic keycard. Stencilled with the facility logo.",
       "type": "keycard",
+      "usableOn": ["keycard_reader"],
       "effect": { "type": "set_room_flag", "flag": "stairwell_unlocked" }
     },
     {

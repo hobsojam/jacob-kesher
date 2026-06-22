@@ -79,7 +79,7 @@ function dispatch(
     case 'look':
       return handleLook(state, data)
     case 'use':
-      return handleUse(action.itemId, state, data)
+      return handleUse(action.itemId, state, data, action.targetId)
     case 'interact':
       return handleInteract(action.targetId, state, data)
   }

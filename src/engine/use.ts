@@ -6,6 +6,7 @@ export function handleUse(
   itemId: string,
   state: GameState,
   data: GameData,
+  targetId?: string,
 ): SubSystemResult {
   const itemData = data.itemData[itemId]
   if (!itemData) {
@@ -26,6 +27,21 @@ export function handleUse(
   const itemState = state.itemStates[itemId] ?? { id: itemId, used: false, broken: false }
   if (itemState.used) {
     return { state, messages: [`${itemData.label} is already spent.`] }
+  }
+
+  // Items with usableOn require a specific target
+  if (itemData.usableOn && itemData.usableOn.length > 0) {
+    if (!targetId) {
+      return { state, messages: [`Use ${itemData.label} on what?`] }
+    }
+    if (!itemData.usableOn.includes(targetId)) {
+      return { state, messages: [`You can't use ${itemData.label} on that.`] }
+    }
+    const room = data.roomIndex[state.protagonist.currentRoom]
+    const targetInRoom = room?.examineTargets.some((t) => t.id === targetId)
+    if (!targetInRoom) {
+      return { state, messages: ["That isn't here."] }
+    }
   }
 
   if (!itemData.effect) {

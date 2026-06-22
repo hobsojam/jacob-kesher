@@ -36,11 +36,27 @@ function renderInventory(el: HTMLElement, state: GameState, data: GameData): voi
     label.textContent = item.label
     row.appendChild(label)
 
-    const useBtn = document.createElement('button')
-    useBtn.className = 'btn-inventory'
-    useBtn.textContent = 'Use'
-    useBtn.addEventListener('click', () => dispatch({ type: 'use', itemId }))
-    row.appendChild(useBtn)
+    const room = data.roomIndex[state.protagonist.currentRoom]
+    const targets = room?.examineTargets ?? []
+    const applicableTargets = item.usableOn
+      ? targets.filter((t) => item.usableOn!.includes(t.id))
+      : []
+
+    if (applicableTargets.length > 0) {
+      for (const target of applicableTargets) {
+        const useOnBtn = document.createElement('button')
+        useOnBtn.className = 'btn-inventory'
+        useOnBtn.textContent = `Use on ${target.label}`
+        useOnBtn.addEventListener('click', () => dispatch({ type: 'use', itemId, targetId: target.id }))
+        row.appendChild(useOnBtn)
+      }
+    } else {
+      const useBtn = document.createElement('button')
+      useBtn.className = 'btn-inventory'
+      useBtn.textContent = 'Use'
+      useBtn.addEventListener('click', () => dispatch({ type: 'use', itemId }))
+      row.appendChild(useBtn)
+    }
 
     const dropBtn = document.createElement('button')
     dropBtn.className = 'btn-inventory'
