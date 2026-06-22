@@ -1,0 +1,86 @@
+{
+  "rooms": [
+    {
+      "id": "entrance_hall",
+      "label": "Entrance Hall",
+      "description": "A marble-floored entrance hall. Surveillance cameras sweep the room in lazy arcs. The place looks recently evacuated.",
+      "addenda": [],
+      "exits": [
+        { "destinationId": "east_corridor", "label": "head east through the double doors" }
+      ],
+      "itemIds": ["security_keycard"],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "reception_desk",
+          "label": "the reception desk",
+          "description": "A large oak desk. A visitor log lies open — the last entry is dated three days ago. Someone left in a hurry."
+        },
+        {
+          "id": "security_camera",
+          "label": "the security cameras",
+          "description": "Standard pan-tilt units on a 30-second sweep cycle. You count four covering the hall. Avoid moving when they're facing you."
+        }
+      ],
+      "searchDifficulty": 0
+    },
+    {
+      "id": "east_corridor",
+      "label": "East Corridor",
+      "description": "A long corridor lit by humming strip lights. The air smells of cleaning fluid. At the far end, a heavy door bears a red keycard reader.",
+      "addenda": [],
+      "exits": [
+        { "destinationId": "entrance_hall", "label": "return west to the entrance hall" },
+        {
+          "destinationId": "server_room",
+          "label": "take the stairs down to the server room",
+          "requires": { "itemId": "security_keycard" }
+        }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "notice_board",
+          "label": "the notice board",
+          "description": "Maintenance rosters and a fire exit plan. One sheet catches your eye — a handwritten schedule. The overnight guard rotation starts at 0200."
+        },
+        {
+          "id": "keycard_reader",
+          "label": "the keycard reader",
+          "description": "A red panel with a slot. Requires a security keycard to unlock the stairwell door."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "server_room",
+      "label": "Server Room",
+      "description": "Rows of servers hum in the cold recycled air. LEDs blink in the dark. A terminal in the corner is still logged in.",
+      "addenda": [
+        {
+          "flag": "data_downloaded",
+          "text": "The download bar on the terminal reads 100%. The files are on your drive. Get out."
+        }
+      ],
+      "exits": [
+        { "destinationId": "east_corridor", "label": "take the stairs back up to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["field_medkit"],
+      "examineTargets": [
+        {
+          "id": "main_terminal",
+          "label": "the main terminal",
+          "description": "The terminal is unlocked and showing a file directory. Someone left mid-session. The research files are right there."
+        },
+        {
+          "id": "server_rack",
+          "label": "the server racks",
+          "description": "Dozens of blinking units. Labels suggest this is the primary data store for Project LAZARUS."
+        }
+      ],
+      "searchDifficulty": -1
+    }
+  ]
+}

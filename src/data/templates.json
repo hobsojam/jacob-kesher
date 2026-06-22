@@ -1,0 +1,22 @@
+{
+  "templates": [
+    {
+      "id": "guard",
+      "type": "guard",
+      "stats": { "strength": 4, "agility": 3, "health": 1 },
+      "detectionRadius": 1,
+      "canBeBluffed": false,
+      "canBeDisguised": false,
+      "wakeAfterTurns": 15
+    },
+    {
+      "id": "henchman",
+      "type": "henchman",
+      "stats": { "strength": 5, "agility": 4, "health": 3 },
+      "detectionRadius": 1,
+      "canBeBluffed": true,
+      "canBeDisguised": false,
+      "wakeAfterTurns": 20
+    }
+  ]
+}
