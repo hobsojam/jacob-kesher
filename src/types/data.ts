@@ -19,6 +19,9 @@ export interface ExamineTarget {
   id: string
   label: string
   description: string
+  // Optional interaction: button label and one or more effects applied when triggered
+  interactLabel?: string
+  effect?: ItemEffect[]
 }
 
 export interface RoomData {

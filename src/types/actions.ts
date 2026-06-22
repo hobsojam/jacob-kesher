@@ -10,3 +10,4 @@ export type Action =
   | { type: 'flee' }
   | { type: 'loot'; enemyId: string; itemId: string }
   | { type: 'look' }
+  | { type: 'interact'; targetId: string }

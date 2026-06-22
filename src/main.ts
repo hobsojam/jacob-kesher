@@ -2,7 +2,7 @@ import './style.css'
 import { buildGameData, initGameState } from './data/loader'
 import { startGame } from './renderer/index'
 
-import type { EnemyTemplate, ItemData } from './types/data'
+import type { EnemyTemplate, ItemData, RoomData } from './types/data'
 import type { MissionManifest } from './types/mission'
 
 import mapRaw from './data/missions/mission-01/map.json'
@@ -12,7 +12,7 @@ import manifestRaw from './data/missions/mission-01/manifest.json'
 import templatesRaw from './data/templates.json'
 
 const data = buildGameData(
-  mapRaw.rooms,
+  mapRaw.rooms as RoomData[],
   itemsRaw.items as ItemData[],
   enemiesRaw.enemies,
   templatesRaw.templates as EnemyTemplate[],

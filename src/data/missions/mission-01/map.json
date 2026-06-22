@@ -72,7 +72,12 @@
         {
           "id": "main_terminal",
           "label": "the main terminal",
-          "description": "The terminal is unlocked and showing a file directory. Someone left mid-session. The research files are right there."
+          "description": "The terminal is unlocked and showing a file directory. Someone left mid-session. The research files are right there.",
+          "interactLabel": "Download files",
+          "effect": [
+            { "type": "set_room_flag", "flag": "data_downloaded" },
+            { "type": "set_global_flag", "flag": "mission_complete" }
+          ]
         },
         {
           "id": "server_rack",
