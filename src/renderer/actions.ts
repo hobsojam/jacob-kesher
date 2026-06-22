@@ -106,12 +106,16 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
     if (!enemy) continue
 
     const displayName = enemyDisplayName(enemy, data)
+    const template = data.enemyTemplates[enemy.templateId]
     if (!enemyState || enemyState.status === 'active') {
       buttons.push(
         { label: `Attack ${displayName}`,         action: { type: 'attack', enemyId }, category: 'combat' },
         { label: `Knock out ${displayName}`,       action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
         { label: `Kill ${displayName} (silent)`,   action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
       )
+      if (template?.canBeBluffed) {
+        buttons.push({ label: `Talk to ${displayName}`, action: { type: 'talk', enemyId }, category: 'misc' })
+      }
     } else {
       buttons.push(...lootButtons(enemyId, displayName, enemyState.inventory, data))
     }
