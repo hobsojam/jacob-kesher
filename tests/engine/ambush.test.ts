@@ -83,6 +83,9 @@ describe('alert guard ambush on move', () => {
   })
 
   it('does not ambush for a suspicious guard', () => {
+    // Mock to guarantee the proximity detection roll fails (1+3=4 < DC 15),
+    // so the guard stays suspicious and does not escalate to alert before the ambush check.
+    vi.spyOn(Math, 'random').mockReturnValue(0)
     const state = stateWithGuard({ status: 'active', awareness: 'suspicious' })
     const result = processAction({ type: 'move', exitLabel: 'go east' }, state, baseData)
 
