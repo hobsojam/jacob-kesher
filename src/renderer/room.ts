@@ -21,16 +21,17 @@ export function currentRoomLines(state: GameState, data: GameData): string[] {
     const enemy = data.enemyData[enemyId]
     const enemyState = state.enemyStates[enemyId]
     if (!enemy) continue
-    const suffix =
-      !enemyState || enemyState.status === 'active'
-        ? ''
-        : enemyState.status === 'unconscious'
-          ? ' (unconscious)'
-          : ' (dead)'
+    const suffix = enemyStatusSuffix(enemyState?.status)
     lines.push(`${enemy.name} is here${suffix}.`)
   }
 
   return lines
+}
+
+function enemyStatusSuffix(status: string | undefined): string {
+  if (status === 'unconscious') return ' (unconscious)'
+  if (status === 'dead') return ' (dead)'
+  return ''
 }
 
 export function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {
