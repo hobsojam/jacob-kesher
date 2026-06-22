@@ -70,9 +70,21 @@ function applyEffect(effect: ItemEffect, state: GameState, messages: string[]): 
     }
   }
 
+  if (effect.type === 'set_global_flag_if') {
+    const flag = state.flags[effect.condition] ? effect.flag : effect.else_flag
+    return applyGlobalFlag(flag, state, messages)
+  }
+
   // set_global_flag
-  if (effect.flag === 'mission_complete') {
+  return applyGlobalFlag(effect.flag, state, messages)
+}
+
+function applyGlobalFlag(flag: string, state: GameState, messages: string[]): GameState {
+  if (flag === 'mission_complete') {
     messages.push('Download complete. The files are on your drive.')
   }
-  return { ...state, flags: { ...state.flags, [effect.flag]: true } }
+  if (flag === 'mission_failed') {
+    messages.push('You left without the photographs. Mission failed.')
+  }
+  return { ...state, flags: { ...state.flags, [flag]: true } }
 }
