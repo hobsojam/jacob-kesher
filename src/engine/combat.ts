@@ -41,6 +41,7 @@ export function handleAttack(
   ]
 
   const currentHealth = enemyState?.health ?? template.stats.health
+  const damage = itemId ? (data.itemData[itemId]?.damage ?? 1) : 1
   let updatedEnemyState: EnemyState = enemyState ?? {
     id: enemyId,
     status: 'active',
@@ -51,7 +52,7 @@ export function handleAttack(
   let enemyStillStanding = true
 
   if (jacobHit) {
-    const newHealth = currentHealth - 1
+    const newHealth = currentHealth - damage
     messages.push(`Hit! (${jacobAttack} vs defence ${enemyDefence})`)
 
     if (newHealth <= 0) {
