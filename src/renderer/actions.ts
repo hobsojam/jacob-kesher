@@ -63,7 +63,7 @@ function applyRequirement(
       btn.disabled = true
       btn.disabledReason = `Requires ${req.skillId} level ${req.skillLevel}`
     }
-  } else if (req.flag && !state.flags[req.flag]) {
+  } else if (req.flag && !state.flags[req.flag] && !state.roomStates[state.protagonist.currentRoom]?.flags[req.flag]) {
     btn.disabled = true
     btn.disabledReason = 'Not yet available'
   }
