@@ -1,6 +1,6 @@
-import type { RoomData } from '../types/data'
+import type { EnemyData, RoomData } from '../types/data'
 import type { GameData } from '../types/data'
-import type { RoomState } from '../types/state'
+import type { EnemyState, RoomState } from '../types/state'
 
 export function describeRoom(room: RoomData, roomState: RoomState): string[] {
   const lines: string[] = [room.label, room.description]
@@ -10,6 +10,10 @@ export function describeRoom(room: RoomData, roomState: RoomState): string[] {
     }
   }
   return lines
+}
+
+export function initEnemyState(enemy: EnemyData): EnemyState {
+  return { id: enemy.id, status: 'active', inventory: [...enemy.inventory] }
 }
 
 export function initRoomState(roomId: string, data: GameData): RoomState {

@@ -1,12 +1,7 @@
 import type { ItemEffect, GameData } from '../types/data'
-import type { GameState, Inventory } from '../types/state'
+import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
-
-function hasItem(itemId: string, inv: Inventory): boolean {
-  return ([...inv.weapons, ...inv.gadgets, ...inv.small, inv.special] as (string | null)[]).includes(
-    itemId,
-  )
-}
+import { inventoryContains } from './inventory'
 
 export function handleInteract(
   targetId: string,
@@ -24,7 +19,7 @@ export function handleInteract(
 
   if (target.interactRequires) {
     const req = target.interactRequires
-    if (req.itemId && !hasItem(req.itemId, state.protagonist.inventory)) {
+    if (req.itemId && !inventoryContains(state.protagonist.inventory, req.itemId)) {
       const label = data.itemData[req.itemId]?.label ?? req.itemId
       return { state, messages: [`You need the ${label.toLowerCase()} to do that.`] }
     }

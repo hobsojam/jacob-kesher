@@ -1,8 +1,9 @@
 import type { GameData } from '../types/data'
-import type { GameState, Inventory, RoomState } from '../types/state'
+import type { GameState, RoomState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { FALLBACK_ROOM } from '../constants'
 import { initRoomState } from './room'
+import { inventoryContains } from './inventory'
 
 export function handleMove(
   exitLabel: string,
@@ -71,13 +72,4 @@ export function handleMove(
     state: newState,
     messages: [],
   }
-}
-
-function inventoryContains(inventory: Inventory, itemId: string): boolean {
-  return (
-    inventory.weapons.includes(itemId) ||
-    inventory.gadgets.includes(itemId) ||
-    inventory.small.includes(itemId) ||
-    inventory.special === itemId
-  )
 }

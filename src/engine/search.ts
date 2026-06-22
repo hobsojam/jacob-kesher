@@ -3,6 +3,7 @@ import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
 import { guardPosition } from './patrol'
+import { initEnemyState } from './room'
 
 export function handleSearch(state: GameState, data: GameData): SubSystemResult {
   const roomId = state.protagonist.currentRoom
@@ -63,7 +64,7 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
     for (const guard of interruptingGuards) {
       const es = state.enemyStates[guard.id]
       patched[guard.id] = {
-        ...(es ?? { id: guard.id, status: 'active', inventory: [...guard.inventory] }),
+        ...(es ?? initEnemyState(guard)),
         awareness: 'alert',
       }
     }

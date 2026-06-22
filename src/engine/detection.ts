@@ -3,6 +3,7 @@ import type { GameState, NoiseLevel } from '../types/state'
 import { rollD20 } from './dice'
 import { guardPosition } from './patrol'
 import { escalateAwareness } from './alarm'
+import { initEnemyState } from './room'
 
 const NOISE_DC: Record<NoiseLevel, number | null> = {
   silent:   null,
@@ -48,7 +49,7 @@ export function checkDetection(
 
     const next = escalateAwareness(current)
     updatedEnemyStates[enemy.id] = {
-      ...(es ?? { id: enemy.id, status: 'active', inventory: [...enemy.inventory] }),
+      ...(es ?? initEnemyState(enemy)),
       awareness: next,
     }
     changed = true

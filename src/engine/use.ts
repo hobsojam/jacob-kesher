@@ -1,6 +1,7 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
+import { inventoryContains } from './inventory'
 
 export function handleUse(
   itemId: string,
@@ -13,14 +14,7 @@ export function handleUse(
     return { state, messages: ["You don't have that."] }
   }
 
-  const inv = state.protagonist.inventory
-  const inInventory = [
-    ...inv.weapons,
-    ...inv.gadgets,
-    ...inv.small,
-    inv.special,
-  ].includes(itemId)
-  if (!inInventory) {
+  if (!inventoryContains(state.protagonist.inventory, itemId)) {
     return { state, messages: ["You don't have that."] }
   }
 

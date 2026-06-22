@@ -3,6 +3,7 @@ import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } f
 import type { SubSystemResult } from '../types/engine'
 import { guardPosition } from './patrol'
 import { rollD20 } from './dice'
+import { initEnemyState } from './room'
 
 type WeaponMode = 'unarmed' | 'melee' | 'ranged'
 
@@ -42,11 +43,7 @@ export function handleAttack(
 
   const currentHealth = enemyState?.health ?? template.stats.health
   const damage = itemId ? (data.itemData[itemId]?.damage ?? 1) : 1
-  let updatedEnemyState: EnemyState = enemyState ?? {
-    id: enemyId,
-    status: 'active',
-    inventory: [...enemy.inventory],
-  }
+  let updatedEnemyState: EnemyState = enemyState ?? initEnemyState(enemy)
 
   let protagonistHealth = state.protagonist.health
   let enemyStillStanding = true
@@ -126,11 +123,7 @@ export function handleStealthTakedown(
     return { state, messages: [`${enemy.name} is aware of you — a silent takedown is not possible.`] }
   }
 
-  const base: EnemyState = enemyState ?? {
-    id: enemyId,
-    status: 'active',
-    inventory: [...enemy.inventory],
-  }
+  const base: EnemyState = enemyState ?? initEnemyState(enemy)
 
   let newEnemyState: EnemyState
   let message: string
