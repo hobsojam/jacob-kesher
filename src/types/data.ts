@@ -84,6 +84,10 @@ export interface PatrolRoute {
 
 export interface EnemyData {
   id: string
+  // When false (default), the renderer shows a generic role label ("a guard")
+  // instead of the name. Set true for story characters the player knows from
+  // the start; flip it dynamically via flags when the player learns who they are.
+  known?: boolean
   name: string
   templateId: string
   roomId: string

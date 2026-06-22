@@ -2,6 +2,7 @@ import type { Exit, GameData, RoomData } from '../types/data'
 import type { GameState, RoomState } from '../types/state'
 import type { Action } from '../types/actions'
 import { guardPosition } from '../engine/patrol'
+import { enemyDisplayName } from './room'
 
 export interface ActionButton {
   label: string
@@ -91,14 +92,15 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
     const enemyState = state.enemyStates[enemyId]
     if (!enemy) continue
 
+    const displayName = enemyDisplayName(enemy, data)
     if (!enemyState || enemyState.status === 'active') {
       buttons.push(
-        { label: `Attack ${enemy.name}`, action: { type: 'attack', enemyId }, category: 'combat' },
-        { label: `Take down ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
-        { label: `Eliminate ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
+        { label: `Attack ${displayName}`, action: { type: 'attack', enemyId }, category: 'combat' },
+        { label: `Take down ${displayName}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
+        { label: `Eliminate ${displayName}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
       )
     } else {
-      buttons.push(...lootButtons(enemyId, enemy.name, enemyState.inventory, data))
+      buttons.push(...lootButtons(enemyId, displayName, enemyState.inventory, data))
     }
   }
   return buttons

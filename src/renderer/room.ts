@@ -1,7 +1,22 @@
-import type { GameData } from '../types/data'
+import type { EnemyData, EnemyType, GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { describeRoom } from '../engine/room'
 import { guardPosition } from '../engine/patrol'
+
+const GENERIC_LABEL: Record<EnemyType, string> = {
+  guard:    'a guard',
+  henchman: 'a henchman',
+  villain:  'the villain',
+  dog:      'a dog',
+  civilian: 'a civilian',
+  contact:  'your contact',
+}
+
+export function enemyDisplayName(enemy: EnemyData, data: GameData): string {
+  if (enemy.known) return enemy.name
+  const template = data.enemyTemplates[enemy.templateId]
+  return template ? GENERIC_LABEL[template.type] : enemy.name
+}
 
 export function currentRoomLines(state: GameState, data: GameData): string[] {
   const roomId = state.protagonist.currentRoom
@@ -22,7 +37,7 @@ export function currentRoomLines(state: GameState, data: GameData): string[] {
     const enemyState = state.enemyStates[enemyId]
     if (!enemy) continue
     const suffix = enemyStatusSuffix(enemyState?.status)
-    lines.push(`${enemy.name} is here${suffix}.`)
+    lines.push(`${enemyDisplayName(enemy, data)} is here${suffix}.`)
   }
 
   return lines
