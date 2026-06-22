@@ -1,11 +1,45 @@
 {
   "enemies": [
     {
-      "id": "guard_boris",
-      "name": "Boris",
-      "description": "He has his back to you, running a finger down the duty roster pinned to the wall.",
+      "id": "fence_guard",
+      "name": "Pvt. Morozov",
+      "description": "A young soldier on patrol, rifle slung, breath misting in the cold air.",
       "templateId": "guard",
-      "roomId": "east_corridor",
+      "roomId": "perimeter_fence",
+      "patrol": {
+        "roomIds": ["perimeter_fence", "mountain_road"],
+        "cycleTime": 8,
+        "startOffset": 0
+      },
+      "inventory": []
+    },
+    {
+      "id": "roaming_guard",
+      "name": "Sgt. Volkov",
+      "description": "A broad-shouldered sergeant moving with purpose, keys jangling at his belt.",
+      "templateId": "guard",
+      "roomId": "service_yard",
+      "patrol": {
+        "roomIds": ["service_yard", "loading_bay"],
+        "cycleTime": 6,
+        "startOffset": 0
+      },
+      "inventory": ["service_keycard"]
+    },
+    {
+      "id": "corridor_guard",
+      "name": "Cpl. Petrov",
+      "description": "A corporal standing at ease at the far end of the corridor, rifle slung, eyes forward.",
+      "templateId": "guard",
+      "roomId": "ground_floor_corridor",
+      "inventory": []
+    },
+    {
+      "id": "comms_guard",
+      "name": "Pvt. Nikitin",
+      "description": "A signals private hunched over the radio console, headphones on, pen moving across a notepad.",
+      "templateId": "guard",
+      "roomId": "comms_room",
       "inventory": []
     }
   ]

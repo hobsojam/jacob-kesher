@@ -76,6 +76,116 @@ describe('handleInteract', () => {
   })
 })
 
+describe('handleInteract — interactRequires item', () => {
+  const cabinet = makeRoom({
+    id: 'room_a',
+    examineTargets: [
+      {
+        id: 'cabinet',
+        label: 'the cabinet',
+        description: 'A locked cabinet.',
+        interactLabel: 'Unlock',
+        interactRequires: { itemId: 'maint_key' },
+        effect: [{ type: 'set_room_flag', flag: 'cabinet_open' }],
+      },
+    ],
+  })
+  const cabinetData = makeGameData({
+    roomIndex: { room_a: cabinet },
+    itemData: { maint_key: { id: 'maint_key', label: 'Maintenance Key', description: '', type: 'keycard' } },
+  })
+
+  it('blocks the interact when the required item is not in inventory', () => {
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleInteract('cabinet', state, cabinetData)
+
+    expect(result.state.roomStates['room_a']?.flags['cabinet_open']).toBeFalsy()
+    expect(result.messages[0]).toMatch(/maintenance key/i)
+  })
+
+  it('allows the interact when the required item is in inventory', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: {
+          weapons: [null, null],
+          gadgets: [null, null],
+          small: ['maint_key', null, null],
+          special: null,
+        },
+      },
+      roomStates: { room_a: makeRoomState() },
+    })
+    const result = handleInteract('cabinet', state, cabinetData)
+
+    expect(result.state.roomStates['room_a'].flags['cabinet_open']).toBe(true)
+  })
+})
+
+describe('handleInteract — interactRequires skill', () => {
+  const drawer = makeRoom({
+    id: 'room_a',
+    examineTargets: [
+      {
+        id: 'drawer',
+        label: 'the drawer',
+        description: 'A locked drawer.',
+        interactLabel: 'Pick the lock',
+        interactRequires: { skillId: 'lock_picking', skillLevel: 2 },
+        effect: [{ type: 'set_room_flag', flag: 'drawer_unlocked' }],
+      },
+    ],
+  })
+  const drawerData = makeGameData({ roomIndex: { room_a: drawer } })
+
+  it('blocks the interact when the skill level is below the threshold', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 1 }],
+      },
+      roomStates: { room_a: makeRoomState() },
+    })
+    const result = handleInteract('drawer', state, drawerData)
+
+    expect(result.state.roomStates['room_a']?.flags['drawer_unlocked']).toBeFalsy()
+    expect(result.messages[0]).toMatch(/lock picking.*high enough/i)
+  })
+
+  it('blocks when the skill is absent entirely', () => {
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleInteract('drawer', state, drawerData)
+
+    expect(result.messages[0]).toMatch(/lock picking.*high enough/i)
+  })
+
+  it('allows the interact when the skill level meets the threshold', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 2 }],
+      },
+      roomStates: { room_a: makeRoomState() },
+    })
+    const result = handleInteract('drawer', state, drawerData)
+
+    expect(result.state.roomStates['room_a'].flags['drawer_unlocked']).toBe(true)
+  })
+
+  it('allows the interact when the skill level exceeds the threshold', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        skills: [{ id: 'lock_picking', label: 'Lock Picking', level: 5 }],
+      },
+      roomStates: { room_a: makeRoomState() },
+    })
+    const result = handleInteract('drawer', state, drawerData)
+
+    expect(result.state.roomStates['room_a'].flags['drawer_unlocked']).toBe(true)
+  })
+})
+
 describe('set_global_flag_if', () => {
   const conditionalRoom = makeRoom({
     id: 'room_a',
