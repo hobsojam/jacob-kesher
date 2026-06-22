@@ -4,6 +4,7 @@
   "description": "Infiltrate a Soviet mountain outpost and photograph the SOVA-7 cipher device before the cipher officer returns from dinner.",
   "startingRoomId": "mountain_road",
   "missionDeadline": 80,
+  "deadlineMessage": "A door opens at the end of the corridor. Footsteps. The cipher officer is back.",
   "protagonist": {
     "health": 10,
     "stats": { "strength": 3, "agility": 4, "intelligence": 3, "charisma": 2 },

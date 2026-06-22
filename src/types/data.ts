@@ -124,4 +124,5 @@ export interface GameData {
   itemData: Record<string, ItemData>
   enemyTemplates: Record<string, EnemyTemplate>
   enemyData: Record<string, EnemyData>
+  deadlineMessage: string
 }

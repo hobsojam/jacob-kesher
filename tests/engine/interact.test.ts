@@ -18,7 +18,10 @@ const terminalRoom = makeRoom({
   ],
 })
 
-const data = makeGameData({ roomIndex: { room_a: terminalRoom } })
+const data = makeGameData({
+  roomIndex: { room_a: terminalRoom },
+  deadlineMessage: 'The cipher officer is back.',
+})
 
 describe('handleInteract', () => {
   it('applies all effects in order', () => {

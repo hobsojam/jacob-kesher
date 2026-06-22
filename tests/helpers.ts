@@ -59,6 +59,7 @@ export const makeGameData = (partial: Partial<GameData> = {}): GameData => ({
   itemData: {},
   enemyTemplates: {},
   enemyData: {},
+  deadlineMessage: '',
   ...partial,
 })
 
