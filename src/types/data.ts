@@ -78,6 +78,7 @@ export interface EnemyTemplate {
   canBeBluffed: boolean
   canBeDisguised: boolean
   wakeAfterTurns?: number
+  discoveryRisk?: number   // 0–1 probability per turn that a downed instance is found; default 0
 }
 
 export interface PatrolRoute {
