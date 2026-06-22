@@ -168,6 +168,7 @@ function dispatch(action: Parameters<typeof processAction>[0]): void {
       dead:    '--- You have been eliminated. Mission failed. ---',
       timeout: '--- Time has run out. Mission failed. ---',
       success: '--- Mission complete. ---',
+      failed:  '--- Mission failed. ---',
     }
     appendMessages([endings[result.gameOver] ?? '--- Game over. ---'])
   }
