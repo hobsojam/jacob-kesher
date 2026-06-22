@@ -3,7 +3,6 @@ import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
 import { guardPosition } from './patrol'
-import { escalateAlarm } from './alarm'
 
 export function handleSearch(state: GameState, data: GameData): SubSystemResult {
   const roomId = state.protagonist.currentRoom
@@ -52,20 +51,29 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
     flags: { ...roomState.flags, searched: true },
   }
 
-  let alarmLevel = state.alarmLevel
+  let updatedEnemyStates = state.enemyStates
 
   if (interruptingGuards.length > 0) {
     const names = interruptingGuards
       .map((g) => data.enemyData[g.id]?.name ?? 'a guard')
       .join(', ')
     messages.push(`You are interrupted — ${names} enters the room.`)
-    alarmLevel = escalateAlarm(state.alarmLevel)
+    // The guard has seen Jacob — immediately alert, no probability roll
+    const patched = { ...state.enemyStates }
+    for (const guard of interruptingGuards) {
+      const es = state.enemyStates[guard.id]
+      patched[guard.id] = {
+        ...(es ?? { id: guard.id, status: 'active', inventory: [...guard.inventory] }),
+        awareness: 'alert',
+      }
+    }
+    updatedEnemyStates = patched
   }
 
   return {
     state: {
       ...state,
-      alarmLevel,
+      enemyStates: updatedEnemyStates,
       roomStates: { ...state.roomStates, [roomId]: newRoomState },
     },
     messages,

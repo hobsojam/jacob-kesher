@@ -39,7 +39,6 @@ export const makeState = (partial: Partial<GameState> = {}): GameState => ({
     flags: {},
   },
   time: { elapsed: 0, missionDeadline: 100 },
-  alarmLevel: 'undetected',
   roomStates: {},
   enemyStates: {},
   itemStates: {},

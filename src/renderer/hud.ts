@@ -1,20 +1,29 @@
-import type { AlarmLevel, GameState } from '../types/state'
+import type { Awareness, GameState } from '../types/state'
 
-const ALARM_LABEL: Record<AlarmLevel, string> = {
-  undetected: 'UNDETECTED',
-  suspicious:  'SUSPICIOUS',
-  searching:   'SEARCHING',
-  alert:       'ALERT',
-  lockdown:    'LOCKDOWN',
+const AWARENESS_LABEL: Record<Awareness, string> = {
+  unaware:    'UNDETECTED',
+  suspicious: 'SUSPICIOUS',
+  alert:      'ALERT',
+}
+
+function deriveAwareness(state: GameState): Awareness {
+  let worst: Awareness = 'unaware'
+  for (const es of Object.values(state.enemyStates)) {
+    if (es.status !== 'active') continue
+    const a = es.awareness ?? 'unaware'
+    if (a === 'alert') return 'alert'
+    if (a === 'suspicious') worst = 'suspicious'
+  }
+  return worst
 }
 
 export function renderHud(el: HTMLElement, state: GameState): void {
   const { health } = state.protagonist
   const { elapsed, missionDeadline } = state.time
-  const alarm = state.alarmLevel
+  const awareness = deriveAwareness(state)
 
   el.innerHTML =
     `<span class="hud-health">♥ ${health}</span>` +
-    `<span class="hud-alarm hud-alarm--${alarm}">${ALARM_LABEL[alarm]}</span>` +
+    `<span class="hud-alarm hud-alarm--${awareness}">${AWARENESS_LABEL[awareness]}</span>` +
     `<span class="hud-time">Turn ${elapsed} / ${missionDeadline}</span>`
 }

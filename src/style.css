@@ -38,11 +38,9 @@ body {
 .hud-health { color: #c04040; }
 
 .hud-alarm { font-weight: bold; }
-.hud-alarm--undetected  { color: #4a9a4a; }
-.hud-alarm--suspicious  { color: #a0904a; }
-.hud-alarm--searching   { color: #c07830; }
-.hud-alarm--alert       { color: #c04040; }
-.hud-alarm--lockdown    { color: #ff2020; }
+.hud-alarm--unaware    { color: #4a9a4a; }
+.hud-alarm--suspicious { color: #a0904a; }
+.hud-alarm--alert      { color: #c04040; }
 
 .hud-time { margin-left: auto; color: #505050; }
 

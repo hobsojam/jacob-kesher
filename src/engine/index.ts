@@ -27,7 +27,10 @@ export function processAction(
   const messages = [...result.messages]
 
   const noised = result.noise
-    ? { ...result.state, alarmLevel: applyNoise(result.noise, result.state.alarmLevel) }
+    ? {
+        ...result.state,
+        enemyStates: applyNoise(result.noise, result.state.protagonist.currentRoom, result.state, data),
+      }
     : result.state
 
   const advanced = advanceTime(action.type, noised, result.timeCost)
