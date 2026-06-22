@@ -1,4 +1,5 @@
 import type { GameState } from '../types/state'
+import { validateGameState } from './validate'
 
 export function loadGame(onLoad: (state: GameState) => void): void {
   const input = document.createElement('input')
@@ -12,10 +13,15 @@ export function loadGame(onLoad: (state: GameState) => void): void {
     const reader = new FileReader()
     reader.addEventListener('load', () => {
       try {
-        const state = JSON.parse(reader.result as string) as GameState
-        onLoad(state)
+        const raw: unknown = JSON.parse(reader.result as string)
+        const result = validateGameState(raw)
+        if (!result.ok) {
+          alert(`Invalid save file:\n\n${result.errors.join('\n')}`)
+          return
+        }
+        onLoad(raw as GameState)
       } catch {
-        alert('Invalid save file.')
+        alert('Save file is not valid JSON.')
       }
     })
     reader.readAsText(file)
