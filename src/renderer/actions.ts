@@ -29,7 +29,6 @@ export function computeActions(state: GameState, data: GameData): ActionButton[]
     ...takeButtons(roomState, data),
     ...examineButtons(room),
     ...enemyButtons(currentRoom, state, data),
-    ...inventoryButtons(state, data),
     ...miscButtons(previousRoomId, activeEnemyPresent),
   ]
 }
@@ -124,17 +123,6 @@ function lootButtons(
   })
 }
 
-function inventoryButtons(state: GameState, data: GameData): ActionButton[] {
-  return carriedItems(state.protagonist.inventory).flatMap((itemId) => {
-    const item = data.itemData[itemId]
-    if (!item) return []
-    return [
-      { label: `Use ${item.label}`, action: { type: 'use' as const, itemId }, category: 'inventory' as const },
-      { label: `Drop ${item.label}`, action: { type: 'drop' as const, itemId }, category: 'inventory' as const },
-    ]
-  })
-}
-
 function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean): ActionButton[] {
   const buttons: ActionButton[] = [
     { label: 'Search room', action: { type: 'search' }, category: 'misc' },
@@ -148,11 +136,6 @@ function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean)
 
 function inventoryHas(inventory: GameState['protagonist']['inventory'], itemId: string): boolean {
   return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special].includes(itemId)
-}
-
-function carriedItems(inventory: GameState['protagonist']['inventory']): string[] {
-  return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special]
-    .filter((id): id is string => id !== null)
 }
 
 function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {
