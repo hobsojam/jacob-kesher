@@ -125,6 +125,17 @@ export function handleLoot(
   }
 }
 
+// --- exports ---
+
+export function inventoryContains(inventory: Inventory, itemId: string): boolean {
+  return (
+    inventory.weapons.includes(itemId) ||
+    inventory.gadgets.includes(itemId) ||
+    inventory.small.includes(itemId) ||
+    inventory.special === itemId
+  )
+}
+
 // --- helpers ---
 
 function slotCategory(type: ItemType): 'weapons' | 'gadgets' | 'small' {

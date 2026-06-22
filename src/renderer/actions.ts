@@ -2,6 +2,8 @@ import type { Exit, GameData, RoomData } from '../types/data'
 import type { GameState, RoomState } from '../types/state'
 import type { Action } from '../types/actions'
 import { enemyDisplayName, enemiesInRoom } from './room'
+import { inventoryContains } from '../engine/inventory'
+import { SKILLS } from '../constants'
 
 export interface ActionButton {
   label: string
@@ -58,14 +60,15 @@ function applyRequirement(
   state: GameState,
   data: GameData,
 ): void {
-  if (req.itemId && !inventoryHas(state.protagonist.inventory, req.itemId)) {
+  if (req.itemId && !inventoryContains(state.protagonist.inventory, req.itemId)) {
     btn.disabled = true
     btn.disabledReason = `Requires ${data.itemData[req.itemId]?.label ?? req.itemId}`
   } else if (req.skillId && req.skillLevel !== undefined) {
     const skill = state.protagonist.skills.find((s) => s.id === req.skillId)
     if (!skill || skill.level < req.skillLevel) {
+      const skillLabel = SKILLS.find((s) => s.id === req.skillId)?.label ?? req.skillId
       btn.disabled = true
-      btn.disabledReason = `Requires ${req.skillId} level ${req.skillLevel}`
+      btn.disabledReason = `Requires ${skillLabel} level ${req.skillLevel}`
     }
   } else if (req.flag && !state.flags[req.flag] && !state.roomStates[state.protagonist.currentRoom]?.flags[req.flag]) {
     btn.disabled = true
@@ -160,6 +163,3 @@ function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean)
   return buttons
 }
 
-function inventoryHas(inventory: GameState['protagonist']['inventory'], itemId: string): boolean {
-  return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special].includes(itemId)
-}

@@ -312,7 +312,7 @@
           "label": "the desk drawer",
           "description": "A locked drawer. The lock looks standard.",
           "interactLabel": "Pick the lock",
-          "interactRequires": { "skillId": "lock_picking", "skillLevel": 2 },
+          "interactRequires": { "skillId": "safecracking", "skillLevel": 2 },
           "effect": [
             { "type": "set_room_flag", "flag": "drawer_unlocked" }
           ]
