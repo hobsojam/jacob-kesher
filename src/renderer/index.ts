@@ -157,6 +157,7 @@ function dispatch(action: Parameters<typeof processAction>[0]): void {
   if (movedRoom) {
     appendSeparator()
     appendMessages(currentRoomLines(currentState, gameData), true)
+    if (result.messages.length > 0) appendMessages(result.messages)
   } else {
     appendMessages(result.messages)
   }
