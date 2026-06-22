@@ -106,6 +106,11 @@ export function handleStealthTakedown(
     return { state, messages: [`${enemy.name} is already down.`] }
   }
 
+  const awareness = enemyState?.awareness ?? 'unaware'
+  if (awareness !== 'unaware') {
+    return { state, messages: [`${enemy.name} is aware of you — a silent takedown is not possible.`] }
+  }
+
   const base: EnemyState = enemyState ?? {
     id: enemyId,
     status: 'active',

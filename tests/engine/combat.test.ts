@@ -229,6 +229,32 @@ describe('handleStealthTakedown', () => {
 
     expect(result.state.protagonist.health).toBe(10)
   })
+
+  it('blocks takedown when guard is suspicious', () => {
+    const state = makeState({
+      enemyStates: { guard_1: { id: 'guard_1', status: 'active', inventory: [], awareness: 'suspicious' } },
+    })
+    const result = handleStealthTakedown('guard_1', 'neutralise', state, makeData())
+
+    expect(result.state.enemyStates['guard_1']?.status).not.toBe('unconscious')
+    expect(result.messages[0]).toMatch(/aware of you/i)
+  })
+
+  it('blocks takedown when guard is alert', () => {
+    const state = makeState({
+      enemyStates: { guard_1: { id: 'guard_1', status: 'active', inventory: [], awareness: 'alert' } },
+    })
+    const result = handleStealthTakedown('guard_1', 'kill', state, makeData())
+
+    expect(result.state.enemyStates['guard_1']?.status).not.toBe('dead')
+    expect(result.messages[0]).toMatch(/aware of you/i)
+  })
+
+  it('allows takedown when guard has no enemyState (default unaware)', () => {
+    const result = handleStealthTakedown('guard_1', 'neutralise', makeState(), makeData())
+
+    expect(result.state.enemyStates['guard_1'].status).toBe('unconscious')
+  })
 })
 
 // --- handleFlee ---
