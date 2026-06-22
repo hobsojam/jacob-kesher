@@ -2,6 +2,7 @@ import type { EnemyData, EnemyTemplate, GameData, ItemData, RoomData } from '../
 import type { GameState } from '../types/state'
 import type { MissionManifest } from '../types/mission'
 import { initRoomState } from '../engine/room'
+import { SKILLS } from '../constants'
 
 export function buildGameData(
   rooms: RoomData[],
@@ -38,7 +39,7 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
       health:         manifest.protagonist.health,
       maxHealth:      manifest.protagonist.health,
       stats:          manifest.protagonist.stats,
-      skills:         manifest.protagonist.skills,
+      skills:         SKILLS.map((s) => ({ id: s.id, label: s.label, level: 0 })),
       inventory:      manifest.protagonist.inventory,
       flags:          {},
     },

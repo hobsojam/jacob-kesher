@@ -12,7 +12,7 @@ const roomWithReveal = makeRoom({
       label: 'the drawer',
       description: 'A locked drawer.',
       interactLabel: 'Pick the lock',
-      interactRequires: { skillId: 'lock_picking', skillLevel: 2 },
+      interactRequires: { skillId: 'safecracking', skillLevel: 2 },
       effect: [{ type: 'set_room_flag', flag: 'drawer_unlocked' }],
     },
   ],
@@ -27,7 +27,7 @@ function stateWithLockPicking(level: number) {
   return makeState({
     protagonist: {
       ...makeState().protagonist,
-      skills: [{ id: 'lock_picking', label: 'Lock Picking', level }],
+      skills: [{ id: 'safecracking', label: 'Safecracking', level }],
     },
     roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
   })

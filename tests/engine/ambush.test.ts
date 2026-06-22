@@ -83,6 +83,7 @@ describe('alert guard ambush on move', () => {
   })
 
   it('does not ambush for a suspicious guard', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0) // min roll — guard never escalates to alert
     const state = stateWithGuard({ status: 'active', awareness: 'suspicious' })
     const result = processAction({ type: 'move', exitLabel: 'go east' }, state, baseData)
 

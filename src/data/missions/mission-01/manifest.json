@@ -8,11 +8,6 @@
   "protagonist": {
     "health": 10,
     "stats": { "strength": 3, "agility": 4, "intelligence": 3, "charisma": 2 },
-    "skills": [
-      { "id": "hand_to_hand", "label": "Hand to Hand", "level": 1 },
-      { "id": "lock_picking", "label": "Lock Picking", "level": 2 },
-      { "id": "evasion", "label": "Evasion", "level": 1 }
-    ],
     "inventory": {
       "weapons": [null, null],
       "gadgets": [null, null],
