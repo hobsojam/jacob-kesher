@@ -116,6 +116,49 @@ describe('handleAttack', () => {
     expect(result.messages[0]).toMatch(/pistol/i)
   })
 
+  it('ranged weapon with damage:2 deals 2 HP to a tough enemy', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), weapons: ['pistol', null] },
+      },
+    })
+    const data = makeData({
+      itemData: { pistol: { id: 'pistol', label: 'Pistol', description: '', type: 'weapon_ranged', damage: 2 } },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+    })
+    const result = handleAttack('guard_1', state, data, alwaysHit)
+
+    expect(result.state.enemyStates['guard_1'].status).toBe('active')
+    expect(result.state.enemyStates['guard_1'].health).toBe(1)
+  })
+
+  it('ranged weapon with damage:2 kills an enemy at exactly 2 HP', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), weapons: ['pistol', null] },
+      },
+      enemyStates: { guard_1: { id: 'guard_1', status: 'active', health: 2, inventory: [] } },
+    })
+    const data = makeData({
+      itemData: { pistol: { id: 'pistol', label: 'Pistol', description: '', type: 'weapon_ranged', damage: 2 } },
+    })
+    const result = handleAttack('guard_1', state, data, alwaysHit)
+
+    expect(result.state.enemyStates['guard_1'].status).toBe('dead')
+    expect(result.messages.some((m) => /goes down/i.test(m))).toBe(true)
+  })
+
+  it('unarmed and melee with no damage field default to 1 HP', () => {
+    const data = makeData({
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+    })
+    const result = handleAttack('guard_1', makeState(), data, alwaysHit)
+
+    expect(result.state.enemyStates['guard_1'].health).toBe(2)
+  })
+
   it('nat 20 with ranged weapon marks it spent and emits last-round message', () => {
     const state = makeState({
       protagonist: {

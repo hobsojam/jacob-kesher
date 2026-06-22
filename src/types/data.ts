@@ -69,6 +69,7 @@ export interface ItemData {
   label: string
   description: string
   type: ItemType
+  damage?: number        // HP dealt per hit; defaults to 1 if absent
   effect?: ItemEffect
   usableOn?: string[]    // ExamineTarget IDs this item can be used on in the same room
 }
