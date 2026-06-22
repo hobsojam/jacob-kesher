@@ -108,6 +108,48 @@ describe('handleUse — set_global_flag', () => {
   })
 })
 
+describe('handleUse — keycard', () => {
+  const keycard: ItemData = {
+    id: 'keycard',
+    label: 'Security Keycard',
+    description: 'Opens doors.',
+    type: 'keycard',
+    effect: { type: 'set_room_flag', flag: 'door_unlocked' },
+  }
+
+  it('sets the room flag without consuming the keycard', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), small: ['keycard', null, null] },
+      },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
+    })
+    const data = makeItemsData([keycard])
+
+    const result = handleUse('keycard', state, data)
+
+    expect(result.state.roomStates['room_a'].flags['door_unlocked']).toBe(true)
+    expect(result.state.itemStates['keycard']?.used).toBeFalsy()
+  })
+
+  it('can be used a second time after the first use', () => {
+    const state = makeState({
+      protagonist: {
+        ...makeState().protagonist,
+        inventory: { ...emptyInventory(), small: ['keycard', null, null] },
+      },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
+    })
+    const data = makeItemsData([keycard])
+
+    const first = handleUse('keycard', state, data)
+    const second = handleUse('keycard', first.state, data)
+
+    expect(second.messages[0]).not.toMatch(/already spent/i)
+  })
+})
+
 describe('handleUse — edge cases', () => {
   it('rejects item not in inventory', () => {
     const state = makeState()

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { handleAttack, handleStealthTakedown, handleFlee } from '../../src/engine/combat'
+import { processAction } from '../../src/engine/index'
 import type { GameData, EnemyData, EnemyTemplate } from '../../src/types/data'
 import type { GameState } from '../../src/types/state'
 import { makeState, makeGameData, emptyInventory } from '../helpers'
@@ -259,5 +260,22 @@ describe('handleFlee', () => {
     const result = handleFlee(stateWithPrevRoom(), makeData())
 
     expect(result.noise).toBe('quiet')
+  })
+})
+
+// --- wakeEnemies (via processAction) ---
+
+describe('wakeEnemies', () => {
+  it('revives an unconscious guard as alert when the turn threshold is reached', () => {
+    const state = makeState({
+      time: { elapsed: 5, missionDeadline: 100 },
+      enemyStates: {
+        guard_1: { id: 'guard_1', status: 'unconscious', unconsciousUntil: 5, inventory: [] },
+      },
+    })
+    const result = processAction({ type: 'look' }, state, makeData())
+
+    expect(result.state.enemyStates['guard_1'].status).toBe('active')
+    expect(result.state.enemyStates['guard_1'].awareness).toBe('alert')
   })
 })

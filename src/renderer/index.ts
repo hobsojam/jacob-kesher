@@ -5,6 +5,51 @@ import { renderHud } from './hud'
 import { currentRoomLines } from './room'
 import { computeActions } from './actions'
 
+function carriedItems(inventory: GameState['protagonist']['inventory']): string[] {
+  return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special]
+    .filter((id): id is string => id !== null)
+}
+
+function renderInventory(el: HTMLElement, state: GameState, data: GameData): void {
+  el.innerHTML = ''
+  const items = carriedItems(state.protagonist.inventory)
+
+  if (items.length === 0) {
+    const empty = document.createElement('span')
+    empty.className = 'inv-empty'
+    empty.textContent = '— nothing carried —'
+    el.appendChild(empty)
+    return
+  }
+
+  for (const itemId of items) {
+    const item = data.itemData[itemId]
+    if (!item) continue
+
+    const row = document.createElement('div')
+    row.className = 'inv-row'
+
+    const label = document.createElement('span')
+    label.className = 'inv-label'
+    label.textContent = item.label
+    row.appendChild(label)
+
+    const useBtn = document.createElement('button')
+    useBtn.className = 'btn-inventory'
+    useBtn.textContent = 'Use'
+    useBtn.addEventListener('click', () => dispatch({ type: 'use', itemId }))
+    row.appendChild(useBtn)
+
+    const dropBtn = document.createElement('button')
+    dropBtn.className = 'btn-inventory'
+    dropBtn.textContent = 'Drop'
+    dropBtn.addEventListener('click', () => dispatch({ type: 'drop', itemId }))
+    row.appendChild(dropBtn)
+
+    el.appendChild(row)
+  }
+}
+
 let currentState: GameState
 let gameData: GameData
 let gameOver = false
@@ -30,6 +75,7 @@ function appendSeparator(): void {
 
 function render(): void {
   renderHud(document.getElementById('hud')!, currentState)
+  renderInventory(document.getElementById('inventory')!, currentState, gameData)
 
   const actionsEl = document.getElementById('actions')!
   actionsEl.innerHTML = ''
@@ -52,9 +98,27 @@ function render(): void {
 }
 
 function dispatch(action: Parameters<typeof processAction>[0]): void {
+  if (action.type === 'look') {
+    // 'Look around' is a pure UI refresh — reads directly from currentState,
+    // never touches engine state. This guarantees an accurate view of all
+    // action conditionals regardless of how state was last modified.
+    appendSeparator()
+    appendMessages(currentRoomLines(currentState, gameData), true)
+    render()
+    return
+  }
+
+  const roomBefore = currentState.protagonist.currentRoom
   const result = processAction(action, currentState, gameData)
   currentState = result.state
-  appendMessages(result.messages)
+  const movedRoom = action.type === 'move' && currentState.protagonist.currentRoom !== roomBefore
+
+  if (movedRoom) {
+    appendSeparator()
+    appendMessages(currentRoomLines(currentState, gameData), true)
+  } else {
+    appendMessages(result.messages)
+  }
 
   if (result.gameOver) {
     gameOver = true
@@ -64,11 +128,6 @@ function dispatch(action: Parameters<typeof processAction>[0]): void {
       success: '--- Mission complete. ---',
     }
     appendMessages([endings[result.gameOver] ?? '--- Game over. ---'])
-  }
-
-  if (action.type === 'move' || action.type === 'look') {
-    appendSeparator()
-    appendMessages(currentRoomLines(currentState, gameData), true)
   }
 
   render()

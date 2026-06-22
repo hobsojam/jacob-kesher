@@ -1,41 +1,91 @@
 import { describe, it, expect, vi } from 'vitest'
-import { escalateAlarm, applyNoise } from '../../src/engine/alarm'
+import { escalateAwareness, applyNoise } from '../../src/engine/alarm'
+import { makeState, makeGameData } from '../helpers'
+import type { EnemyData } from '../../src/types/data'
 
-describe('escalateAlarm', () => {
-  it('advances one step', () => {
-    expect(escalateAlarm('undetected')).toBe('suspicious')
-    expect(escalateAlarm('suspicious')).toBe('searching')
-    expect(escalateAlarm('searching')).toBe('alert')
-    expect(escalateAlarm('alert')).toBe('lockdown')
+describe('escalateAwareness', () => {
+  it('advances from unaware to suspicious', () => {
+    expect(escalateAwareness('unaware')).toBe('suspicious')
   })
 
-  it('clamps at lockdown', () => {
-    expect(escalateAlarm('lockdown')).toBe('lockdown')
+  it('advances from suspicious to alert', () => {
+    expect(escalateAwareness('suspicious')).toBe('alert')
+  })
+
+  it('clamps at alert', () => {
+    expect(escalateAwareness('alert')).toBe('alert')
   })
 })
 
+const nearbyGuard: EnemyData = {
+  id: 'guard_1', name: 'Guard', templateId: 'guard', roomId: 'room_a', inventory: [],
+}
+
+const distantGuard: EnemyData = {
+  id: 'guard_1', name: 'Guard', templateId: 'guard', roomId: 'room_b', inventory: [],
+}
+
 describe('applyNoise', () => {
-  it('silent noise never escalates', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0)
-    expect(applyNoise('silent', 'undetected')).toBe('undetected')
-    vi.restoreAllMocks()
+  it('silent noise never escalates any guard', () => {
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: nearbyGuard } })
+    const result = applyNoise('silent', 'room_a', state, data)
+    expect(result).toBe(state.enemyStates)
   })
 
-  it('escalates when random roll is below threshold', () => {
+  it('escalates a same-room guard when roll is below threshold', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.01)
-    expect(applyNoise('quiet', 'undetected')).toBe('suspicious')
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: nearbyGuard } })
+    const result = applyNoise('quiet', 'room_a', state, data)
+    expect(result['guard_1']?.awareness).toBe('suspicious')
     vi.restoreAllMocks()
   })
 
-  it('does not escalate when roll is above threshold', () => {
+  it('does not escalate a same-room guard when roll is above threshold', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99)
-    expect(applyNoise('alarming', 'undetected')).toBe('undetected')
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: nearbyGuard } })
+    const result = applyNoise('alarming', 'room_a', state, data)
+    expect(result['guard_1']?.awareness).toBeUndefined()
     vi.restoreAllMocks()
   })
 
-  it('alarming noise escalates on high-probability roll', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5)
-    expect(applyNoise('alarming', 'undetected')).toBe('suspicious')
+  it('quiet noise does not reach guards in other rooms', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.01)
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: distantGuard } })
+    const result = applyNoise('quiet', 'room_a', state, data)
+    expect(result['guard_1']?.awareness).toBeUndefined()
+    vi.restoreAllMocks()
+  })
+
+  it('alarming noise can reach guards in other rooms', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.01)
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: distantGuard } })
+    const result = applyNoise('alarming', 'room_a', state, data)
+    expect(result['guard_1']?.awareness).toBe('suspicious')
+    vi.restoreAllMocks()
+  })
+
+  it('skips unconscious and dead guards', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.01)
+    const state = makeState({
+      enemyStates: { guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] } },
+    })
+    const data = makeGameData({ enemyData: { guard_1: nearbyGuard } })
+    const result = applyNoise('alarming', 'room_a', state, data)
+    expect(result['guard_1']?.awareness).toBeUndefined()
+    vi.restoreAllMocks()
+  })
+
+  it('returns the same enemyStates reference when nothing changes', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    const state = makeState()
+    const data = makeGameData({ enemyData: { guard_1: nearbyGuard } })
+    const result = applyNoise('alarming', 'room_a', state, data)
+    expect(result).toBe(state.enemyStates)
     vi.restoreAllMocks()
   })
 })

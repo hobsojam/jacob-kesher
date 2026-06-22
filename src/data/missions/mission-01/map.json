@@ -34,7 +34,7 @@
         {
           "destinationId": "server_room",
           "label": "take the stairs down to the server room",
-          "requires": { "itemId": "security_keycard" }
+          "requires": { "flag": "stairwell_unlocked" }
         }
       ],
       "itemIds": [],

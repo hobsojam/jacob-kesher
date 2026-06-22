@@ -2,6 +2,7 @@ import type { Exit, GameData, RoomData } from '../types/data'
 import type { GameState, RoomState } from '../types/state'
 import type { Action } from '../types/actions'
 import { guardPosition } from '../engine/patrol'
+import { enemyDisplayName } from './room'
 
 export interface ActionButton {
   label: string
@@ -18,13 +19,17 @@ export function computeActions(state: GameState, data: GameData): ActionButton[]
 
   if (!room || !roomState) return []
 
+  const activeEnemyPresent = enemiesInRoom(currentRoom, state, data).some((id) => {
+    const es = state.enemyStates[id]
+    return !es || es.status === 'active'
+  })
+
   return [
     ...moveButtons(room, roomState, state, data),
     ...takeButtons(roomState, data),
     ...examineButtons(room),
     ...enemyButtons(currentRoom, state, data),
-    ...inventoryButtons(state, data),
-    ...miscButtons(previousRoomId),
+    ...miscButtons(previousRoomId, activeEnemyPresent),
   ]
 }
 
@@ -62,7 +67,7 @@ function applyRequirement(
       btn.disabled = true
       btn.disabledReason = `Requires ${req.skillId} level ${req.skillLevel}`
     }
-  } else if (req.flag && !state.flags[req.flag]) {
+  } else if (req.flag && !state.flags[req.flag] && !state.roomStates[state.protagonist.currentRoom]?.flags[req.flag]) {
     btn.disabled = true
     btn.disabledReason = 'Not yet available'
   }
@@ -91,14 +96,15 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
     const enemyState = state.enemyStates[enemyId]
     if (!enemy) continue
 
+    const displayName = enemyDisplayName(enemy, data)
     if (!enemyState || enemyState.status === 'active') {
       buttons.push(
-        { label: `Attack ${enemy.name}`, action: { type: 'attack', enemyId }, category: 'combat' },
-        { label: `Take down ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
-        { label: `Eliminate ${enemy.name}`, action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
+        { label: `Attack ${displayName}`,         action: { type: 'attack', enemyId }, category: 'combat' },
+        { label: `Knock out ${displayName}`,       action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' }, category: 'combat' },
+        { label: `Kill ${displayName} (silent)`,   action: { type: 'stealth_takedown', enemyId, intent: 'kill' }, category: 'combat' },
       )
     } else {
-      buttons.push(...lootButtons(enemyId, enemy.name, enemyState.inventory, data))
+      buttons.push(...lootButtons(enemyId, displayName, enemyState.inventory, data))
     }
   }
   return buttons
@@ -117,23 +123,12 @@ function lootButtons(
   })
 }
 
-function inventoryButtons(state: GameState, data: GameData): ActionButton[] {
-  return carriedItems(state.protagonist.inventory).flatMap((itemId) => {
-    const item = data.itemData[itemId]
-    if (!item) return []
-    return [
-      { label: `Use ${item.label}`, action: { type: 'use' as const, itemId }, category: 'inventory' as const },
-      { label: `Drop ${item.label}`, action: { type: 'drop' as const, itemId }, category: 'inventory' as const },
-    ]
-  })
-}
-
-function miscButtons(previousRoomId: string | null): ActionButton[] {
+function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean): ActionButton[] {
   const buttons: ActionButton[] = [
     { label: 'Search room', action: { type: 'search' }, category: 'misc' },
     { label: 'Look around', action: { type: 'look' }, category: 'misc' },
   ]
-  if (previousRoomId) {
+  if (activeEnemyPresent && previousRoomId) {
     buttons.push({ label: 'Flee!', action: { type: 'flee' }, category: 'misc' })
   }
   return buttons
@@ -141,11 +136,6 @@ function miscButtons(previousRoomId: string | null): ActionButton[] {
 
 function inventoryHas(inventory: GameState['protagonist']['inventory'], itemId: string): boolean {
   return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special].includes(itemId)
-}
-
-function carriedItems(inventory: GameState['protagonist']['inventory']): string[] {
-  return [...inventory.weapons, ...inventory.gadgets, ...inventory.small, inventory.special]
-    .filter((id): id is string => id !== null)
 }
 
 function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {

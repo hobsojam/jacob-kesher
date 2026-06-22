@@ -3,6 +3,7 @@
     {
       "id": "guard_boris",
       "name": "Boris",
+      "description": "He has his back to you, running a finger down the duty roster pinned to the wall.",
       "templateId": "guard",
       "roomId": "east_corridor",
       "inventory": []

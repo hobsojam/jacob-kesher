@@ -84,7 +84,15 @@ export interface PatrolRoute {
 
 export interface EnemyData {
   id: string
+  // When false (default), the renderer shows a generic role label ("a guard")
+  // instead of the name. Set true for story characters the player knows from
+  // the start; flip it dynamically via flags when the player learns who they are.
+  known?: boolean
   name: string
+  // Shown in the room description while the enemy is active. Disappears once
+  // they are unconscious or dead. Use it to set the scene: posture, activity,
+  // awareness — anything that gives the player context for their approach.
+  description?: string
   templateId: string
   roomId: string
   patrol?: PatrolRoute

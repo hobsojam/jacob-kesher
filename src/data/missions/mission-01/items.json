@@ -4,7 +4,8 @@
       "id": "security_keycard",
       "label": "Security Keycard",
       "description": "A red magnetic keycard. Stencilled with the facility logo.",
-      "type": "keycard"
+      "type": "keycard",
+      "effect": { "type": "set_room_flag", "flag": "stairwell_unlocked" }
     },
     {
       "id": "field_medkit",

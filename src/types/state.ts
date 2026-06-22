@@ -40,12 +40,16 @@ export interface ItemState {
   broken: boolean
 }
 
+// Per-guard awareness state. Absent means 'unaware'.
+export type Awareness = 'unaware' | 'suspicious' | 'alert'
+
 export interface EnemyState {
   id: string
   status: 'active' | 'unconscious' | 'dead'
   health?: number            // current health; undefined means full health from template
   unconsciousUntil?: number
   inventory: string[]
+  awareness?: Awareness      // undefined === 'unaware'
 }
 
 export interface TimeState {
@@ -53,19 +57,11 @@ export interface TimeState {
   missionDeadline: number
 }
 
-export type AlarmLevel =
-  | 'undetected'
-  | 'suspicious'
-  | 'searching'
-  | 'alert'
-  | 'lockdown'
-
 export type NoiseLevel = 'silent' | 'quiet' | 'loud' | 'alarming'
 
 export interface GameState {
   protagonist: Protagonist
   time: TimeState
-  alarmLevel: AlarmLevel
   roomStates: Record<string, RoomState>
   enemyStates: Record<string, EnemyState>
   itemStates: Record<string, ItemState>

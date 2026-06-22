@@ -160,7 +160,7 @@ describe('handleSearch', () => {
     expect(result.messages.some((m) => /interrupted/i.test(m))).toBe(true)
   })
 
-  it('escalates alarm when guard interrupts', () => {
+  it('sets the interrupting guard to alert', () => {
     const data: GameData = makeGameData({
       roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
       enemyData: {
@@ -174,13 +174,10 @@ describe('handleSearch', () => {
         },
       },
     })
-    const state = makeState({
-      alarmLevel: 'undetected',
-      roomStates: { room_a: makeRoomState() },
-    })
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
     const result = handleSearch(state, data)
 
-    expect(result.state.alarmLevel).toBe('suspicious')
+    expect(result.state.enemyStates['guard_1']?.awareness).toBe('alert')
   })
 
   it('does not report interruption from unconscious guard', () => {
@@ -204,7 +201,7 @@ describe('handleSearch', () => {
     const result = handleSearch(state, data)
 
     expect(result.messages.some((m) => /interrupted/i.test(m))).toBe(false)
-    expect(result.state.alarmLevel).toBe('undetected')
+    expect(result.state.enemyStates['guard_1']?.awareness).toBeUndefined()
   })
 
   it('does not report interruption from guard patrolling a different room', () => {
