@@ -1,7 +1,8 @@
 import type { GameData } from '../types/data'
-import type { GameState, EnemyState } from '../types/state'
+import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { rollD20 } from './dice'
+import { initEnemyState } from './room'
 
 export function handleTalk(
   enemyId: string,
@@ -29,7 +30,7 @@ export function handleTalk(
   // Enemies that can see through disguises are harder to bluff
   const resistance = 10 + (template.canBeDisguised ? 0 : 3)
 
-  const base: EnemyState = enemyState ?? { id: enemyId, status: 'active', inventory: [...enemy.inventory] }
+  const base = enemyState ?? initEnemyState(enemy)
 
   if (rollResult >= resistance) {
     return {

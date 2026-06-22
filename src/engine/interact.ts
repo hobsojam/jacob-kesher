@@ -1,6 +1,7 @@
 import type { ItemEffect, GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
+import { SKILLS } from '../constants'
 import { inventoryContains } from './inventory'
 
 export function handleInteract(
@@ -27,7 +28,7 @@ export function handleInteract(
       const have = state.protagonist.skills.find((s) => s.id === req.skillId)?.level ?? 0
       const need = req.skillLevel ?? 1
       if (have < need) {
-        const skillLabel = req.skillId.replace(/_/g, ' ')
+        const skillLabel = SKILLS.find((s) => s.id === req.skillId)?.label ?? req.skillId
         return { state, messages: [`Your ${skillLabel} isn't high enough.`] }
       }
     }

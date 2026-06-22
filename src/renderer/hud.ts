@@ -7,6 +7,7 @@ const AWARENESS_LABEL: Record<Awareness, string> = {
 }
 
 function deriveAwareness(state: GameState): Awareness {
+  if (state.flags['alarm_raised']) return 'alert'
   let worst: Awareness = 'unaware'
   for (const es of Object.values(state.enemyStates)) {
     if (es.status !== 'active') continue

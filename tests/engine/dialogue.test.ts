@@ -1,7 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { handleTalk } from '../../src/engine/dialogue'
+import { processAction } from '../../src/engine/index'
 import { makeState, makeRoomState, makeGameData } from '../helpers'
 import type { EnemyTemplate, EnemyData } from '../../src/types/data'
+
+afterEach(() => vi.restoreAllMocks())
 
 const alwaysHit  = () => 20
 const alwaysMiss = () => 1
@@ -120,5 +123,34 @@ describe('handleTalk — edge cases', () => {
     const result = handleTalk('g1', state, data, alwaysHit)
 
     expect(result.state.enemyStates['g1'].inventory).toEqual(['pistol'])
+  })
+})
+
+describe('failed bluff — pipeline ambush', () => {
+  it('guard attacks immediately when bluff fails (same room)', () => {
+    // First random call is the bluff roll: 0 → rollD20=1, 1+cha5=6 < DC10 → fail.
+    // Subsequent calls are the guard attack roll: 0.99 → rollD20=20 → hit.
+    vi.spyOn(Math, 'random').mockReturnValueOnce(0).mockReturnValue(0.99)
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+
+    const result = processAction({ type: 'talk', enemyId: 'g1' }, state, data)
+
+    expect(result.messages.some((m) => /attacks/i.test(m))).toBe(true)
+    expect(result.state.protagonist.health).toBeLessThan(10)
+  })
+
+  it('guard does not attack when bluff succeeds', () => {
+    // Roll 0 → rollD20=1, 1+cha5=6 < DC10 normally fails,
+    // but with charisma 20: 1+20=21 ≥ DC10 → success. No attack.
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const highChaState = makeState({
+      protagonist: { ...makeState().protagonist, stats: { strength: 3, agility: 4, intelligence: 3, charisma: 20 } },
+      roomStates: { room_a: makeRoomState() },
+    })
+
+    const result = processAction({ type: 'talk', enemyId: 'g1' }, highChaState, data)
+
+    expect(result.state.protagonist.health).toBe(10)
+    expect(result.messages.some((m) => /attacks/i.test(m))).toBe(false)
   })
 })
