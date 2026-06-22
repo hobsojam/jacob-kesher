@@ -11,6 +11,7 @@ const targets = [
   ['src/types/files.ts',   'EnemiesFile',       'schemas/enemies.schema.json'],
   ['src/types/files.ts',   'TemplatesFile',     'schemas/templates.schema.json'],
   ['src/types/files.ts',   'MissionManifest',   'schemas/manifest.schema.json'],
+  ['src/types/state.ts',   'GameState',         'schemas/game-state.schema.json'],
 ]
 
 for (const [path, type, out] of targets) {
