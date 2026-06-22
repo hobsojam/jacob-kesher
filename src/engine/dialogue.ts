@@ -24,8 +24,8 @@ export function handleTalk(
     return { state, messages: ['They are not impressed by words.'] }
   }
 
-  const persuasion = state.protagonist.skills.find((sk) => sk.id === 'persuasion')?.level ?? 0
-  const rollResult = roll() + state.protagonist.stats.charisma + persuasion
+  const disguise = state.protagonist.skills.find((sk) => sk.id === 'disguise')?.level ?? 0
+  const rollResult = roll() + state.protagonist.stats.charisma + disguise
   // Enemies that can see through disguises are harder to bluff
   const resistance = 10 + (template.canBeDisguised ? 0 : 3)
 

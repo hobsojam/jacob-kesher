@@ -17,9 +17,11 @@ export function checkDetection(
   state: GameState,
   data: GameData,
   roll: () => number = rollD20,
+  covertBonus = 0,
 ): { state: GameState; messages: string[] } {
   const dc = NOISE_DC[noise]
   if (dc === null) return { state, messages: [] }
+  const effectiveDc = dc + covertBonus
 
   const messages: string[] = []
   const updatedEnemyStates = { ...state.enemyStates }
@@ -42,7 +44,7 @@ export function checkDetection(
     const distance = roomDistance(sourceRoomId, enemyRoom, data.roomIndex)
     if (distance > template.detectionRadius) continue
 
-    if (roll() + template.stats.agility < dc) continue
+    if (roll() + template.stats.agility < effectiveDc) continue
 
     const next = escalateAwareness(current)
     updatedEnemyStates[enemy.id] = {

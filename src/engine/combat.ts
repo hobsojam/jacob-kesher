@@ -31,8 +31,8 @@ export function handleAttack(
   )
   const weaponLabel = itemId ? (data.itemData[itemId]?.label ?? 'weapon') : 'bare hands'
 
-  const jacobAttack =
-    roll() + attackStat(mode, state.protagonist.stats, state.protagonist.skills)
+  const rawRoll = roll()
+  const jacobAttack = rawRoll + attackStat(mode, state.protagonist.stats, state.protagonist.skills)
   const enemyDefence = 10 + template.stats.agility
   const jacobHit = jacobAttack >= enemyDefence
 
@@ -67,6 +67,19 @@ export function handleAttack(
     messages.push(`Miss! (${jacobAttack} vs defence ${enemyDefence})`)
   }
 
+  // Natural 20 with a ranged weapon fires the last round
+  let updatedItemStates = state.itemStates
+  if (rawRoll === 20 && mode === 'ranged' && itemId) {
+    messages.push('The slide locks back — that was your last round.')
+    updatedItemStates = {
+      ...state.itemStates,
+      [itemId]: {
+        ...(state.itemStates[itemId] ?? { id: itemId, used: false, broken: false }),
+        used: true,
+      },
+    }
+  }
+
   if (enemyStillStanding) {
     const { hit, attackRoll, defence } = resolveEnemyAttack(template, state.protagonist, roll)
     messages.push(`${enemy.name} retaliates. (${attackRoll} vs defence ${defence})`)
@@ -83,6 +96,7 @@ export function handleAttack(
       ...state,
       protagonist: { ...state.protagonist, health: protagonistHealth },
       enemyStates: { ...state.enemyStates, [enemyId]: updatedEnemyState },
+      itemStates: updatedItemStates,
     },
     messages,
     noise: modeToNoise(mode),
@@ -236,7 +250,7 @@ function attackStat(
   skills: Skill[],
 ): number {
   if (mode === 'ranged') return stats.agility + skillLevel(skills, 'marksmanship')
-  return stats.strength + skillLevel(skills, 'hand_to_hand')
+  return stats.strength + skillLevel(skills, 'pugilism')
 }
 
 function skillLevel(skills: Skill[], id: string): number {
