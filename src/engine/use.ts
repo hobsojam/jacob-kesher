@@ -60,6 +60,11 @@ export function handleUse(
     return { state: next, messages }
   }
 
+  // Documents with no usableOn/targetId: reading returns the description, no state change.
+  if (itemData.type === 'document' && !itemData.usableOn?.length && !targetId) {
+    return { state, messages: [itemData.description] }
+  }
+
   if (!itemData.effect) {
     return { state, messages: [`You fiddle with ${itemData.label} but nothing happens.`] }
   }
