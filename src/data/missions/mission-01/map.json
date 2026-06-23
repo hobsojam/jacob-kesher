@@ -29,12 +29,7 @@
         {
           "id": "evelyn",
           "label": "Evelyn",
-          "description": "Alderton's secretary occupies the desk by the door — dark hair, a file open in front of her that she is very deliberately reading. She glances up. 'I know,' she says pleasantly, before you've said anything. She goes back to her file.",
-          "interactLabel": "Photograph Evelyn",
-          "interactRequires": { "itemId": "camera" },
-          "effect": [
-            { "type": "message", "text": "You raise the camera. Evelyn doesn't look up from her file. 'I saw that, Mr. Kesher.' She turns a page. 'The machine is in a mountain, not in Whitehall. I suggest you save the film.' You put it away." }
-          ]
+          "description": "Alderton's secretary occupies the desk by the door — dark hair, a file open in front of her that she is very deliberately reading. She glances up. 'I know,' she says pleasantly, before you've said anything. She goes back to her file."
         }
       ]
     },
@@ -63,7 +58,7 @@
           "id": "extraction_vehicle",
           "label": "the black Volga",
           "description": "A black Volga, engine off, driver watching the fence.",
-          "interactLabel": "Get in",
+          "interactLabel": "Get in the Volga — mission complete",
           "effect": [
             { "type": "set_global_flag", "flag": "mission_complete" }
           ]

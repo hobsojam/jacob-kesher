@@ -19,10 +19,13 @@
     {
       "id": "camera",
       "label": "Camera",
-      "description": "A 35mm miniature camera. The film is loaded. Not consumed on use.",
+      "description": "A 35mm miniature camera. The film is loaded.",
       "type": "gadget",
-      "usableOn": ["sova_7"],
-      "effect": { "type": "set_global_flag", "flag": "machine_photographed" }
+      "usableOn": ["sova_7", "evelyn"],
+      "effect": { "type": "set_global_flag", "flag": "machine_photographed" },
+      "targetEffects": {
+        "evelyn": [{ "type": "message", "text": "You raise the camera. Evelyn doesn't look up from her file. 'I saw that, Mr. Kesher.' She turns a page. 'The machine is in a mountain, not in Whitehall. I suggest you save the film.' You put it away." }]
+      }
     },
     {
       "id": "cipher_room_key",
@@ -60,7 +63,7 @@
       "id": "flashbang",
       "label": "Flashbang",
       "description": "A compact stun grenade, Soviet-issue. One use. Throws a guard off long enough to get past him.",
-      "type": "gadget",
+      "type": "consumable",
       "usableOn": ["petrov"],
       "effect": { "type": "set_room_flag", "flag": "petrov_blinded" }
     },
