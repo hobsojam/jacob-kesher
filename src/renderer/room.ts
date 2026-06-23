@@ -61,7 +61,12 @@ function enemyStatusSuffix(status: string | undefined): string {
 export function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {
   const stationary = state.roomStates[roomId]?.enemyIds ?? []
   const patrolling = Object.values(data.enemyData)
-    .filter((e) => e.patrol && guardPosition(e.patrol, state.time.elapsed) === roomId)
+    .filter((e) => {
+      if (!e.patrol) return false
+      const es = state.enemyStates[e.id]
+      if (es && es.status !== 'active') return false  // downed guards don't patrol
+      return guardPosition(e.patrol, state.time.elapsed) === roomId
+    })
     .map((e) => e.id)
   return [...new Set([...stationary, ...patrolling])]
 }

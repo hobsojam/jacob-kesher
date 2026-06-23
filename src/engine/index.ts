@@ -154,6 +154,7 @@ function wakeEnemies(
 ): { state: GameState; messages: string[] } {
   const messages: string[] = []
   const updatedEnemyStates = { ...state.enemyStates }
+  const updatedRoomStates = { ...state.roomStates }
   let changed = false
 
   for (const [id, enemyState] of Object.entries(updatedEnemyStates)) {
@@ -166,11 +167,18 @@ function wakeEnemies(
       const name = data.enemyData[id]?.name ?? 'Someone'
       messages.push(`${name} regains consciousness.`)
       changed = true
+      // Remove from any room's stationary list — they resume patrol-based positioning
+      for (const roomId of Object.keys(updatedRoomStates)) {
+        const rs = updatedRoomStates[roomId]
+        if (rs.enemyIds.includes(id)) {
+          updatedRoomStates[roomId] = { ...rs, enemyIds: rs.enemyIds.filter((eid) => eid !== id) }
+        }
+      }
     }
   }
 
   return {
-    state: changed ? { ...state, enemyStates: updatedEnemyStates } : state,
+    state: changed ? { ...state, enemyStates: updatedEnemyStates, roomStates: updatedRoomStates } : state,
     messages,
   }
 }
