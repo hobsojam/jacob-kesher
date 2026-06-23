@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { processAction } from '../../src/engine/index'
-import { makeRoom, makeRoomState, makeState, makeGameData } from '../helpers'
+import { makeRoom, makeRoomState, makeState, makeGameData, emptyInventory } from '../helpers'
 import type { EnemyData, EnemyTemplate } from '../../src/types/data'
 
 const guardTemplate: EnemyTemplate = {
@@ -29,6 +29,9 @@ const data = makeGameData({
 
 const secondGuard: EnemyData = { id: 'guard_2', name: 'Alexei', templateId: 'guard', roomId: 'room_a', inventory: [] }
 
+// Use a 1-turn action so discovery rolls fire; 'search' needs no extra setup beyond a roomState
+const tickAction = { type: 'search' } as const
+
 describe('checkDiscoveries via processAction', () => {
   it('raises the alarm when a downed guard is discovered', () => {
     const state = makeState({
@@ -37,7 +40,7 @@ describe('checkDiscoveries via processAction', () => {
         guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] },
       },
     })
-    const result = processAction({ type: 'look' }, state, data)
+    const result = processAction(tickAction, state, data)
 
     expect(result.state.flags['alarm_raised']).toBe(true)
     expect(result.messages.some((m) => /alarm/i.test(m))).toBe(true)
@@ -55,7 +58,7 @@ describe('checkDiscoveries via processAction', () => {
       ...data,
       enemyData: { guard_1: guardData, guard_2: secondGuard },
     })
-    const result = processAction({ type: 'look' }, state, dataWithTwo)
+    const result = processAction(tickAction, state, dataWithTwo)
 
     expect(result.state.enemyStates['guard_2']?.awareness).toBe('alert')
   })
@@ -73,7 +76,7 @@ describe('checkDiscoveries via processAction', () => {
         guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] },
       },
     })
-    const result = processAction({ type: 'look' }, state, safeData)
+    const result = processAction(tickAction, state, safeData)
 
     expect(result.state.flags['alarm_raised']).toBeFalsy()
   })
@@ -86,7 +89,7 @@ describe('checkDiscoveries via processAction', () => {
         guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] },
       },
     })
-    const result = processAction({ type: 'look' }, state, data)
+    const result = processAction(tickAction, state, data)
 
     expect(result.messages.some((m) => /alarm is raised/i.test(m))).toBe(false)
   })
@@ -98,8 +101,26 @@ describe('checkDiscoveries via processAction', () => {
         guard_1: { id: 'guard_1', status: 'active', inventory: [] },
       },
     })
-    const result = processAction({ type: 'look' }, state, data)
+    const result = processAction(tickAction, state, data)
 
     expect(result.state.flags['alarm_raised']).toBeFalsy()
+  })
+
+  it('does not fire on zero-cost actions (drop)', () => {
+    const inv = emptyInventory()
+    inv.small[0] = 'key'
+    const state = makeState({
+      protagonist: { ...makeState().protagonist, inventory: inv },
+      roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
+      itemStates: { key: { id: 'key', used: false, broken: false } },
+      enemyStates: {
+        guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] },
+      },
+    })
+
+    const result = processAction({ type: 'drop', itemId: 'key' }, state, data)
+
+    expect(result.state.flags['alarm_raised']).toBeFalsy()
+    expect(result.state.time.elapsed).toBe(0)   // confirms time did not advance
   })
 })
