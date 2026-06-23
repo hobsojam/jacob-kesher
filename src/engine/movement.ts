@@ -57,7 +57,7 @@ export function handleMove(
 
   const activatingTimer =
     data.timerStartRoomId !== undefined &&
-    !state.time.timerActive &&
+    state.time.timerActive === false &&
     destination.id === data.timerStartRoomId
 
   const newState: GameState = {
