@@ -72,9 +72,9 @@ export function processAction(
     messages.push(...m)
   }
 
-  // A failed bluff leaves an alert guard in the same room — give them the same
-  // free attack they would get if Jacob had walked in on them
-  if (action.type === 'talk') {
+  // A failed bluff or search interruption leaves an alert guard in the same room;
+  // give them the free attack they would get if Jacob had walked in on them
+  if (action.type === 'talk' || action.type === 'search') {
     const { state: s, messages: m } = guardAmbush(afterNoise, data)
     afterNoise = s
     messages.push(...m)

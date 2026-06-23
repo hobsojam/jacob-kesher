@@ -71,11 +71,14 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
     updatedEnemyStates = patched
   }
 
+  const interrupted = interruptingGuards.length > 0
+
   return {
     state: {
       ...state,
       enemyStates: updatedEnemyStates,
       roomStates: { ...state.roomStates, [roomId]: newRoomState },
+      ...(interrupted && { flags: { ...state.flags, alarm_raised: true } }),
     },
     messages,
     noise: 'quiet',

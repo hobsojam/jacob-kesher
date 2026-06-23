@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { handleSearch } from '../../src/engine/search'
+import { processAction } from '../../src/engine/index'
 import { guardPosition } from '../../src/engine/patrol'
-import type { GameData, PatrolRoute } from '../../src/types/data'
+import type { GameData, EnemyTemplate, PatrolRoute } from '../../src/types/data'
 import { makeRoom, makeRoomState, makeState, makeGameData } from '../helpers'
 
 const makeData = (partial: Partial<GameData> = {}): GameData =>
@@ -222,5 +223,84 @@ describe('handleSearch', () => {
     const result = handleSearch(state, data)
 
     expect(result.messages.some((m) => /interrupted/i.test(m))).toBe(false)
+  })
+
+  it('sets alarm_raised when a patrol guard interrupts the search', () => {
+    const data: GameData = makeGameData({
+      roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
+      enemyData: {
+        guard_1: {
+          id: 'guard_1',
+          name: 'Boris',
+          templateId: 'guard',
+          roomId: 'room_b',
+          inventory: [],
+          patrol: { roomIds: ['room_b', 'room_a'], cycleTime: 4 },
+        },
+      },
+    })
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = handleSearch(state, data)
+
+    expect(result.state.flags['alarm_raised']).toBe(true)
+  })
+})
+
+// --- search ambush pipeline (processAction) ---
+//
+// Fix 3: guardAmbush runs after search, same as after talk. An alert guard
+// already in the room gets a free attack on Jacob.
+
+const guardTemplate: EnemyTemplate = {
+  id: 'guard',
+  type: 'guard',
+  stats: { strength: 3, agility: 3, health: 1 },
+  detectionRadius: 1,
+  canBeBluffed: false,
+  canBeDisguised: false,
+}
+
+const alertGuardData: GameData = makeGameData({
+  roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
+  enemyTemplates: { guard: guardTemplate },
+  enemyData: {
+    guard_1: { id: 'guard_1', name: 'Boris', templateId: 'guard', roomId: 'room_a', inventory: [] },
+  },
+})
+
+describe('search ambush pipeline (processAction)', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  it('alert stationary guard attacks Jacob immediately after search', () => {
+    // roll=20 → guard attack = 23 > defence = 13 → hits
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    const state = makeState({
+      roomStates: { room_a: makeRoomState() },
+      enemyStates: { guard_1: { id: 'guard_1', status: 'active', inventory: [], awareness: 'alert' } },
+    })
+    const result = processAction({ type: 'search' }, state, alertGuardData)
+
+    expect(result.state.protagonist.health).toBeLessThan(state.protagonist.health)
+  })
+
+  it('alert stationary guard misses when roll is too low', () => {
+    // roll=1 → guard attack = 4 < defence = 13 → misses
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const state = makeState({
+      roomStates: { room_a: makeRoomState() },
+      enemyStates: { guard_1: { id: 'guard_1', status: 'active', inventory: [], awareness: 'alert' } },
+    })
+    const result = processAction({ type: 'search' }, state, alertGuardData)
+
+    expect(result.state.protagonist.health).toBe(state.protagonist.health)
+  })
+
+  it('unaware guard does not get a free attack during search', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    // guard has no EnemyState entry → defaults to 'unaware'
+    const state = makeState({ roomStates: { room_a: makeRoomState() } })
+    const result = processAction({ type: 'search' }, state, alertGuardData)
+
+    expect(result.state.protagonist.health).toBe(state.protagonist.health)
   })
 })

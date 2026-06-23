@@ -1,6 +1,7 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { initEnemyState } from './room'
+import { guardPosition } from './patrol'
 
 export function checkDiscoveries(
   state: GameState,
@@ -8,6 +9,15 @@ export function checkDiscoveries(
   roll: () => number = Math.random,
 ): { state: GameState; messages: string[] } {
   if (state.flags['alarm_raised']) return { state, messages: [] }
+
+  // Only bodies that share a room with an active guard can be found this turn
+  const activeGuardRooms = new Set<string>()
+  for (const enemy of Object.values(data.enemyData)) {
+    const es = state.enemyStates[enemy.id]
+    if (es && es.status !== 'active') continue
+    const room = enemy.patrol ? guardPosition(enemy.patrol, state.time.elapsed) : enemy.roomId
+    activeGuardRooms.add(room)
+  }
 
   const found: string[] = []
 
@@ -19,6 +29,9 @@ export function checkDiscoveries(
 
     const template = data.enemyTemplates[enemyData.templateId]
     if (!template?.discoveryRisk) continue
+
+    const bodyRoom = enemyState.bodyRoomId ?? enemyData.roomId
+    if (!activeGuardRooms.has(bodyRoom)) continue
 
     if (roll() < template.discoveryRisk) {
       found.push(enemyData.name)

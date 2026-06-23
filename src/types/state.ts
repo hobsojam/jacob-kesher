@@ -61,6 +61,7 @@ export interface EnemyState {
   unconsciousUntil?: number
   inventory: string[]
   awareness?: Awareness      // undefined === 'unaware'
+  bodyRoomId?: string        // room where enemy fell; set on unconscious/dead, absent means use EnemyData.roomId
 }
 
 export interface TimeState {
