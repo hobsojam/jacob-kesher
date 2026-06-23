@@ -32,48 +32,63 @@ jacob-kesher/
 ├── src/
 │   ├── engine/
 │   │   ├── index.ts        — processAction, main pipeline
-│   │   ├── movement.ts     — movement sub-system
+│   │   ├── movement.ts     — movement sub-system (blockedBy, timerStartRoomId)
 │   │   ├── combat.ts       — combat sub-system
 │   │   ├── inventory.ts    — inventory sub-system
 │   │   ├── search.ts       — search sub-system
-│   │   ├── alarm.ts        — alarm sub-system
-│   │   └── patrol.ts       — guardPosition pure function
+│   │   ├── examine.ts      — examine sub-system
+│   │   ├── interact.ts     — examine-target interaction sub-system
+│   │   ├── use.ts          — item use sub-system (targetEffects)
+│   │   ├── look.ts         — look sub-system
+│   │   ├── dialogue.ts     — talk/bluff sub-system
+│   │   ├── alarm.ts        — alarm escalation sub-system
+│   │   ├── detection.ts    — guard detection sub-system
+│   │   ├── discovery.ts    — downed-guard discovery sub-system
+│   │   ├── reveals.ts      — flag-gated item reveal sub-system
+│   │   ├── patrol.ts       — guardPosition pure function
+│   │   ├── room.ts         — room/enemy state helpers
+│   │   └── dice.ts         — d20 roll helper
 │   ├── renderer/
 │   │   ├── index.ts        — wires DOM to engine
 │   │   ├── room.ts         — room description + addenda
 │   │   ├── actions.ts      — available action buttons
-│   │   └── hud.ts          — health, alarm level, time
+│   │   ├── hud.ts          — health, alarm level, time
+│   │   └── chargen.ts      — character creation screen
 │   ├── types/
-│   │   ├── state.ts        — GameState, Protagonist, etc.
-│   │   ├── data.ts         — GameData, RoomData, ItemData, etc.
-│   │   └── actions.ts      — Action discriminated union
+│   │   ├── state.ts        — GameState, Protagonist, TimeState, etc.
+│   │   ├── data.ts         — GameData, RoomData, ItemData, ItemEffect, etc.
+│   │   ├── actions.ts      — Action discriminated union
+│   │   ├── mission.ts      — MissionManifest
+│   │   └── engine.ts       — SubSystemResult, EngineResult
 │   ├── data/
-│   │   ├── map.json        — all RoomData (~500 rooms per MB, 50-room lair ≈ 85KB)
-│   │   ├── items.json      — all ItemData
-│   │   ├── enemies.json    — EnemyData instances
-│   │   └── templates.json  — EnemyTemplates
+│   │   ├── loader.ts       — buildGameData, initGameState
+│   │   ├── templates.json  — shared EnemyTemplates (all missions)
+│   │   └── missions/
+│   │       └── mission-01/
+│   │           ├── manifest.json  — starting state, deadline, timerStartRoomId
+│   │           ├── map.json       — RoomData (14 rooms)
+│   │           ├── items.json     — ItemData (9 items)
+│   │           ├── enemies.json   — EnemyData (7 enemies)
+│   │           └── design.md      — mission design document
 │   ├── save/
 │   │   ├── save.ts         — export GameState as download
 │   │   └── load.ts         — import JSON → GameState
-│   ├── constants.ts        — ACTION_COSTS, FALLBACK_ROOM
+│   ├── constants.ts        — ACTION_COSTS, FALLBACK_ROOM, SKILLS
 │   └── main.ts             — entry point
 ├── tests/
-│   └── engine/
-│       ├── combat.test.ts
-│       ├── movement.test.ts
-│       ├── inventory.test.ts
-│       └── search.test.ts
+│   └── engine/             — 15 test files, one per sub-system
 ├── public/
 │   └── index.html
 ├── CLAUDE.md
 ├── README.md
+├── architecture.md
+├── mission-template.md
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts
-└── .eslintrc.json
+└── vite.config.ts
 ```
 
-Data will live in `src/data/` (planned — not yet created) and will be imported as JSON modules via Vite. No fetching needed. Only the engine gets unit tests — renderer does not.
+Mission data lives in `src/data/missions/` under a per-mission subdirectory and is imported as JSON modules via Vite. No fetching needed. Only the engine gets unit tests — renderer does not.
 
 ## Game Data
 
@@ -98,7 +113,7 @@ Test the engine, not the UI. Pure logic (D20 rolls, combat resolution, state tra
 
 ## Tone
 
-_To be decided — somewhere between campy Bond and grittier Cold War thriller._
+Cold War thriller — understated, dry, period-authentic. Think early le Carré more than Moore-era Bond. British intelligence handler in a Whitehall office with no sign on the door; Soviet outpost guards with names and letters home; mission briefings that end before you ask questions. Occasional dark humour, never camp.
 
 ## Models and Engine
 
@@ -111,7 +126,11 @@ Use @mission-template.md when designing a new mission. Work top-down: goal → f
 ## Key Invariants
 
 - An enemy with no `EnemyState` entry is considered **active** (default state). Only skip enemies that explicitly have `status !== 'active'` in state. Check `enemyState && enemyState.status !== 'active'`, never `!enemyState || enemyState.status !== 'active'`.
+- `TimeState.timerActive` is optional. **Absent or `true` means the timer is running**; only an explicit `false` pauses it. Check `state.time.timerActive === false` to detect a paused timer, never `!state.time.timerActive`.
+- Only `consumable`-type items are spent (marked `used: true`) on `use`. Gadgets, weapons, keycards, and documents are all reusable.
+- `ItemData.targetEffects` overrides the main `effect` for a specific target ID and **never consumes the item**, regardless of item type.
+- `Exit.blockedBy` names an enemy that physically prevents passage while active. The check is `!enemyState || enemyState.status === 'active'` — no EnemyState entry means active.
 
 ## Status
 
-Engine complete. Renderer and mission data remain.
+Engine complete. Renderer substantially complete. Mission 01 data complete (14 rooms, 7 enemies, 9 items). Planned: second mission, skill progression, briefing note document item.
