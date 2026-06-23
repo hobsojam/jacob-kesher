@@ -63,6 +63,7 @@ export type ItemEffect =
   | { type: 'set_room_flag'; flag: string }
   | { type: 'set_global_flag'; flag: string }
   | { type: 'set_global_flag_if'; condition: string; flag: string; else_flag: string }
+  | { type: 'message'; text: string }
 
 export interface ItemData {
   id: string
@@ -126,4 +127,5 @@ export interface GameData {
   enemyTemplates: Record<string, EnemyTemplate>
   enemyData: Record<string, EnemyData>
   deadlineMessage: string
+  timerStartRoomId?: string
 }

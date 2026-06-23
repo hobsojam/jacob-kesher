@@ -2,7 +2,8 @@
   "id": "mission-01",
   "title": "The Cipher Machine",
   "description": "Infiltrate a Soviet mountain outpost and photograph the SOVA-7 cipher device before the cipher officer returns from dinner.",
-  "startingRoomId": "mountain_road",
+  "startingRoomId": "briefing_room",
+  "timerStartRoomId": "mountain_road",
   "missionDeadline": 80,
   "deadlineMessage": "A door opens at the end of the corridor. Footsteps. The cipher officer is back.",
   "protagonist": {
@@ -10,7 +11,7 @@
     "stats": { "strength": 3, "agility": 4, "intelligence": 3, "charisma": 2 },
     "inventory": {
       "weapons": [null, null],
-      "gadgets": [null, null],
+      "gadgets": ["camera", null],
       "small": [null, null, null],
       "special": null
     }

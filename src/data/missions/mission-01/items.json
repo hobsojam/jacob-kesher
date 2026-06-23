@@ -55,6 +55,20 @@
       "type": "keycard",
       "usableOn": ["supply_cabinet"],
       "effect": { "type": "set_room_flag", "flag": "supply_cabinet_open" }
+    },
+    {
+      "id": "flashbang",
+      "label": "Flashbang",
+      "description": "A compact stun grenade, Soviet-issue. One use. Throws a guard off long enough to get past him.",
+      "type": "gadget",
+      "usableOn": ["petrov"],
+      "effect": { "type": "set_room_flag", "flag": "petrov_blinded" }
+    },
+    {
+      "id": "wrench",
+      "label": "Pipe Wrench",
+      "description": "A heavy adjustable wrench, slick with grease. Not elegant, but effective.",
+      "type": "weapon_melee"
     }
   ]
 }

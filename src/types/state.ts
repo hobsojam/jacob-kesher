@@ -66,6 +66,7 @@ export interface EnemyState {
 export interface TimeState {
   elapsed: number
   missionDeadline: number
+  timerActive: boolean
 }
 
 export type NoiseLevel = 'silent' | 'quiet' | 'loud' | 'alarming'

@@ -28,24 +28,27 @@ export const makeRoomState = (partial: Partial<RoomState> & { id?: string } = {}
   ...partial,
 })
 
-export const makeState = (partial: Partial<GameState> = {}): GameState => ({
-  protagonist: {
-    currentRoom: 'room_a',
-    previousRoomId: null,
-    health: 10,
-    maxHealth: 10,
-    stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
-    skills: [],
-    inventory: emptyInventory(),
+export const makeState = (partial: Partial<GameState> = {}): GameState => {
+  const { time: partialTime, ...rest } = partial
+  return {
+    protagonist: {
+      currentRoom: 'room_a',
+      previousRoomId: null,
+      health: 10,
+      maxHealth: 10,
+      stats: { strength: 5, agility: 5, intelligence: 5, charisma: 5 },
+      skills: [],
+      inventory: emptyInventory(),
+      flags: {},
+    },
+    time: { elapsed: 0, missionDeadline: 100, timerActive: true, ...partialTime },
+    roomStates: {},
+    enemyStates: {},
+    itemStates: {},
     flags: {},
-  },
-  time: { elapsed: 0, missionDeadline: 100 },
-  roomStates: {},
-  enemyStates: {},
-  itemStates: {},
-  flags: {},
-  ...partial,
-})
+    ...rest,
+  }
+}
 
 export const makeItem = (partial: Partial<ItemData> & { id: string }): ItemData => ({
   label: partial.id,

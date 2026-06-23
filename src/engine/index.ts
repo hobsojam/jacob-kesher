@@ -140,6 +140,7 @@ function dispatch(
 }
 
 function advanceTime(actionType: string, state: GameState, timeCost?: number): GameState {
+  if (!state.time.timerActive) return state
   const cost = timeCost ?? ACTION_COSTS[actionType] ?? 1
   return {
     ...state,
@@ -187,7 +188,7 @@ function checkDeadlines(
   if (state.flags['mission_failed']) {
     return { state, messages: [], gameOver: 'failed' }
   }
-  if (state.time.elapsed >= state.time.missionDeadline && !state.flags['deadline_passed']) {
+  if (state.time.timerActive && state.time.elapsed >= state.time.missionDeadline && !state.flags['deadline_passed']) {
     const updatedEnemyStates = { ...state.enemyStates }
     for (const enemy of Object.values(data.enemyData)) {
       const es = updatedEnemyStates[enemy.id]

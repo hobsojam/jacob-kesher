@@ -327,7 +327,7 @@ Addenda:
 Exits:
   — "Back to the corridor" → ground_floor_corridor
   — "Cipher room door" → cipher_room [requires cipher_room_key in inventory]
-Items (visible): camera
+Items (visible): none (camera issued at briefing — see §9)
 Items (hidden): cipher_room_key [in locked drawer; accessible once drawer_unlocked]
 Examine targets:
   — desk: "Papers, a coffee cup, an ashtray. Someone works long hours here."
@@ -387,7 +387,7 @@ Notes: No enemies, no items. Tension is entirely the turn counter. The camera mu
 |----|-------|------|----------|--------|---------|-------|
 | wire_cutters | Wire Cutters | gadget | mountain_road (hidden, ditch) | set_room_flag: fence_cut | fence | Not consumed |
 | service_keycard | Service Keycard | keycard | Volkov inventory | set_room_flag: loading_bay_door_open | keycard_reader | |
-| camera | Camera | gadget | duty_office (visible) | — | sova_7 | Not consumed; triggers machine_photographed via interact |
+| camera | Camera | gadget | Starting inventory (issued at briefing) | — | sova_7 | Not consumed; triggers machine_photographed via interact |
 | cipher_room_key | Cipher Room Key | keycard | duty_office drawer (hidden, locked) | — | cipher_room_door | Primary route to cipher room |
 | duty_office_key | Duty Office Key | keycard | mess_hall (hidden) | set_room_flag: drawer_unlocked | duty_office_drawer | Low-risk alternative to lock-picking |
 | maintenance_key | Maintenance Key | keycard | loading_bay (hidden) | — | supply_cabinet | Opens supply cabinet in comms_room; reveals cipher_room_key duplicate |
@@ -410,8 +410,8 @@ Notes: No enemies, no items. Tension is entirely the turn counter. The camera mu
 
 ## 9. Protagonist Starting State
 
-- **Starting room:** mountain_road
+- **Starting room:** briefing_room (London, pre-mission; exits immediately to mountain_road)
 - **Health:** 10
 - **Stats:** STR 3 / AGI 4 / INT 3 / CHA 2
 - **Skills:** hand_to_hand 1, lock_picking 2, evasion 1
-- **Starting inventory:** none (camera and wire_cutters must be found in the field)
+- **Starting inventory:** camera (gadgets[0]) — issued at briefing. wire_cutters must be found in the field.

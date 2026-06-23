@@ -55,6 +55,11 @@ export function handleMove(
     ? { ...existingRoomState, visited: true }
     : { ...initRoomState(destination.id, data), visited: true }
 
+  const activatingTimer =
+    data.timerStartRoomId !== undefined &&
+    !state.time.timerActive &&
+    destination.id === data.timerStartRoomId
+
   const newState: GameState = {
     ...state,
     protagonist: {
@@ -66,6 +71,7 @@ export function handleMove(
       ...state.roomStates,
       [destination.id]: destinationRoomState,
     },
+    time: activatingTimer ? { ...state.time, timerActive: true } : state.time,
   }
 
   return {
