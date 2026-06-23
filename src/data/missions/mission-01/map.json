@@ -244,11 +244,6 @@
           "id": "notice_board",
           "label": "the notice board",
           "description": "A patrol rota, handwritten. Volkov's name appears every six entries."
-        },
-        {
-          "id": "petrov",
-          "label": "Cpl. Petrov",
-          "description": "Armed, bored, but alert. He has a clear line of sight down the corridor."
         }
       ],
       "searchDifficulty": 3
@@ -313,11 +308,6 @@
           "id": "radio_equipment",
           "label": "the radio equipment",
           "description": "Soviet military band. Encrypted traffic, layered and continuous."
-        },
-        {
-          "id": "nikitin",
-          "label": "Pvt. Nikitin",
-          "description": "Headphones on, pen moving. He hasn't heard you. Keep it that way."
         },
         {
           "id": "supply_cabinet",
