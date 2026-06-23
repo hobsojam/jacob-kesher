@@ -413,5 +413,5 @@ Notes: No enemies, no items. Tension is entirely the turn counter. The camera mu
 - **Starting room:** briefing_room (London, pre-mission; exits immediately to mountain_road)
 - **Health:** 10
 - **Stats:** STR 3 / AGI 4 / INT 3 / CHA 2
-- **Skills:** hand_to_hand 1, lock_picking 2, evasion 1
+- **Skills:** all initialise at 0 (the drawer has a backup key in the mess hall; safecracking is the correct skill ID, not lock_picking)
 - **Starting inventory:** camera (gadgets[0]) — issued at briefing. wire_cutters must be found in the field.

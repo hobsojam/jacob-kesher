@@ -229,7 +229,7 @@
         { "destinationId": "ventilation_shaft", "label": "Ventilation grille (low, near the loading bay end)" },
         { "destinationId": "mess_hall", "label": "Mess hall" },
         { "destinationId": "comms_room", "label": "Comms room" },
-        { "destinationId": "duty_office", "label": "Duty office" },
+        { "destinationId": "duty_office", "label": "Duty office", "blockedBy": "corridor_guard" },
         { "destinationId": "barracks", "label": "Guard barracks" }
       ],
       "itemIds": [],
@@ -452,7 +452,7 @@
     {
       "id": "barracks",
       "label": "Guard Barracks",
-      "description": "Eight bunks, half made, half not. Personal effects on shelves above each — photographs, a chess set mid-game, dog-eared paperbacks. The smell of boot polish and old cigarette smoke. Everyone is at dinner.",
+      "description": "Eight bunks, half made, half not. Three guards sleep at the far end — the night-shift men, off duty now. Personal effects on shelves above each bunk: photographs, a chess set mid-game, dog-eared paperbacks. The smell of boot polish and old cigarette smoke.",
       "addenda": [
         {
           "flag": "alarm_raised",

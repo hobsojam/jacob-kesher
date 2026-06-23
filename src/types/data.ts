@@ -10,6 +10,7 @@ export interface Exit {
     flag?: string
   }
   hidden?: boolean
+  blockedBy?: string   // enemy ID; exit is impassable while that enemy is active
 }
 
 export interface Addendum {
@@ -119,6 +120,8 @@ export interface EnemyData {
   roomId: string
   patrol?: PatrolRoute
   inventory: string[]
+  // If set, enemy starts unconscious and wakes at this absolute turn number.
+  startUnconscious?: number
 }
 
 export interface GameData {

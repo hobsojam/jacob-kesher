@@ -68,6 +68,18 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
     }
   }
 
+  const enemyStates: Record<string, import('../types/state').EnemyState> = {}
+  for (const enemy of Object.values(data.enemyData)) {
+    if (enemy.startUnconscious !== undefined) {
+      enemyStates[enemy.id] = {
+        id: enemy.id,
+        status: 'unconscious',
+        unconsciousUntil: enemy.startUnconscious,
+        inventory: [...enemy.inventory],
+      }
+    }
+  }
+
   return {
     protagonist: {
       currentRoom:    manifest.startingRoomId,
@@ -85,7 +97,7 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
       timerActive: manifest.timerStartRoomId === undefined || manifest.startingRoomId === manifest.timerStartRoomId,
     },
     roomStates,
-    enemyStates: {},
+    enemyStates,
     itemStates:  {},
     flags:       {},
   }
