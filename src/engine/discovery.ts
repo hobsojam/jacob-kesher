@@ -1,5 +1,6 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
+import { initEnemyState } from './room'
 
 export function checkDiscoveries(
   state: GameState,
@@ -31,7 +32,7 @@ export function checkDiscoveries(
     const es = updatedEnemyStates[enemy.id]
     if (es && es.status !== 'active') continue
     updatedEnemyStates[enemy.id] = {
-      ...(es ?? { id: enemy.id, status: 'active', inventory: [...enemy.inventory] }),
+      ...(es ?? initEnemyState(enemy)),
       awareness: 'alert',
     }
   }

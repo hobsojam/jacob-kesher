@@ -15,6 +15,7 @@ import { handleTalk } from './dialogue'
 import { checkDetection } from './detection'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
+import { initEnemyState } from './room'
 
 export interface EngineResult {
   state: GameState
@@ -67,6 +68,14 @@ export function processAction(
       afterAmbush,
       data,
     )
+    afterNoise = s
+    messages.push(...m)
+  }
+
+  // A failed bluff leaves an alert guard in the same room — give them the same
+  // free attack they would get if Jacob had walked in on them
+  if (action.type === 'talk') {
+    const { state: s, messages: m } = guardAmbush(afterNoise, data)
     afterNoise = s
     messages.push(...m)
   }
@@ -177,7 +186,7 @@ function checkDeadlines(
       const es = updatedEnemyStates[enemy.id]
       if (es && es.status !== 'active') continue
       updatedEnemyStates[enemy.id] = {
-        ...(es ?? { id: enemy.id, status: 'active', inventory: [...enemy.inventory] }),
+        ...(es ?? initEnemyState(enemy)),
         awareness: 'alert',
       }
     }
