@@ -28,19 +28,29 @@ const data = makeGameData({
 })
 
 const secondGuard: EnemyData = { id: 'guard_2', name: 'Alexei', templateId: 'guard', roomId: 'room_a', inventory: [] }
+// Active watcher in room_a — same room as guard_1 (guardData.roomId = 'room_a')
+const watcher: EnemyData = { id: 'watcher', name: 'Watcher', templateId: 'guard', roomId: 'room_a', inventory: [] }
+
+// Data with watcher so geography check allows discovery to fire for guard_1
+const dataWithWatcher = makeGameData({
+  roomIndex: { room_a: makeRoom({ id: 'room_a' }) },
+  enemyTemplates: { guard: guardTemplate },
+  enemyData: { guard_1: guardData, watcher },
+})
 
 // Use a 1-turn action so discovery rolls fire; 'search' needs no extra setup beyond a roomState
 const tickAction = { type: 'search' } as const
 
 describe('checkDiscoveries via processAction', () => {
   it('raises the alarm when a downed guard is discovered', () => {
+    // watcher is active in room_b (same room as guard_1's starting position)
     const state = makeState({
       roomStates: { room_a: makeRoomState({ id: 'room_a' }) },
       enemyStates: {
         guard_1: { id: 'guard_1', status: 'unconscious', inventory: [] },
       },
     })
-    const result = processAction(tickAction, state, data)
+    const result = processAction(tickAction, state, dataWithWatcher)
 
     expect(result.state.flags['alarm_raised']).toBe(true)
     expect(result.messages.some((m) => /alarm/i.test(m))).toBe(true)

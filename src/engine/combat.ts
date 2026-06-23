@@ -53,7 +53,7 @@ export function handleAttack(
     messages.push(`Hit! (${jacobAttack} vs defence ${enemyDefence})`)
 
     if (newHealth <= 0) {
-      updatedEnemyState = { ...updatedEnemyState, status: 'dead', health: 0 }
+      updatedEnemyState = { ...updatedEnemyState, status: 'dead', health: 0, bodyRoomId: state.protagonist.currentRoom }
       messages.push(`${enemy.name} goes down.`)
       enemyStillStanding = false
     } else {
@@ -134,10 +134,11 @@ export function handleStealthTakedown(
       ...base,
       status: 'unconscious',
       unconsciousUntil: state.time.elapsed + wakeAfter,
+      bodyRoomId: state.protagonist.currentRoom,
     }
     message = `You silently neutralise ${enemy.name}.`
   } else {
-    newEnemyState = { ...base, status: 'dead' }
+    newEnemyState = { ...base, status: 'dead', bodyRoomId: state.protagonist.currentRoom }
     message = `You silently eliminate ${enemy.name}.`
   }
 
