@@ -6,7 +6,7 @@
       "description": "A first-floor room in a building with no name on the door and no listing in any directory. Alderton sits behind a desk that has seen thirty years of crises, the surface invisible under files, a telephone, and a cold cup of tea. Rain against the sash windows. Outside: London, grey and indifferent.",
       "addenda": [],
       "exits": [
-        { "destinationId": "mountain_road", "label": "Depart for the field" }
+        { "destinationId": "mountain_road", "label": "Depart for the field", "requires": { "flag": "alderton_briefed" } }
       ],
       "itemIds": [],
       "hiddenItemIds": [],
@@ -14,7 +14,11 @@
         {
           "id": "alderton",
           "label": "Alderton",
-          "description": "A lean man in his late fifties, a suit that might have fitted him in 1943, reading glasses he refuses to wear. He speaks quietly. 'The outpost is a relay station — or so they'd like us to think. The SOVA-7 arrived three weeks ago. We need photographs of the rotor configuration before they rotate the key. You have until dinner ends. The car will be waiting. Any questions?' He doesn't wait for any."
+          "description": "A lean man in his late fifties, a suit that might have fitted him in 1943, reading glasses he refuses to wear. He speaks quietly. 'The outpost is a relay station — or so they'd like us to think. The SOVA-7 arrived three weeks ago. We need photographs of the rotor configuration before they rotate the key. You have until dinner ends. The car will be waiting. Any questions?' He doesn't wait for any.",
+          "interactLabel": "Acknowledge briefing",
+          "effect": [
+            { "type": "set_global_flag", "flag": "alderton_briefed" }
+          ]
         },
         {
           "id": "mission_file",
@@ -58,9 +62,15 @@
           "id": "extraction_vehicle",
           "label": "the black Volga",
           "description": "A black Volga, engine off, driver watching the fence.",
-          "interactLabel": "Get in the Volga — mission complete",
+          "interactLabel": "Get in the Volga and leave",
           "effect": [
-            { "type": "set_global_flag", "flag": "mission_complete" }
+            {
+              "type": "set_global_flag_if",
+              "condition": "machine_photographed",
+              "andItem": "camera",
+              "flag": "mission_complete",
+              "else_flag": "mission_failed"
+            }
           ]
         }
       ]
@@ -98,7 +108,7 @@
         {
           "id": "guardhouse",
           "label": "the guardhouse",
-          "description": "A small booth. Light on, shadow moving inside. Morozov."
+          "description": "A small booth. Light on, shadow moving inside."
         }
       ]
     },
@@ -328,7 +338,7 @@
     {
       "id": "duty_office",
       "label": "Duty Officer's Office",
-      "description": "Small and cluttered. A desk covered in papers, a framed photograph of a family — summer, a lake. The camera sits on the corner of the desk.",
+      "description": "Small and cluttered. A desk covered in papers, a framed photograph of a family — summer, a lake.",
       "addenda": [
         {
           "flag": "drawer_unlocked",

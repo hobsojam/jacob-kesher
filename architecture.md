@@ -3,9 +3,13 @@
 ## Protagonist Model
 
 ```typescript
+type SkillId =
+  | 'pugilism' | 'marksmanship' | 'evasion' | 'safecracking'
+  | 'covert' | 'signals' | 'disguise' | 'acrobatics'
+
 interface Skill {
-  id: string       // machine-readable, e.g. "lock_picking"
-  label: string    // human-readable, e.g. "Lock Picking"
+  id: SkillId      // one of the fixed skill IDs above
+  label: string    // human-readable, e.g. "Pugilism"
   level: number    // unclamped — negative values valid
 }
 
@@ -20,6 +24,7 @@ interface Protagonist {
   currentRoom: string
   previousRoomId: string | null
   health: number
+  maxHealth: number
   stats: {
     strength: number      // melee combat, breaking things
     agility: number       // stealth, dodging
@@ -52,11 +57,12 @@ interface Exit {
   label: string              // free-form, e.g. "take the service elevator"
   requires?: {
     itemId?: string          // e.g. keycard
-    skillId?: string         // e.g. "lock_picking"
+    skillId?: string         // e.g. "safecracking"
     skillLevel?: number
     flag?: string            // e.g. "power_restored"
   }
   hidden?: boolean           // only revealed on search
+  blockedBy?: string         // enemy ID; impassable while that enemy is active
 }
 
 interface Addendum {
@@ -68,6 +74,18 @@ interface ExamineTarget {
   id: string
   label: string              // e.g. "the filing cabinet"
   description: string
+  interactLabel?: string     // button label for optional interaction
+  effect?: ItemEffect[]      // effects applied when interaction fires
+  interactRequires?: {       // requirement before interact can fire
+    itemId?: string
+    skillId?: string
+    skillLevel?: number
+  }
+}
+
+interface FlagReveal {
+  flag: string               // room flag that triggers the reveal
+  itemId: string             // item promoted from hiddenItemIds to visible itemIds
 }
 
 interface RoomData {
@@ -80,6 +98,7 @@ interface RoomData {
   hiddenItemIds: string[]    // only revealed on search
   examineTargets: ExamineTarget[]
   searchDifficulty?: number  // modifies search action cost and risk
+  reveals?: FlagReveal[]     // items promoted to visible when their flag is set
 }
 
 // Mutable — lives in GameState, persisted in save file
@@ -138,6 +157,7 @@ One unified turn counter drives both guard patrols and the mission countdown. No
 interface TimeState {
   elapsed: number            // turns since mission start
   missionDeadline: number    // mission fails when elapsed >= this
+  timerActive?: boolean      // absent/true = running; false = paused (e.g. in briefing room)
 }
 ```
 
@@ -176,11 +196,22 @@ Search risk is calculable before the player commits: "will this guard's patrol b
 ```typescript
 type ItemType = 'gadget' | 'weapon_melee' | 'weapon_ranged' | 'keycard' | 'document' | 'consumable'
 
+type ItemEffect =
+  | { type: 'heal'; amount: number }
+  | { type: 'set_room_flag'; flag: string }
+  | { type: 'set_global_flag'; flag: string }
+  | { type: 'set_global_flag_if'; condition: string; andItem?: string; flag: string; else_flag: string }
+  | { type: 'message'; text: string }
+
 interface ItemData {
   id: string
   label: string
   description: string
   type: ItemType
+  damage?: number                              // HP per hit; defaults to 1
+  effect?: ItemEffect                          // fired on `use`
+  usableOn?: string[]                          // ExamineTarget IDs this item can target in the same room
+  targetEffects?: Record<string, ItemEffect[]> // per-target override; never consumes the item
 }
 
 // Mutable — lives in GameState as a global Record, not per-location
@@ -193,6 +224,8 @@ interface ItemState {
 
 `ItemState` is global because items can be in a room, in Jacob's inventory, or in an enemy's inventory. The engine maintains `itemStates: Record<string, ItemState>` in `GameState`.
 
+- Only `consumable`-type items are spent (`used: true`) on use. Gadgets, weapons, keycards, and documents are reusable.
+- `targetEffects` takes priority over `effect` when the item is used on a matching target, and **never** consumes the item regardless of type.
 - `weapon_melee` — uses strength stat, breaks but does not run out of ammo
 - `weapon_ranged` — uses agility stat, `used: true` when out of ammo
 
@@ -213,30 +246,40 @@ interface EnemyTemplate {
   detectionRadius: number         // rooms away they can spot Jacob
   canBeBluffed: boolean           // dogs: false, civilians: true
   canBeDisguised: boolean         // some see through disguises
-  wakeAfterTurns?: number         // how long unconscious before waking
+  wakeAfterTurns?: number         // turns unconscious before waking
+  discoveryRisk?: number          // 0–1 probability per turn a downed instance is found; default 0
 }
 
 // Individual instance in the world
 interface EnemyData {
   id: string
   name: string                    // "Boris", "Guard #3", "Dr. Kaufman"
+  known?: boolean                 // false (default): renderer shows generic role label; true: shows name
+  description?: string            // shown in room description while enemy is active
   templateId: string
   roomId: string                  // starting room
   patrol?: PatrolRoute            // omit if stationed
   inventory: string[]             // item IDs carried (omit or empty for dogs)
+  startUnconscious?: number       // if set, enemy starts unconscious until this absolute turn
 }
+
+// Per-guard awareness. Absent means 'unaware'.
+type Awareness = 'unaware' | 'suspicious' | 'alert'
 
 // Mutable — lives in GameState
 interface EnemyState {
   id: string
   status: 'active' | 'unconscious' | 'dead'
+  health?: number                 // current HP; undefined means full health from template
   unconsciousUntil?: number       // absolute turn number when they wake
   inventory: string[]             // items remaining after looting
+  awareness?: Awareness           // undefined === 'unaware'
 }
 ```
 
 - Patrolling enemy positions are pure functions of elapsed turns — not stored in state
 - `unconsciousUntil` is an absolute turn: `elapsed >= unconsciousUntil` triggers wake
+- `startUnconscious` pre-populates `EnemyState` in the loader; the enemy is absent from the world at turn 0 and wakes normally when `unconsciousUntil` passes
 - Dogs: `canBeBluffed: false`, `canBeDisguised: false`
 - Killing a civilian sets a flag on Jacob with story/score consequences
 
@@ -287,7 +330,7 @@ The engine is a pure function — takes an action and current state, returns new
 interface EngineResult {
   state:     GameState
   messages:  string[]
-  gameOver?: 'dead' | 'timeout' | 'success'
+  gameOver?: 'dead' | 'timeout' | 'success' | 'failed'
 }
 
 function processAction(
@@ -311,22 +354,37 @@ type Action =
   | { type: 'flee' }
   | { type: 'loot';             enemyId: string; itemId: string }
   | { type: 'look' }
+  | { type: 'interact';         targetId: string }  // fire an ExamineTarget's interactLabel effect
+  | { type: 'talk';             enemyId: string }   // dialogue/bluff
 ```
 
 **Every action runs through the same pipeline:**
-1. Process the action (movement, combat, search, inventory, etc.)
-2. Advance time by `ACTION_COSTS[action.type]`
-3. Wake any enemies whose `unconsciousUntil <= elapsed`
-4. Check mission deadline
-5. Roll alarm escalation based on noise produced
-6. Return new state + messages
+1. Dispatch to the relevant sub-system (movement, combat, search, inventory, etc.)
+2. Advance time by `ACTION_COSTS[action.type]` (or sub-system's `timeCost` override)
+3. Skip steps 4–8 if `timerActive === false` (e.g. in a pre-mission briefing room)
+4. Wake any enemies whose `unconsciousUntil <= elapsed`
+5. Run guard ambush check (enemy in same room while undetected)
+6. Run detection check (enemy patrol enters current room)
+7. Check flag-gated item reveals (`checkReveals`)
+8. Check downed-guard discovery (`checkDiscoveries`) — time-advancing actions only
+9. Check mission deadline
+10. Roll alarm escalation based on noise produced
+11. Return new state + messages
 
 **Sub-systems** (each a pure function, delegated to by `processAction`):
-- `movement` — validates exit requirements, handles fallback room
-- `combat` — attack rolls, damage, stealth takedowns
+- `movement` — validates exit requirements, `blockedBy` gate, timer activation, fallback room
+- `combat` — attack rolls, damage, stealth takedowns, flee
 - `inventory` — take/drop/loot, slot constraints
-- `search` — hidden items, time cost, guard risk
+- `search` — hidden items, variable time cost from `searchDifficulty`
+- `examine` — describe an ExamineTarget
+- `interact` — fire an ExamineTarget's optional `effect[]`
+- `use` — apply item effects, `targetEffects` overrides, spendable check
+- `look` — re-describe current room (zero time cost, pure renderer helper)
+- `dialogue` — talk/bluff against enemy's `canBeBluffed`
 - `alarm` — noise → probabilistic escalation
+- `detection` — guard patrol arrival in current room
+- `discovery` — downed-guard discovery probability per turn
+- `reveals` — flag-gated item promotion from hidden to visible
 
 The renderer only ever calls `processAction()` and displays the result. It never touches game logic.
 
@@ -335,20 +393,17 @@ The renderer only ever calls `processAction()` and displays the result. It never
 The save file. Everything mutable lives here.
 
 ```typescript
-type AlarmLevel = 'undetected' | 'suspicious' | 'searching' | 'alert' | 'lockdown'
-
 interface GameState {
   protagonist:  Protagonist
   time:         TimeState
-  alarmLevel:   AlarmLevel
   roomStates:   Record<string, RoomState>
   enemyStates:  Record<string, EnemyState>
   itemStates:   Record<string, ItemState>
-  flags:        Record<string, boolean>      // global mission flags e.g. "helicopter_ready"
+  flags:        Record<string, boolean>  // global flags e.g. "helicopter_ready", "alarm_raised"
 }
 ```
 
-Alarm escalation is **probability-based** — noisy actions roll against a chance to increase `alarmLevel` by one step. A silenced pistol has low probability; an explosion near certainty.
+Alarm state is stored as flags rather than a separate enum field. Noisy actions roll against a probability table to set escalating flags. A silenced pistol has low probability; an explosion near certainty.
 
 ## GameData
 
@@ -356,9 +411,33 @@ Static data loaded from JSON at startup. Never saved.
 
 ```typescript
 interface GameData {
-  roomIndex:      Record<string, RoomData>
-  itemData:       Record<string, ItemData>
-  enemyTemplates: Record<string, EnemyTemplate>
-  enemyData:      Record<string, EnemyData>
+  roomIndex:       Record<string, RoomData>
+  itemData:        Record<string, ItemData>
+  enemyTemplates:  Record<string, EnemyTemplate>
+  enemyData:       Record<string, EnemyData>
+  deadlineMessage: string             // shown when mission times out
+  timerStartRoomId?: string           // timer is paused until the player enters this room
+}
+```
+
+## MissionManifest
+
+Lives in `manifest.json` at the root of each mission folder. Consumed by the loader to build `GameData` and the initial `GameState`. Never stored in the save file.
+
+```typescript
+interface MissionManifest {
+  id: string
+  title: string
+  description: string
+  startingRoomId: string
+  timerStartRoomId?: string      // if set, timer starts paused and activates on first entry here
+  missionDeadline: number        // turns before timeout
+  deadlineMessage: string        // narrative message shown on timeout
+  protagonist: {
+    health: number
+    stats: { strength: number; agility: number; intelligence: number; charisma: number }
+    skills?: Skill[]
+    inventory: Inventory
+  }
 }
 ```

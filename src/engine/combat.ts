@@ -88,13 +88,15 @@ export function handleAttack(
     }
   }
 
+  const afterCombat: GameState = {
+    ...state,
+    protagonist: { ...state.protagonist, health: protagonistHealth },
+    enemyStates: { ...state.enemyStates, [enemyId]: updatedEnemyState },
+    itemStates: updatedItemStates,
+  }
+
   return {
-    state: {
-      ...state,
-      protagonist: { ...state.protagonist, health: protagonistHealth },
-      enemyStates: { ...state.enemyStates, [enemyId]: updatedEnemyState },
-      itemStates: updatedItemStates,
-    },
+    state: !enemyStillStanding ? pinEnemyToRoom(enemyId, afterCombat) : afterCombat,
     messages,
     noise: modeToNoise(mode),
   }
@@ -143,10 +145,10 @@ export function handleStealthTakedown(
   }
 
   return {
-    state: {
+    state: pinEnemyToRoom(enemyId, {
       ...state,
       enemyStates: { ...state.enemyStates, [enemyId]: newEnemyState },
-    },
+    }),
     messages: [message],
     noise: 'silent',
   }
@@ -218,6 +220,21 @@ export function guardAmbush(
   }
 
   return { state: s, messages }
+}
+
+// --- exported helpers ---
+
+export function pinEnemyToRoom(enemyId: string, state: GameState): GameState {
+  const roomId = state.protagonist.currentRoom
+  const rs = state.roomStates[roomId]
+  if (!rs || rs.enemyIds.includes(enemyId)) return state
+  return {
+    ...state,
+    roomStates: {
+      ...state.roomStates,
+      [roomId]: { ...rs, enemyIds: [...rs.enemyIds, enemyId] },
+    },
+  }
 }
 
 // --- private helpers ---

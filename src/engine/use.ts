@@ -103,7 +103,10 @@ export function handleUse(
   }
 
   if (effect.type === 'set_global_flag_if') {
-    const flag = state.flags[effect.condition] ? effect.flag : effect.else_flag
+    const conditionMet =
+      state.flags[effect.condition] &&
+      (!effect.andItem || inventoryContains(state.protagonist.inventory, effect.andItem))
+    const flag = conditionMet ? effect.flag : effect.else_flag
     return {
       state: {
         ...state,
