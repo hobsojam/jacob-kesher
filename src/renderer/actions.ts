@@ -154,7 +154,7 @@ function lootButtons(
 
 function miscButtons(previousRoomId: string | null, activeEnemyPresent: boolean): ActionButton[] {
   const buttons: ActionButton[] = [
-    { label: 'Search room', action: { type: 'search' }, category: 'misc' },
+    { label: 'Search area', action: { type: 'search' }, category: 'misc' },
     { label: 'Look around', action: { type: 'look' }, category: 'misc' },
   ]
   if (activeEnemyPresent && previousRoomId) {
