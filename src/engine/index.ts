@@ -83,15 +83,22 @@ export function processAction(
   // Promote hidden items unblocked by room flags set this turn
   const revealed = checkReveals(afterNoise, data)
 
+  const effectiveCost = result.timeCost ?? ACTION_COSTS[action.type] ?? 1
   const advanced = advanceTime(action.type, revealed, result.timeCost)
 
   const { state: woken, messages: wakeMessages } = wakeEnemies(advanced, data)
   messages.push(...wakeMessages)
 
-  const { state: discovered, messages: discoveryMessages } = checkDiscoveries(woken, data)
-  messages.push(...discoveryMessages)
+  // Only roll for discovery on turns where time actually advances; zero-cost
+  // actions (drop) must not independently accumulate discovery risk
+  let afterDiscovery = woken
+  if (effectiveCost > 0) {
+    const { state: s, messages: m } = checkDiscoveries(woken, data)
+    afterDiscovery = s
+    messages.push(...m)
+  }
 
-  const { state: finalState, messages: deadlineMessages, gameOver } = checkDeadlines(discovered, data)
+  const { state: finalState, messages: deadlineMessages, gameOver } = checkDeadlines(afterDiscovery, data)
   messages.push(...deadlineMessages)
 
   return { state: finalState, messages, gameOver }
