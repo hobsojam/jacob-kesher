@@ -49,6 +49,6 @@ TypeScript types are the source of truth for the data format. Run `npm run schem
 ## Status
 
 - **Engine** — complete (movement, combat, inventory, search, alarm, stealth takedowns, guard discovery, flag-gated reveals)
-- **Mission 01: The Cipher Machine** — game data complete (14 rooms, 7 enemies, 9 items)
+- **Mission 01: The Cipher Machine** — game data complete (14 rooms, 7 enemies, 10 items)
 - **Renderer** — in progress
 - **Deployed** — https://hobsojam.github.io/jacob-kesher/ (auto-deploys on push to `main`)

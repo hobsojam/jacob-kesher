@@ -67,7 +67,7 @@ jacob-kesher/
 │   │       └── mission-01/
 │   │           ├── manifest.json  — starting state, deadline, timerStartRoomId
 │   │           ├── map.json       — RoomData (14 rooms)
-│   │           ├── items.json     — ItemData (9 items)
+│   │           ├── items.json     — ItemData (10 items)
 │   │           ├── enemies.json   — EnemyData (7 enemies)
 │   │           └── design.md      — mission design document
 │   ├── save/
@@ -133,4 +133,4 @@ Use @mission-template.md when designing a new mission. Work top-down: goal → f
 
 ## Status
 
-Engine complete. Renderer substantially complete. Mission 01 data complete (14 rooms, 7 enemies, 9 items). Planned: second mission, skill progression, briefing note document item.
+Engine complete. Renderer substantially complete. Mission 01 data complete (14 rooms, 7 enemies, 10 items). Planned: second mission, skill progression.

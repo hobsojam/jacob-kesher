@@ -58,7 +58,7 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
     const names = interruptingGuards
       .map((g) => data.enemyData[g.id]?.name ?? 'a guard')
       .join(', ')
-    messages.push(`You are interrupted — ${names} enters the room.`)
+    messages.push(`You are interrupted — ${names} arrives.`)
     // The guard has seen Jacob — immediately alert, no probability roll
     const patched = { ...state.enemyStates }
     for (const guard of interruptingGuards) {

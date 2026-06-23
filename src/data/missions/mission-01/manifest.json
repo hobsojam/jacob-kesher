@@ -12,7 +12,7 @@
     "inventory": {
       "weapons": [null, null],
       "gadgets": ["camera", null],
-      "small": [null, null, null],
+      "small": ["briefing_note", null, null],
       "special": null
     }
   }

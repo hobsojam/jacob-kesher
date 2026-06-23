@@ -1,6 +1,12 @@
 {
   "items": [
     {
+      "id": "briefing_note",
+      "label": "Briefing Note",
+      "description": "EYES ONLY — DESTROY AFTER READING\n\nTarget: SOVA-7 cipher device, Soviet mountain outpost, grid ref withheld.\nObjective: Photograph rotor configuration before cipher officer returns from dinner.\nExtraction: Black Volga, mountain road. Driver will wait.\nDeadline: Dinner ends. Do not miss the car.\n\nGood luck. You'll need it.",
+      "type": "document"
+    },
+    {
       "id": "wire_cutters",
       "label": "Wire Cutters",
       "description": "Heavy-duty cutters. Enough to open a gap in chain-link. Not consumed on use.",
