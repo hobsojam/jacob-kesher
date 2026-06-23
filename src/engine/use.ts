@@ -38,14 +38,35 @@ export function handleUse(
     }
   }
 
+  // Target-specific effects take priority and never consume the item
+  if (targetId && itemData.targetEffects?.[targetId]) {
+    const messages: string[] = []
+    let next = state
+    for (const eff of itemData.targetEffects[targetId]) {
+      if (eff.type === 'message') {
+        messages.push(eff.text)
+      } else if (eff.type === 'set_global_flag') {
+        next = { ...next, flags: { ...next.flags, [eff.flag]: true } }
+      } else if (eff.type === 'set_room_flag') {
+        const rId = next.protagonist.currentRoom
+        const rs = next.roomStates[rId]
+        if (rs) next = { ...next, roomStates: { ...next.roomStates, [rId]: { ...rs, flags: { ...rs.flags, [eff.flag]: true } } } }
+      } else if (eff.type === 'heal') {
+        const hp = Math.min(next.protagonist.health + eff.amount, next.protagonist.maxHealth)
+        next = { ...next, protagonist: { ...next.protagonist, health: hp } }
+        messages.push(`You recover ${eff.amount} health.`)
+      }
+    }
+    return { state: next, messages }
+  }
+
   if (!itemData.effect) {
     return { state, messages: [`You fiddle with ${itemData.label} but nothing happens.`] }
   }
 
   const { effect } = itemData
-  // Keycards and documents are not consumed on use — they stay in the inventory
-  // and can be used again (e.g., to unlock further doors or re-read a file).
-  const spendable = itemData.type !== 'keycard' && itemData.type !== 'document'
+  // Only consumable-type items are spent on use; gadgets, weapons, etc. are reusable.
+  const spendable = itemData.type === 'consumable'
   const spentItemStates = spendable
     ? { ...state.itemStates, [itemId]: { ...itemState, used: true } }
     : state.itemStates

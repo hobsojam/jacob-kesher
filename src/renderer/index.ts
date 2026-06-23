@@ -138,7 +138,20 @@ function renderSaveLoad(container: HTMLElement): void {
   container.appendChild(loadBtn)
 }
 
+function confirmIfFinal(action: Parameters<typeof processAction>[0]): boolean {
+  if (action.type !== 'interact') return true
+  const room = gameData.roomIndex[currentState.protagonist.currentRoom]
+  const target = room?.examineTargets.find((t) => t.id === action.targetId)
+  const isFinal = target?.effect?.some(
+    (e) => e.type === 'set_global_flag' && (e.flag === 'mission_complete' || e.flag === 'mission_failed'),
+  )
+  if (!isFinal) return true
+  return window.confirm(target?.interactLabel ?? 'Are you sure?')
+}
+
 function dispatch(action: Parameters<typeof processAction>[0]): void {
+  if (!confirmIfFinal(action)) return
+
   if (action.type === 'look') {
     // 'Look around' is a pure UI refresh — reads directly from currentState,
     // never touches engine state. This guarantees an accurate view of all

@@ -74,6 +74,7 @@ export interface ItemData {
   damage?: number        // HP dealt per hit; defaults to 1 if absent
   effect?: ItemEffect
   usableOn?: string[]    // ExamineTarget IDs this item can be used on in the same room
+  targetEffects?: Record<string, ItemEffect[]>  // per-target overrides; item is not consumed
 }
 
 export type EnemyType =

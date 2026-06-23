@@ -17,7 +17,7 @@ const distractor: ItemData = {
   id: 'distractor',
   label: 'distraction device',
   description: 'Makes noise in another room.',
-  type: 'gadget',
+  type: 'consumable',
   effect: { type: 'set_room_flag', flag: 'distracted' },
 }
 
@@ -25,7 +25,7 @@ const jammer: ItemData = {
   id: 'jammer',
   label: 'camera jammer',
   description: 'Disables cameras.',
-  type: 'gadget',
+  type: 'consumable',
   effect: { type: 'set_global_flag', flag: 'cameras_disabled' },
 }
 
