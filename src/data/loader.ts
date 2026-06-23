@@ -12,11 +12,12 @@ export function buildGameData(
   manifest: MissionManifest,
 ): GameData {
   const data: GameData = {
-    roomIndex:       Object.fromEntries(rooms.map((r) => [r.id, r])),
-    itemData:        Object.fromEntries(items.map((i) => [i.id, i])),
-    enemyData:       Object.fromEntries(enemies.map((e) => [e.id, e])),
-    enemyTemplates:  Object.fromEntries(templates.map((t) => [t.id, t])),
-    deadlineMessage: manifest.deadlineMessage,
+    roomIndex:        Object.fromEntries(rooms.map((r) => [r.id, r])),
+    itemData:         Object.fromEntries(items.map((i) => [i.id, i])),
+    enemyData:        Object.fromEntries(enemies.map((e) => [e.id, e])),
+    enemyTemplates:   Object.fromEntries(templates.map((t) => [t.id, t])),
+    deadlineMessage:  manifest.deadlineMessage,
+    timerStartRoomId: manifest.timerStartRoomId,
   }
   validateGameData(data)
   return data
@@ -67,6 +68,18 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
     }
   }
 
+  const enemyStates: Record<string, import('../types/state').EnemyState> = {}
+  for (const enemy of Object.values(data.enemyData)) {
+    if (enemy.startUnconscious !== undefined) {
+      enemyStates[enemy.id] = {
+        id: enemy.id,
+        status: 'unconscious',
+        unconsciousUntil: enemy.startUnconscious,
+        inventory: [...enemy.inventory],
+      }
+    }
+  }
+
   return {
     protagonist: {
       currentRoom:    manifest.startingRoomId,
@@ -78,9 +91,13 @@ export function initGameState(manifest: MissionManifest, data: GameData): GameSt
       inventory:      manifest.protagonist.inventory,
       flags:          {},
     },
-    time:      { elapsed: 0, missionDeadline: manifest.missionDeadline },
+    time: {
+      elapsed: 0,
+      missionDeadline: manifest.missionDeadline,
+      timerActive: manifest.timerStartRoomId === undefined || manifest.startingRoomId === manifest.timerStartRoomId,
+    },
     roomStates,
-    enemyStates: {},
+    enemyStates,
     itemStates:  {},
     flags:       {},
   }

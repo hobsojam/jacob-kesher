@@ -104,6 +104,10 @@ export function handleUse(
     }
   }
 
+  if (effect.type === 'message') {
+    return { state, messages: [effect.text] }
+  }
+
   effect satisfies never
   return { state, messages: [`You fiddle with ${itemData.label} but nothing happens.`] }
 }

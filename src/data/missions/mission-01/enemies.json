@@ -41,6 +41,33 @@
       "templateId": "guard",
       "roomId": "comms_room",
       "inventory": []
+    },
+    {
+      "id": "barracks_guard_1",
+      "name": "Pvt. Kozlov",
+      "description": "A soldier asleep in his bunk, rifle leaning against the wall beside him.",
+      "templateId": "guard",
+      "roomId": "barracks",
+      "inventory": [],
+      "startUnconscious": 80
+    },
+    {
+      "id": "barracks_guard_2",
+      "name": "Pvt. Bykov",
+      "description": "A soldier asleep in his bunk, one arm over his face.",
+      "templateId": "guard",
+      "roomId": "barracks",
+      "inventory": [],
+      "startUnconscious": 80
+    },
+    {
+      "id": "barracks_guard_3",
+      "name": "Pvt. Zaitsev",
+      "description": "A soldier asleep in his bunk, snoring quietly.",
+      "templateId": "guard",
+      "roomId": "barracks",
+      "inventory": [],
+      "startUnconscious": 80
     }
   ]
 }

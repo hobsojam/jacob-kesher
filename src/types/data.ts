@@ -10,6 +10,7 @@ export interface Exit {
     flag?: string
   }
   hidden?: boolean
+  blockedBy?: string   // enemy ID; exit is impassable while that enemy is active
 }
 
 export interface Addendum {
@@ -63,6 +64,7 @@ export type ItemEffect =
   | { type: 'set_room_flag'; flag: string }
   | { type: 'set_global_flag'; flag: string }
   | { type: 'set_global_flag_if'; condition: string; flag: string; else_flag: string }
+  | { type: 'message'; text: string }
 
 export interface ItemData {
   id: string
@@ -118,6 +120,8 @@ export interface EnemyData {
   roomId: string
   patrol?: PatrolRoute
   inventory: string[]
+  // If set, enemy starts unconscious and wakes at this absolute turn number.
+  startUnconscious?: number
 }
 
 export interface GameData {
@@ -126,4 +130,5 @@ export interface GameData {
   enemyTemplates: Record<string, EnemyTemplate>
   enemyData: Record<string, EnemyData>
   deadlineMessage: string
+  timerStartRoomId?: string
 }

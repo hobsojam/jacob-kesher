@@ -1,6 +1,44 @@
 {
   "rooms": [
     {
+      "id": "briefing_room",
+      "label": "Section Office, Whitehall",
+      "description": "A first-floor room in a building with no name on the door and no listing in any directory. Alderton sits behind a desk that has seen thirty years of crises, the surface invisible under files, a telephone, and a cold cup of tea. Rain against the sash windows. Outside: London, grey and indifferent.",
+      "addenda": [],
+      "exits": [
+        { "destinationId": "mountain_road", "label": "Depart for the field" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "alderton",
+          "label": "Alderton",
+          "description": "A lean man in his late fifties, a suit that might have fitted him in 1943, reading glasses he refuses to wear. He speaks quietly. 'The outpost is a relay station — or so they'd like us to think. The SOVA-7 arrived three weeks ago. We need photographs of the rotor configuration before they rotate the key. You have until dinner ends. The car will be waiting. Any questions?' He doesn't wait for any."
+        },
+        {
+          "id": "mission_file",
+          "label": "the mission file",
+          "description": "A thin manila folder. Aerial photographs, a guard rotation, a map of the approach. You've memorised it. The file stays here."
+        },
+        {
+          "id": "briefing_window",
+          "label": "the window",
+          "description": "Whitehall in November. A bus. A man walking fast with his collar up. None of them know you exist. In forty-eight hours you'll be glad of that."
+        },
+        {
+          "id": "evelyn",
+          "label": "Evelyn",
+          "description": "Alderton's secretary occupies the desk by the door — dark hair, a file open in front of her that she is very deliberately reading. She glances up. 'I know,' she says pleasantly, before you've said anything. She goes back to her file.",
+          "interactLabel": "Photograph Evelyn",
+          "interactRequires": { "itemId": "camera" },
+          "effect": [
+            { "type": "message", "text": "You raise the camera. Evelyn doesn't look up from her file. 'I saw that, Mr. Kesher.' She turns a page. 'The machine is in a mountain, not in Whitehall. I suggest you save the film.' You put it away." }
+          ]
+        }
+      ]
+    },
+    {
       "id": "mountain_road",
       "label": "Mountain Road",
       "description": "A dirt track through pine trees. The outpost fence is visible ahead, lit by a single floodlight. Somewhere in the darkness, an engine ticks as it cools.",
@@ -86,7 +124,8 @@
           "label": "Loading bay door",
           "requires": { "flag": "loading_bay_door_open" }
         },
-        { "destinationId": "ventilation_shaft", "label": "Ventilation grille" }
+        { "destinationId": "ventilation_shaft", "label": "Ventilation grille" },
+        { "destinationId": "generator_room", "label": "Generator room door" }
       ],
       "itemIds": [],
       "hiddenItemIds": [],
@@ -116,6 +155,10 @@
         {
           "flag": "alarm_raised",
           "text": "Volkov is posted here, rifle unslung."
+        },
+        {
+          "flag": "power_cut",
+          "text": "The bay is dark except for a single emergency indicator above the interior door."
         }
       ],
       "exits": [
@@ -175,6 +218,10 @@
         {
           "flag": "alarm_raised",
           "text": "Red warning lights pulse along the ceiling. Somewhere a door slams."
+        },
+        {
+          "flag": "power_cut",
+          "text": "The strip lighting is dead. Red emergency indicators pulse dimly at floor level."
         }
       ],
       "exits": [
@@ -182,7 +229,8 @@
         { "destinationId": "ventilation_shaft", "label": "Ventilation grille (low, near the loading bay end)" },
         { "destinationId": "mess_hall", "label": "Mess hall" },
         { "destinationId": "comms_room", "label": "Comms room" },
-        { "destinationId": "duty_office", "label": "Duty office" }
+        { "destinationId": "duty_office", "label": "Duty office", "blockedBy": "corridor_guard" },
+        { "destinationId": "barracks", "label": "Guard barracks" }
       ],
       "itemIds": [],
       "hiddenItemIds": [],
@@ -211,7 +259,8 @@
         }
       ],
       "exits": [
-        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" },
+        { "destinationId": "storeroom", "label": "Storeroom door at the back of the hall" }
       ],
       "itemIds": [],
       "hiddenItemIds": ["duty_office_key"],
@@ -242,10 +291,15 @@
         {
           "flag": "alarm_raised",
           "text": "Nikitin is on his feet, shouting into a handset."
+        },
+        {
+          "flag": "power_cut",
+          "text": "The radio banks are dead. Nikitin has pulled off his headphones and is reaching for a torch."
         }
       ],
       "exits": [
-        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" },
+        { "destinationId": "storeroom", "label": "Back door into the storeroom" }
       ],
       "itemIds": [],
       "hiddenItemIds": ["cipher_room_key_b"],
@@ -294,7 +348,7 @@
           "requires": { "flag": "cipher_room_accessible" }
         }
       ],
-      "itemIds": ["camera"],
+      "itemIds": [],
       "hiddenItemIds": ["cipher_room_key"],
       "examineTargets": [
         {
@@ -364,6 +418,112 @@
           "description": "Locked. Not worth the time."
         }
       ]
+    },
+    {
+      "id": "storeroom",
+      "label": "Supply Storeroom",
+      "description": "Narrow shelves from floor to ceiling — tinned provisions, cleaning supplies, a mop and bucket. The smell of carbolic soap. A wooden partition at the back conceals a door into the comms room.",
+      "addenda": [
+        {
+          "flag": "power_cut",
+          "text": "The strip light has gone out. You navigate by feel along the shelves."
+        }
+      ],
+      "exits": [
+        { "destinationId": "mess_hall", "label": "Back to the mess hall" },
+        { "destinationId": "comms_room", "label": "Through the back door into the comms room" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "storeroom_shelves",
+          "label": "the shelves",
+          "description": "Tinned borscht, cleaning powder, industrial soap. Nothing useful here."
+        },
+        {
+          "id": "storeroom_back_door",
+          "label": "the back door",
+          "description": "Thin wood, a simple handle. Opens into the comms room. Nikitin won't hear it over the radio static."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "barracks",
+      "label": "Guard Barracks",
+      "description": "Eight bunks, half made, half not. Three guards sleep at the far end — the night-shift men, off duty now. Personal effects on shelves above each bunk: photographs, a chess set mid-game, dog-eared paperbacks. The smell of boot polish and old cigarette smoke.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Empty bunks, rifles gone. Everyone has a post."
+        },
+        {
+          "flag": "power_cut",
+          "text": "Dark. Through the wall you can hear someone cursing at the generator."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["flashbang"],
+      "examineTargets": [
+        {
+          "id": "barracks_bunks",
+          "label": "the bunks",
+          "description": "Standard Soviet military kit. Clean, impersonal, lived-in."
+        },
+        {
+          "id": "personal_shelf",
+          "label": "the personal shelf",
+          "description": "A photograph of a woman and children outside a dacha. A letter, half-written. A chess problem, unsolved."
+        },
+        {
+          "id": "footlocker",
+          "label": "the footlocker",
+          "description": "Unlocked. Spare uniform, boot polish, a dented mess tin. One footlocker at the end is heavier than the rest."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "generator_room",
+      "label": "Generator Room",
+      "description": "Two diesel generators dominate the space, ticking over on low load. The heat is immediate. A smell of fuel and hot metal. Emergency lighting only — one bare bulb on a wire.",
+      "addenda": [
+        {
+          "flag": "power_cut",
+          "text": "The generators are still, cooling in the dark. You did this."
+        }
+      ],
+      "exits": [
+        { "destinationId": "service_yard", "label": "Back to the service yard" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["wrench"],
+      "examineTargets": [
+        {
+          "id": "generators",
+          "label": "the generators",
+          "description": "Soviet military diesels. Well-maintained. A simple cutoff valve handles both."
+        },
+        {
+          "id": "generator_controls",
+          "label": "the generator controls",
+          "description": "A cutoff lever. Pull it and the compound loses power — lights out, cameras blind, but someone will come to check.",
+          "interactLabel": "Cut the power",
+          "effect": [
+            { "type": "set_global_flag", "flag": "power_cut" }
+          ]
+        },
+        {
+          "id": "fuel_drums",
+          "label": "the fuel drums",
+          "description": "Full. Standard diesel. Not useful unless you plan to burn the place down."
+        }
+      ],
+      "searchDifficulty": 2
     }
   ]
 }

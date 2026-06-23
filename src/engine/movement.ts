@@ -26,6 +26,15 @@ export function handleMove(
     }
   }
 
+  if (exit.blockedBy) {
+    const blockerState = state.enemyStates[exit.blockedBy]
+    const isActive = !blockerState || blockerState.status === 'active'
+    if (isActive) {
+      const name = data.enemyData[exit.blockedBy]?.name ?? 'Someone'
+      return { state, messages: [`${name} is blocking the way.`] }
+    }
+  }
+
   if (exit.requires) {
     const { itemId, skillId, skillLevel, flag } = exit.requires
 
@@ -55,6 +64,11 @@ export function handleMove(
     ? { ...existingRoomState, visited: true }
     : { ...initRoomState(destination.id, data), visited: true }
 
+  const activatingTimer =
+    data.timerStartRoomId !== undefined &&
+    state.time.timerActive === false &&
+    destination.id === data.timerStartRoomId
+
   const newState: GameState = {
     ...state,
     protagonist: {
@@ -66,6 +80,7 @@ export function handleMove(
       ...state.roomStates,
       [destination.id]: destinationRoomState,
     },
+    time: activatingTimer ? { ...state.time, timerActive: true } : state.time,
   }
 
   return {

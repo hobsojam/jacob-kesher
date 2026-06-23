@@ -5,6 +5,7 @@ export interface MissionManifest {
   title: string
   description: string
   startingRoomId: string
+  timerStartRoomId?: string
   missionDeadline: number
   deadlineMessage: string
   protagonist: {
