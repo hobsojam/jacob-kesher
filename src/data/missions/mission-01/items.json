@@ -80,6 +80,20 @@
       "type": "weapon_melee"
     },
     {
+      "id": "mosin_nagant",
+      "label": "Mosin-Nagant",
+      "description": "A bolt-action rifle. Heavy, accurate, and loud enough to wake the mountain.",
+      "type": "weapon_ranged",
+      "damage": 2
+    },
+    {
+      "id": "makarov_pistol",
+      "label": "Makarov Pistol",
+      "description": "Standard Soviet sidearm. Eight rounds, reliable, and considerably quieter than a rifle.",
+      "type": "weapon_ranged",
+      "damage": 1
+    },
+    {
       "id": "soviet_uniform",
       "label": "Soviet Uniform",
       "description": "Standard-issue drab green, rank insignia for a private. Wearing it you might pass a cursory inspection — provided you keep moving and don't let anyone look too closely.",
