@@ -134,6 +134,11 @@ export interface EnemyData {
   templateId: string
   roomId: string
   patrol?: PatrolRoute
+  // Alarm overrides: applied when the global alarm_raised flag is set.
+  // alarmRoomId pins the enemy to a fixed room; alarmPatrol replaces their patrol route.
+  // Only one should be set. Both override the normal patrol/roomId calculation.
+  alarmRoomId?: string
+  alarmPatrol?: PatrolRoute
   inventory: string[]
   // If set, enemy starts unconscious and wakes at this absolute turn number.
   startUnconscious?: number

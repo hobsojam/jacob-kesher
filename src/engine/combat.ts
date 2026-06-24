@@ -1,7 +1,7 @@
 import type { EnemyTemplate, GameData } from '../types/data'
 import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
-import { guardPosition } from './patrol'
+import { enemyPosition } from './patrol'
 import { rollD20 } from './dice'
 import { initEnemyState, enemyLabel, cap } from './room'
 
@@ -201,7 +201,7 @@ export function guardAmbush(
     if (es && es.status !== 'active') continue
     if ((es?.awareness ?? 'unaware') !== 'alert') continue
 
-    const guardRoom = enemy.patrol ? guardPosition(enemy.patrol, s.time.elapsed) : enemy.roomId
+    const guardRoom = enemyPosition(enemy, s.time.elapsed, s.flags)
     if (guardRoom !== roomId) continue
 
     const template = data.enemyTemplates[enemy.templateId]

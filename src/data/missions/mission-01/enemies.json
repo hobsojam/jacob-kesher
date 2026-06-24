@@ -24,6 +24,7 @@
         "cycleTime": 6,
         "startOffset": 0
       },
+      "alarmRoomId": "loading_bay",
       "inventory": ["makarov_pistol", "service_keycard", "soviet_uniform"]
     },
     {

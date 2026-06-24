@@ -13,7 +13,7 @@ import { handleUse } from './use'
 import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
 import { checkDetection } from './detection'
-import { guardPosition } from './patrol'
+import { enemyPosition } from './patrol'
 import { checkDisguise } from './disguise'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
@@ -214,9 +214,7 @@ function autoAlertEnemiesInRoom(
     const es = state.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
 
-    const enemyRoom = enemy.patrol
-      ? guardPosition(enemy.patrol, state.time.elapsed)
-      : enemy.roomId
+    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags)
 
     if (enemyRoom !== roomId) continue
 

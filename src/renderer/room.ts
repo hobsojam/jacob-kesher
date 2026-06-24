@@ -1,7 +1,7 @@
 import type { EnemyData, EnemyType, GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { describeRoom } from '../engine/room'
-import { guardPosition } from '../engine/patrol'
+import { enemyPosition } from '../engine/patrol'
 
 const GENERIC_LABEL: Record<EnemyType, string> = {
   guard:    'a guard',
@@ -62,10 +62,10 @@ export function enemiesInRoom(roomId: string, state: GameState, data: GameData):
   const stationary = state.roomStates[roomId]?.enemyIds ?? []
   const patrolling = Object.values(data.enemyData)
     .filter((e) => {
-      if (!e.patrol) return false
+      if (!e.patrol && !e.alarmRoomId && !e.alarmPatrol) return false
       const es = state.enemyStates[e.id]
-      if (es && es.status !== 'active') return false  // downed guards don't patrol
-      return guardPosition(e.patrol, state.time.elapsed) === roomId
+      if (es && es.status !== 'active') return false
+      return enemyPosition(e, state.time.elapsed, state.flags) === roomId
     })
     .map((e) => e.id)
   return [...new Set([...stationary, ...patrolling])]

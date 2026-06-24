@@ -1,7 +1,7 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { initEnemyState, enemyLabel, cap } from './room'
-import { guardPosition } from './patrol'
+import { enemyPosition } from './patrol'
 
 export function checkDiscoveries(
   state: GameState,
@@ -15,7 +15,7 @@ export function checkDiscoveries(
   for (const enemy of Object.values(data.enemyData)) {
     const es = state.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
-    const room = enemy.patrol ? guardPosition(enemy.patrol, state.time.elapsed) : enemy.roomId
+    const room = enemyPosition(enemy, state.time.elapsed, state.flags)
     activeGuardRooms.add(room)
   }
 
