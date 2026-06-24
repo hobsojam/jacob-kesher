@@ -49,18 +49,27 @@ body {
 
 .inv-empty { color: #303028; }
 
-.inv-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+/* Compact inventory item buttons */
+#inventory button {
+  font-size: 11px;
+  padding: 0.15rem 0.5rem;
+  letter-spacing: 0.04em;
 }
 
-.inv-label { color: #909080; }
+/* Expanded item: full-width row with actions */
+.inv-item-expanded {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+}
 
-.inv-row button {
-  font-size: 10px;
-  padding: 0.1rem 0.45rem;
-  letter-spacing: 0.04em;
+/* Selected / expanded item label */
+button.btn-inv-selected {
+  border-color: #a0906a;
+  color: #e0d8b0;
 }
 
 .hud-health { color: #c04040; }
@@ -143,3 +152,20 @@ button.btn-inventory { border-color: #484828; }
 button.btn-inventory:hover:not(:disabled) { background: #1c1c10; }
 
 button.btn-misc     { border-color: #383838; }
+
+/* Accordion headers span full width and align left */
+button.btn-accordion-header {
+  width: 100%;
+  text-align: left;
+  letter-spacing: 0.04em;
+}
+
+/* Accordion body: full-width row, buttons indented */
+.accordion-body {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding-left: 1.2rem;
+  padding-bottom: 0.15rem;
+}

@@ -2,7 +2,7 @@ import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { rollD20 } from './dice'
 import { guardPosition } from './patrol'
-import { initEnemyState } from './room'
+import { initEnemyState, enemyLabel, cap } from './room'
 
 export function checkDisguise(
   state: GameState,
@@ -60,7 +60,7 @@ export function checkDisguise(
         },
       }
       changed = true
-      messages.push(`${enemy.name} looks at you for a moment too long. Your cover is blown.`)
+      messages.push(`${cap(enemyLabel(enemy, data))} looks at you for a moment too long. Your cover is blown.`)
     }
   }
 

@@ -3,7 +3,7 @@ import type { EnemyState, GameState, Inventory, ItemState, NoiseLevel, Skill } f
 import type { SubSystemResult } from '../types/engine'
 import { guardPosition } from './patrol'
 import { rollD20 } from './dice'
-import { initEnemyState } from './room'
+import { initEnemyState, enemyLabel, cap } from './room'
 
 type WeaponMode = 'unarmed' | 'melee' | 'ranged'
 
@@ -22,7 +22,7 @@ export function handleAttack(
   }
 
   if (enemyState && enemyState.status !== 'active') {
-    return { state, messages: [`${enemy.name} is already down.`] }
+    return { state, messages: [`${cap(enemyLabel(enemy, data))} is already down.`] }
   }
 
   const { mode, itemId } = determineWeapon(
@@ -38,7 +38,7 @@ export function handleAttack(
   const jacobHit = jacobAttack >= enemyDefence
 
   const messages: string[] = [
-    `You attack ${enemy.name} with your ${weaponLabel}.`,
+    `You attack ${enemyLabel(enemy, data)} with your ${weaponLabel}.`,
   ]
 
   const currentHealth = enemyState?.health ?? template.stats.health
@@ -54,11 +54,11 @@ export function handleAttack(
 
     if (newHealth <= 0) {
       updatedEnemyState = { ...updatedEnemyState, status: 'dead', health: 0, bodyRoomId: state.protagonist.currentRoom }
-      messages.push(`${enemy.name} goes down.`)
+      messages.push(`${cap(enemyLabel(enemy, data))} goes down.`)
       enemyStillStanding = false
     } else {
       updatedEnemyState = { ...updatedEnemyState, health: newHealth }
-      messages.push(`${enemy.name} takes the hit. (${newHealth} health remaining)`)
+      messages.push(`${cap(enemyLabel(enemy, data))} takes the hit. (${newHealth} health remaining)`)
     }
   } else {
     messages.push(`Miss! (${jacobAttack} vs defence ${enemyDefence})`)
@@ -79,7 +79,7 @@ export function handleAttack(
 
   if (enemyStillStanding) {
     const { hit, attackRoll, defence } = resolveEnemyAttack(template, state.protagonist, roll)
-    messages.push(`${enemy.name} retaliates. (${attackRoll} vs defence ${defence})`)
+    messages.push(`${cap(enemyLabel(enemy, data))} retaliates. (${attackRoll} vs defence ${defence})`)
     if (hit) {
       protagonistHealth -= 1
       messages.push(`You are hit! (${protagonistHealth} health remaining)`)
@@ -117,12 +117,12 @@ export function handleStealthTakedown(
   }
 
   if (enemyState && enemyState.status !== 'active') {
-    return { state, messages: [`${enemy.name} is already down.`] }
+    return { state, messages: [`${cap(enemyLabel(enemy, data))} is already down.`] }
   }
 
   const awareness = enemyState?.awareness ?? 'unaware'
   if (awareness !== 'unaware') {
-    return { state, messages: [`${enemy.name} is aware of you — a silent takedown is not possible.`] }
+    return { state, messages: [`${cap(enemyLabel(enemy, data))} is aware of you — a silent takedown is not possible.`] }
   }
 
   const base: EnemyState = enemyState ?? initEnemyState(enemy)
@@ -138,10 +138,10 @@ export function handleStealthTakedown(
       unconsciousUntil: state.time.elapsed + wakeAfter,
       bodyRoomId: state.protagonist.currentRoom,
     }
-    message = `You silently neutralise ${enemy.name}.`
+    message = `You silently neutralise ${enemyLabel(enemy, data)}.`
   } else {
     newEnemyState = { ...base, status: 'dead', bodyRoomId: state.protagonist.currentRoom }
-    message = `You silently eliminate ${enemy.name}.`
+    message = `You silently eliminate ${enemyLabel(enemy, data)}.`
   }
 
   return {
@@ -207,7 +207,7 @@ export function guardAmbush(
     const template = data.enemyTemplates[enemy.templateId]
     if (!template) continue
 
-    messages.push(`${enemy.name} spots you and attacks!`)
+    messages.push(`${cap(enemyLabel(enemy, data))} spots you and attacks!`)
 
     const { hit, attackRoll, defence } = resolveEnemyAttack(template, s.protagonist, roll)
     if (hit) {

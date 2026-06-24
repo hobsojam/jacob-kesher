@@ -2,8 +2,9 @@ import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { processAction } from '../engine/index'
 import { renderHud } from './hud'
-import { currentRoomLines } from './room'
+import { currentRoomLines, enemyDisplayName } from './room'
 import { computeActions } from './actions'
+import type { ActionButton } from './actions'
 import { saveGame } from '../save/save'
 import { loadGame } from '../save/load'
 
@@ -24,53 +25,72 @@ function renderInventory(el: HTMLElement, state: GameState, data: GameData): voi
     return
   }
 
+  const room = data.roomIndex[state.protagonist.currentRoom]
+  const roomTargets = room?.examineTargets ?? []
+
   for (const itemId of items) {
     const item = data.itemData[itemId]
     if (!item) continue
 
-    const row = document.createElement('div')
-    row.className = 'inv-row'
+    const isSelected = selectedItemId === itemId
 
-    const label = document.createElement('span')
-    label.className = 'inv-label'
-    label.textContent = item.label
-    row.appendChild(label)
+    if (!isSelected) {
+      const btn = document.createElement('button')
+      btn.className = 'btn-inventory'
+      btn.textContent = item.label
+      btn.addEventListener('click', () => { selectedItemId = itemId; render() })
+      el.appendChild(btn)
+      continue
+    }
 
-    const room = data.roomIndex[state.protagonist.currentRoom]
-    const targets = room?.examineTargets ?? []
+    // Expanded item — full-width row with contextual actions
+    const wrapper = document.createElement('div')
+    wrapper.className = 'inv-item-expanded'
+
+    const labelBtn = document.createElement('button')
+    labelBtn.className = 'btn-inventory btn-inv-selected'
+    labelBtn.textContent = item.label
+    labelBtn.addEventListener('click', () => { selectedItemId = null; render() })
+    wrapper.appendChild(labelBtn)
+
+    const isWeapon = item.type === 'weapon_melee' || item.type === 'weapon_ranged'
     const applicableTargets = item.usableOn
-      ? targets.filter((t) => item.usableOn!.includes(t.id))
+      ? roomTargets.filter((t) => item.usableOn!.includes(t.id))
       : []
 
     if (applicableTargets.length > 0) {
       for (const target of applicableTargets) {
-        const useOnBtn = document.createElement('button')
-        useOnBtn.className = 'btn-inventory'
-        useOnBtn.textContent = `Use on ${target.label}`
-        useOnBtn.addEventListener('click', () => dispatch({ type: 'use', itemId, targetId: target.id }))
-        row.appendChild(useOnBtn)
+        const btn = document.createElement('button')
+        btn.className = 'btn-inventory'
+        btn.textContent = `Use on ${target.label}`
+        btn.addEventListener('click', () => { selectedItemId = null; dispatch({ type: 'use', itemId, targetId: target.id }) })
+        wrapper.appendChild(btn)
       }
-    } else {
-      const useBtn = document.createElement('button')
-      useBtn.className = 'btn-inventory'
-      useBtn.textContent = 'Use'
-      useBtn.addEventListener('click', () => dispatch({ type: 'use', itemId }))
-      row.appendChild(useBtn)
+    } else if (!isWeapon && item.type !== 'keycard') {
+      const btn = document.createElement('button')
+      btn.className = 'btn-inventory'
+      btn.textContent = item.type === 'document' ? 'Read' : 'Use'
+      btn.addEventListener('click', () => { selectedItemId = null; dispatch({ type: 'use', itemId }) })
+      wrapper.appendChild(btn)
     }
 
     const dropBtn = document.createElement('button')
     dropBtn.className = 'btn-inventory'
     dropBtn.textContent = 'Drop'
-    dropBtn.addEventListener('click', () => dispatch({ type: 'drop', itemId }))
-    row.appendChild(dropBtn)
+    dropBtn.addEventListener('click', () => { selectedItemId = null; dispatch({ type: 'drop', itemId }) })
+    wrapper.appendChild(dropBtn)
 
-    el.appendChild(row)
+    el.appendChild(wrapper)
   }
 }
 
 let currentState: GameState
 let gameData: GameData
 let gameOver = false
+
+const openGroups = new Set<string>()
+const seenEnemyGroups = new Set<string>()  // enemy accordions auto-expand on first appearance
+let selectedItemId: string | null = null
 
 function appendMessages(messages: string[], isRoom = false): void {
   const narrative = document.getElementById('narrative')!
@@ -99,19 +119,7 @@ function render(): void {
   actionsEl.innerHTML = ''
 
   if (!gameOver) {
-    const buttons = computeActions(currentState, gameData)
-    for (const btn of buttons) {
-      const el = document.createElement('button')
-      el.textContent = btn.label
-      el.className = `btn-${btn.category}`
-      if (btn.disabled) {
-        el.disabled = true
-        if (btn.disabledReason) el.title = btn.disabledReason
-      } else {
-        el.addEventListener('click', () => dispatch(btn.action))
-      }
-      actionsEl.appendChild(el)
-    }
+    renderActionButtons(actionsEl, currentState, gameData)
   } else {
     const restartBtn = document.createElement('button')
     restartBtn.textContent = 'Restart mission'
@@ -121,6 +129,97 @@ function render(): void {
   }
 
   renderSaveLoad(actionsEl)
+}
+
+function makeButton(btn: ActionButton, useShortLabel = false): HTMLButtonElement {
+  const el = document.createElement('button')
+  el.textContent = useShortLabel && btn.shortLabel ? btn.shortLabel : btn.label
+  el.className = `btn-${btn.category}`
+  if (btn.disabled) {
+    el.disabled = true
+    if (btn.disabledReason) el.title = btn.disabledReason
+  } else {
+    el.addEventListener('click', () => dispatch(btn.action))
+  }
+  return el
+}
+
+type Category = ActionButton['category']
+
+const SECTIONS: { id: string; label: string; categories: Category[] }[] = [
+  { id: '__exits__',   label: 'exits',   categories: ['move'] },
+  { id: '__examine__', label: 'examine', categories: ['examine'] },
+  { id: '__take__',    label: 'take',    categories: ['take'] },
+  { id: '__misc__',    label: 'misc',    categories: ['misc'] },
+]
+
+function renderAccordion(
+  container: HTMLElement,
+  id: string,
+  label: string,
+  category: Category,
+  btns: ActionButton[],
+  opts: { hideDisabled?: boolean; useShortLabel?: boolean } = {},
+): void {
+  const isOpen = openGroups.has(id)
+
+  const header = document.createElement('button')
+  header.textContent = `${isOpen ? '▼' : '▶'} ${label}`
+  header.className = `btn-${category} btn-accordion-header`
+  header.addEventListener('click', () => {
+    if (openGroups.has(id)) openGroups.delete(id)
+    else openGroups.add(id)
+    render()
+  })
+  container.appendChild(header)
+
+  if (isOpen) {
+    const body = document.createElement('div')
+    body.className = 'accordion-body'
+    let any = false
+    for (const btn of btns) {
+      if (opts.hideDisabled && btn.disabled) continue
+      body.appendChild(makeButton(btn, !!opts.useShortLabel))
+      any = true
+    }
+    if (any) container.appendChild(body)
+  }
+}
+
+function renderActionButtons(container: HTMLElement, state: GameState, data: GameData): void {
+  const buttons = computeActions(state, data)
+
+  // Category sections (exits, examine, take, misc)
+  for (const section of SECTIONS) {
+    const btns = buttons.filter((b) => !b.groupId && section.categories.includes(b.category))
+    if (btns.length === 0) continue
+    renderAccordion(container, section.id, section.label, btns[0].category, btns)
+  }
+
+  // Per-enemy accordion groups — auto-expand on first appearance
+  const groupIds = [...new Set(buttons.map((b) => b.groupId).filter((id): id is string => !!id))]
+  for (const groupId of groupIds) {
+    if (!seenEnemyGroups.has(groupId)) { seenEnemyGroups.add(groupId); openGroups.add(groupId) }
+    const groupButtons = buttons.filter((b) => b.groupId === groupId)
+    const enemy = data.enemyData[groupId]
+    if (!enemy) continue
+
+    const isDown = !!(state.enemyStates[groupId] && state.enemyStates[groupId].status !== 'active')
+    const category: Category = isDown ? 'loot' : 'combat'
+    const name = enemyDisplayName(enemy, data)
+    const statusSuffix = isDown
+      ? (state.enemyStates[groupId]?.status === 'dead' ? ' (dead)' : ' (unconscious)')
+      : ''
+    const equippedWeapon = !isDown
+      ? state.protagonist.inventory.weapons.find((w): w is string => w !== null)
+      : undefined
+    const weaponSuffix = equippedWeapon ? ` · ${data.itemData[equippedWeapon]?.label ?? equippedWeapon}` : ''
+
+    renderAccordion(container, groupId, `${name}${statusSuffix}${weaponSuffix}`, category, groupButtons, {
+      hideDisabled: true,
+      useShortLabel: true,
+    })
+  }
 }
 
 function renderSaveLoad(container: HTMLElement): void {
@@ -148,9 +247,12 @@ function confirmIfFinal(action: Parameters<typeof processAction>[0]): boolean {
   if (action.type !== 'interact') return true
   const room = gameData.roomIndex[currentState.protagonist.currentRoom]
   const target = room?.examineTargets.find((t) => t.id === action.targetId)
-  const isFinal = target?.effect?.some(
-    (e) => e.type === 'set_global_flag' && (e.flag === 'mission_complete' || e.flag === 'mission_failed'),
-  )
+  const FINAL_FLAGS = new Set(['mission_complete', 'mission_failed'])
+  const isFinal = target?.effect?.some((e) => {
+    if (e.type === 'set_global_flag') return FINAL_FLAGS.has(e.flag)
+    if (e.type === 'set_global_flag_if') return FINAL_FLAGS.has(e.flag) || FINAL_FLAGS.has(e.else_flag)
+    return false
+  })
   if (!isFinal) return true
   return window.confirm(target?.interactLabel ?? 'Are you sure?')
 }
@@ -218,7 +320,9 @@ function debriefLine(outcome: string, state: GameState): string {
 
 function showDebrief(outcome: string, state: GameState): void {
   const enemyStates = Object.values(state.enemyStates)
-  const neutralised = enemyStates.filter((e) => e.status === 'unconscious').length
+  const neutralised = enemyStates.filter(
+    (e) => e.status === 'unconscious' && !gameData.enemyData[e.id]?.startUnconscious,
+  ).length
   const killed = enemyStates.filter((e) => e.status === 'dead').length
   const healthLost = state.protagonist.maxHealth - state.protagonist.health
 

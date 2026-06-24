@@ -1,6 +1,27 @@
-import type { EnemyData, RoomData } from '../types/data'
+import type { EnemyData, EnemyType, RoomData } from '../types/data'
 import type { GameData } from '../types/data'
 import type { EnemyState, RoomState } from '../types/state'
+
+const GENERIC_LABEL: Record<EnemyType, string> = {
+  guard:    'a guard',
+  henchman: 'a henchman',
+  villain:  'the villain',
+  dog:      'a dog',
+  civilian: 'a civilian',
+  contact:  'your contact',
+}
+
+/** Returns the enemy's display name respecting the `known` flag.
+ *  Use `cap(enemyLabel(...))` when the name opens a sentence. */
+export function enemyLabel(enemy: EnemyData, data: GameData): string {
+  if (enemy.known) return enemy.name
+  const template = data.enemyTemplates[enemy.templateId]
+  return template ? GENERIC_LABEL[template.type] : enemy.name
+}
+
+export function cap(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
 
 export function describeRoom(room: RoomData, roomState: RoomState): string[] {
   const lines: string[] = [room.label, room.description]

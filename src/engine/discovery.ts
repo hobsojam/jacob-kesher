@@ -1,6 +1,6 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
-import { initEnemyState } from './room'
+import { initEnemyState, enemyLabel, cap } from './room'
 import { guardPosition } from './patrol'
 
 export function checkDiscoveries(
@@ -34,7 +34,7 @@ export function checkDiscoveries(
     if (!activeGuardRooms.has(bodyRoom)) continue
 
     if (roll() < template.discoveryRisk) {
-      found.push(enemyData.name)
+      found.push(cap(enemyLabel(enemyData, data)))
     }
   }
 
