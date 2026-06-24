@@ -11,7 +11,7 @@
         "cycleTime": 8,
         "startOffset": 0
       },
-      "inventory": ["soviet_uniform"]
+      "inventory": ["mosin_nagant", "soviet_uniform"]
     },
     {
       "id": "roaming_guard",
@@ -24,7 +24,7 @@
         "cycleTime": 6,
         "startOffset": 0
       },
-      "inventory": ["service_keycard", "soviet_uniform"]
+      "inventory": ["makarov_pistol", "service_keycard", "soviet_uniform"]
     },
     {
       "id": "corridor_guard",
