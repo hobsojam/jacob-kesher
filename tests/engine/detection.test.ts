@@ -6,15 +6,18 @@ import type { EnemyData, EnemyTemplate } from '../../src/types/data'
 const alwaysHit  = () => 20
 const alwaysMiss = () => 1
 
-const makeTemplate = (partial: Partial<EnemyTemplate> = {}): EnemyTemplate => ({
-  id: 'guard',
-  type: 'guard',
-  stats: { strength: 3, agility: 0, health: 1 },
-  detectionRadius: 1,
-  canBeBluffed: false,
-  canBeDisguised: false,
-  ...partial,
-})
+const makeTemplate = (partial: Partial<EnemyTemplate> = {}): EnemyTemplate => {
+  const { stats: partialStats, ...rest } = partial
+  return {
+    id: 'guard',
+    type: 'guard',
+    stats: { strength: 3, agility: 0, health: 1, intelligence: 2, ...partialStats },
+    detectionRadius: 1,
+    canBeBluffed: false,
+    canBeDisguised: false,
+    ...rest,
+  }
+}
 
 const makeGuard = (partial: Partial<EnemyData> = {}): EnemyData => ({
   id: 'g1',
@@ -114,7 +117,7 @@ describe('checkDetection — detection radius', () => {
     const data = makeGameData({
       roomIndex: { room_a: roomA },
       enemyData: { g1: makeGuard() },
-      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 1 } }) },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 1, intelligence: 2 } }) },
     })
     const state = makeState()
     expect(checkDetection('quiet', 'room_a', state, data, () => 11).state.enemyStates['g1']).toBeUndefined()
@@ -188,7 +191,7 @@ describe('checkDetection — proximity (via processAction move)', () => {
   it('a guard in the destination room may detect Jacob on entry', async () => {
     const { processAction } = await import('../../src/engine/index')
     const guard = makeGuard({ roomId: 'room_b' })
-    const template = makeTemplate({ detectionRadius: 1, stats: { strength: 3, agility: 20, health: 1 } })
+    const template = makeTemplate({ detectionRadius: 1, stats: { strength: 3, agility: 20, health: 1, intelligence: 2 } })
     // agility 20 guarantees detection on any roll (20+20=40 >= DC 15)
     const data = makeGameData({
       roomIndex: {
@@ -210,7 +213,7 @@ describe('checkDetection — proximity (via processAction move)', () => {
     const { processAction } = await import('../../src/engine/index')
     const guard = makeGuard({ roomId: 'room_c' })
     const roomC = makeRoom({ id: 'room_c' })
-    const template = makeTemplate({ detectionRadius: 0, stats: { strength: 3, agility: 20, health: 1 } })
+    const template = makeTemplate({ detectionRadius: 0, stats: { strength: 3, agility: 20, health: 1, intelligence: 2 } })
     const data = makeGameData({
       roomIndex: {
         room_a: makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'go north' }] }),

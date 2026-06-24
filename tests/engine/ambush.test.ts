@@ -9,7 +9,7 @@ afterEach(() => vi.restoreAllMocks())
 const guardTemplate: EnemyTemplate = {
   id: 'guard',
   type: 'guard',
-  stats: { strength: 3, agility: 3, health: 1 },
+  stats: { strength: 3, agility: 3, health: 1, intelligence: 2 },
   detectionRadius: 1,
   canBeBluffed: true,
   canBeDisguised: true,

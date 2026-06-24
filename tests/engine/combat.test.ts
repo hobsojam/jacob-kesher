@@ -8,16 +8,19 @@ import { makeState, makeGameData, emptyInventory } from '../helpers'
 const alwaysHit = () => 20
 const alwaysMiss = () => 1
 
-const makeTemplate = (partial: Partial<EnemyTemplate> = {}): EnemyTemplate => ({
-  id: 'guard',
-  type: 'guard',
-  stats: { strength: 3, agility: 3, health: 1 },
-  detectionRadius: 1,
-  canBeBluffed: true,
-  canBeDisguised: true,
-  wakeAfterTurns: 10,
-  ...partial,
-})
+const makeTemplate = (partial: Partial<EnemyTemplate> = {}): EnemyTemplate => {
+  const { stats: partialStats, ...rest } = partial
+  return {
+    id: 'guard',
+    type: 'guard',
+    stats: { strength: 3, agility: 3, health: 1, intelligence: 2, ...partialStats },
+    detectionRadius: 1,
+    canBeBluffed: true,
+    canBeDisguised: true,
+    wakeAfterTurns: 10,
+    ...rest,
+  }
+}
 
 const makeEnemy = (partial: Partial<EnemyData> = {}): EnemyData => ({
   id: 'guard_1',
@@ -54,7 +57,7 @@ describe('handleAttack', () => {
 
   it('decrements health without killing a tough enemy', () => {
     const data = makeData({
-      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3, intelligence: 2 } }) },
     })
     const result = handleAttack('guard_1', makeState(), data, alwaysHit)
 
@@ -73,7 +76,7 @@ describe('handleAttack', () => {
 
   it('enemy counterattacks when Jacob hits but enemy survives', () => {
     const data = makeData({
-      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3, intelligence: 2 } }) },
     })
     const result = handleAttack('guard_1', makeState(), data, alwaysHit)
 
@@ -125,7 +128,7 @@ describe('handleAttack', () => {
     })
     const data = makeData({
       itemData: { pistol: { id: 'pistol', label: 'Pistol', description: '', type: 'weapon_ranged', damage: 2 } },
-      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3, intelligence: 2 } }) },
     })
     const result = handleAttack('guard_1', state, data, alwaysHit)
 
@@ -152,7 +155,7 @@ describe('handleAttack', () => {
 
   it('unarmed and melee with no damage field default to 1 HP', () => {
     const data = makeData({
-      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3 } }) },
+      enemyTemplates: { guard: makeTemplate({ stats: { strength: 3, agility: 3, health: 3, intelligence: 2 } }) },
     })
     const result = handleAttack('guard_1', makeState(), data, alwaysHit)
 

@@ -6,7 +6,7 @@ import type { EnemyData, EnemyTemplate } from '../../src/types/data'
 const guardTemplate: EnemyTemplate = {
   id: 'guard',
   type: 'guard',
-  stats: { strength: 3, agility: 3, health: 1 },
+  stats: { strength: 3, agility: 3, health: 1, intelligence: 2 },
   detectionRadius: 1,
   canBeBluffed: false,
   canBeDisguised: false,

@@ -101,6 +101,7 @@ export interface EnemyTemplate {
     strength: number
     agility: number
     health: number
+    intelligence: number
   }
   detectionRadius: number
   canBeBluffed: boolean
