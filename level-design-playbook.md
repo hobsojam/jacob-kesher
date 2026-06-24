@@ -48,9 +48,11 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 **Minimum requirements:**
 - 1–3 rooms
 - 1 named enemy (patrol preferred over stationed)
-- 1 search reward (optional but establishes search as a verb)
 - 1 environmental detail that signals time pressure (a window lit, a dinner that will end)
-- 0 branches required; 1 optional (approach route vs. waiting for guard to pass)
+
+**Optional elements:**
+- 1 search reward — not required, but establishes search as a verb early; can provide an item that makes the Act 2 chokepoint easier
+- 1 branch (approach route vs. waiting for guard to pass)
 
 **Exit into Act 2:** One chokepoint — the fence, a gate, a wall — that requires either neutralising the guard or a found item. Not both simultaneously.
 
@@ -100,64 +102,71 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 **Minimum requirements:**
 - 1–2 rooms
-- 0 enemies
 - 1 objective action (interact or use-on) that sets the mission_complete precondition flag
 - 1 examine target that tells the player something about what they're looking at
 - 0 required items beyond what unlocks the door (found in Act 3)
+
+Primary tension should be the timer, not combat. Enemies are not prohibited, but they should be exceptional — a villain present in the climax room, a dog that patrols the vault. If an enemy is here, there must be a non-combat way past them.
 
 **Exit into Act 5:** Same door as entry — Act 4 is always a dead end. The exit back is the beginning of the escape.
 
 ---
 
-### Act 5 — Escape
+### Act 5 — Escape Leg
 
-**Feel:** Familiar rooms, different world state. Time pressure is now explicit. The player retraces steps but at least one prior route is closed by alarm or guard repositioning. They must solve a routing problem they didn't know they'd face.
+**Feel:** The world has shifted. At least one route is closed; something the player found or avoided during infiltration now matters. They must solve a routing problem they didn't know they'd face.
 
-**Tone cues:** The world has changed. Doors that were open are now guarded. Guards who were elsewhere are now here. The building feels hostile in a different way — not quiet danger but active pursuit.
+**Tone cues:** Doors that were open are now guarded. Guards who were elsewhere are now here. The building feels hostile in a different way — not quiet danger but active pursuit.
 
 **Minimum requirements:**
-- Reuse Act 1–3 rooms (no new rooms unless one is strictly necessary)
 - 1 route closure (alarm or repositioned guard makes the straightforward exit impossible)
-- 1 surviving escape route (the bypass established in Act 2)
+- 1 surviving escape route
 - 0 new locks (the player has no time to find new items)
-- World state changes driven by the `alarm_raised` flag already set during play
+- World state changes driven by flags already set during play
 
-**Exit from Act 5:** Interact with the extraction point. Requires the mission precondition flag set in Act 4. The extraction point can be anywhere that makes narrative sense — the starting room, a new location, a vehicle, a radio in a room the player has never seen. It is not required to be where Act 1 began.
+**Design principles:**
+
+1. **Reuse is an option, not a rule.** The escape can retrace entry rooms, or it can open new territory — a runway, a route inaccessible on the way in, a room that was locked from the other side. What matters is that the player can navigate it without preparation they haven't already done.
+
+2. **Close one route, leave one open.** The alarm closes the easy route; the bypass remains. The player is forced to use something they may have found but not needed.
+
+3. **Transform, don't populate.** Reposition existing guards via `alarmRoomId` rather than adding new ones. The world feels changed, not expanded.
+
+4. **Let the player's choices echo.** A guard they neutralised is still down. A route they found is still open. The escape rewards systematic play.
+
+5. **The extraction point can be anywhere.** A car in the trees, an experimental jet on a runway, a contact in a safe house, a radio in a room Jacob has never visited. What matters is that it is reachable through the post-alarm map and requires the Act 4 precondition flag.
+
+6. **Don't add new locks; do add new pressure.** New guards, a repositioned enemy at the extraction point, a route riskier than it looked going in — all valid. A new key the player doesn't have, a hidden item requiring search, a puzzle needing preparation — not valid. The constraint is on *preparation*, not on *threat*.
+
+**Exit from Act 5:** Interact with the extraction point. Requires the mission precondition flag set in Act 4.
 
 ---
 
-### Act 6 — Debrief
+### Act 6 — End Scene
 
-**Feel:** The same office. The same desk. Jacob sits in the chair opposite Alderton, and Alderton reads from the report before him without looking up. Whatever happened in the field is now a bureaucratic fact. The handler's assessment is dry, precise, and final.
+**Feel:** Resolution. The mission is over; Jacob's immediate world contracts to whatever follows extraction. The player is no longer in danger. The tone should match what the mission earned: a clean operation gets a quiet close, a messy one gets something more ambivalent.
 
-**Tone cues:** London again. The mission is over but its consequences are not. Alderton does not celebrate; he accounts. A clean extraction is noted without warmth. A raised alarm is noted without anger. A dead civilian is noted with a single sentence and a pause.
+**Form:** The end scene can take any form that fits the mission:
+- A return to Whitehall — Alderton's dry accounting of what happened (the default for espionage missions; currently implemented as renderer text via `debriefLine()` in `renderer/index.ts`)
+- A brief narrative coda — Jacob sails off for a well-earned rest; the threat neutralised, the file closed
+- An in-game room the player can explore before the game ends, with flag-driven addenda reflecting their choices
 
-**Engine mechanics:** Currently implemented as renderer-level narrative text triggered at game-over (see `debriefLine()` in `renderer/index.ts`). A full in-game debrief room would require the extraction point to route to `debrief_room` rather than setting `mission_complete` immediately — extraction sets a `[mission]_extracted` flag, the debrief room reads flags and presents addenda, and a final exit ("Leave the office") sets `mission_complete`. This engine change is deferred; the renderer text is the current implementation.
-
-**Minimum requirements (full in-game room, when implemented):**
-- 1 room (same `briefing_room` or a new `debrief_room` — handler returns to the office)
-- 0 enemies
-- Addenda driven by mission outcome flags:
-  - `alarm_raised` → handler notes the complication, matter-of-factly
-  - `[civilian]_killed` → "There will be a note in your file."
-  - Clean extraction → no comment; Alderton moves to the next item
-  - Time remaining → tight finish gets a dry remark; comfortable margin gets nothing
-- 1 exit: "Leave the office" → sets `mission_complete`
-- No puzzles, no items, no new information about the current mission
+**Minimum requirements:**
+- Some form of resolution — the game must not end mid-action
+- Flag-driven variation: the end scene should differ based on at least `alarm_raised` and mission outcome
+- No new puzzles, locks, or items
 
 **Design rules:**
-- Addenda should reflect what the player did, not what the mission hoped they'd do. If no civilians were harmed and the alarm wasn't raised, Alderton says almost nothing — that is the correct outcome, not a special achievement.
-- The handler's voice is consistent across missions. He does not emote. He moves from fact to fact. Reserve judgement for the spaces between.
-- If the debrief seeds the next mission (a folder pushed across the desk, a name mentioned), it must be in an examine target, not mandatory read text. The player can leave without seeing it.
-- The debrief room should feel identical to the briefing room — same description, same furniture — except for the time of day and what's on the desk.
-
-**Exit from Act 6:** "Leave the office." Sets `mission_complete`. Game over.
+- The end scene reflects what actually happened, not what the mission hoped would happen. A botched operation that scrapes through gets an acknowledgement of the mess.
+- Keep it brief. The player knows the mission is over.
+- If using the Whitehall room: same description as the briefing room — same office, different time of day, different thing on the desk.
+- If seeding the next mission (a name dropped, a folder on the desk), put it in an examine target the player can skip. Never mandatory.
 
 ---
 
 ## Challenge Patterns
 
-Named building blocks. Each mission should use 3–5 patterns, with no two adjacent rooms using the same one.
+Named building blocks. Each mission should use 3–5 patterns across the field acts.
 
 ---
 
@@ -181,23 +190,24 @@ Named building blocks. Each mission should use 3–5 patterns, with no two adjac
 
 ---
 
-### LOCK-AND-KEY (SINGLE ROUTE)
+### LOCK-AND-KEY (SINGLE DOOR)
 
-**What it creates:** A clear gate. The player knows they need item X for door Y and must find X.
+**What it creates:** A clear gate. There is one entrance to the destination room, and it requires an item or skill. The player cannot route around it via a second door.
 
-**How it works:** An exit has `requires.itemId` or `requires.skillId`. There is exactly one way to satisfy it. The item is in a known or findable location.
+**How it works:** An exit has `requires.itemId` or `requires.skillId`. The destination room has no other entrance. There may be multiple ways to *acquire* the key — that is a separate question handled by MULTI-ROUTE UNLOCK — but there is no alternate path to the room itself.
 
 **Data required:**
 - `Exit.requires.itemId` or `requires.skillId`
 - Item in a room's `itemIds` or `hiddenItemIds`, or in an enemy's `inventory`
+- Confirm in the map that no other exit leads to the same `destinationId`
 
 **Design rules:**
 - Use sparingly — one or two per mission maximum. More than two and the game feels like a key hunt.
 - The item's location should be discoverable through normal play (examine, search, loot), not random
 - Never put the only key on a dead-end enemy with no escape route (trap state)
-- Pair with MULTI-ROUTE UNLOCK if the item is hard to acquire
+- Pair with MULTI-ROUTE UNLOCK to give players options for acquiring the key
 
-**M01 example:** `cipher_room_key` required for `cipher_room` exit. Three ways to get it (see MULTI-ROUTE UNLOCK).
+**M01 example:** `cipher_room` has one entrance, requiring `cipher_room_key`. The key itself has three acquisition routes (see MULTI-ROUTE UNLOCK), but there is no alternate door into the cipher room.
 
 ---
 
@@ -436,10 +446,10 @@ A guard who is somewhere benign normally but moves to a critical location when `
 | Category | Count | Notes |
 |----------|-------|-------|
 | Starting gear | 0–2 | Issued at briefing; defines player capability |
-| Key items (required) | 1–2 | Items that gate Act 4 access |
-| Bypass items | 2–4 | Items that open alternate routes or lower risk |
-| Search rewards | 2–4 | Hidden items; useful but not required |
-| Enemy loot | 1–2 | Items worth taking from enemies; drives engagement with PATROL/CHOKEPOINT patterns |
+| Key items | 1–2 | Required to reach Act 4; every key item must have an alternate acquisition route |
+| Optional route items | 2–4 | Open alternate paths or reduce difficulty; the player can complete the mission without them via a harder route |
+| Search rewards | 2–4 | Hidden items; discoverable but not required |
+| Enemy loot | 1–2 | Items on enemies worth acquiring; drives engagement with PATROL WINDOW and CHOKEPOINT GUARD |
 
 More than 8–10 items total and the inventory becomes unwieldy. Fewer than 4 and the world feels sparse.
 
@@ -491,24 +501,6 @@ Addenda should change what the player sees, not just repeat what they did. "The 
 
 ---
 
-## Escape Leg Design
-
-The escape is not a separate act in terms of rooms — it reuses Act 1–3 rooms. Design the escape alongside the infiltration.
-
-### PRINCIPLES
-
-1. **Close one route, leave one open.** The alarm closes the easy route (loading bay); the bypass route (ventilation) remains. The player is forced to use something they may have found but not needed.
-
-2. **Transform, don't populate.** Don't add new guards on escape — reposition existing ones via `alarmRoomId`. The world feels changed, not expanded.
-
-3. **Let the player's choices echo.** A guard they neutralised is still down. A route they found is still there. The escape rewards systematic play.
-
-4. **The extraction point can be anywhere.** It does not have to be where Act 1 started. A car in the trees is one option; so is an experimental jet on a runway, a contact in a safe house, or a radio in a room Jacob has never visited. What matters is that the extraction point is reachable through the post-alarm map and that it requires the Act 4 precondition flag.
-
-5. **Don't add new locks; do add new pressure.** The escape can introduce guards, a repositioned enemy at the extraction point, or a route that's riskier than it looked going in. What it cannot introduce is a new key the player doesn't have, a hidden item requiring search, or a puzzle that needs preparation. The constraint is on *preparation*, not on *threat*.
-
----
-
 ## Anti-Patterns
 
 Patterns to avoid. If you find one in a skeleton, redesign.
@@ -535,12 +527,12 @@ Before writing JSON for any mission, verify the skeleton satisfies these:
 - [ ] Briefing room uses `timerStartRoomId` to pause timer; handler name and room consistent with prior missions
 - [ ] Room counts within phase budgets (Approach 1–3, Infiltration 2–4, Exploration 3–6, Climax 1–2, Escape reuses entry)
 - [ ] Acts 2 and 3 each have at least one branch
-- [ ] Escape leg uses at least one Act 2 bypass route
-- [ ] Extraction point is narratively motivated; precondition flag from Act 4 is required
-- [ ] Debrief addenda planned for: `alarm_raised`, any civilian casualties, time-on-station remark
+- [ ] Escape leg: at least one route closure, at least one surviving route
+- [ ] Extraction point is narratively motivated; Act 4 precondition flag required to use it
+- [ ] End scene planned; flag-driven variation for at least `alarm_raised` and mission outcome
 
 **Challenges**
-- [ ] At least one PATROL WINDOW or CHOKEPOINT GUARD per act (except Climax)
+- [ ] At least one PATROL WINDOW or CHOKEPOINT GUARD per field act (except Briefing, Climax, and End Scene)
 - [ ] At least one MULTI-ROUTE UNLOCK in Act 3
 - [ ] At least one SEARCH REWARD in Acts 1 and 3
 - [ ] At least one ALARM TRANSFORMATION affecting the escape
