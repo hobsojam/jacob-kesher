@@ -119,7 +119,7 @@ describe('checkDiscoveries — trigger', () => {
     )
     const result = checkDiscoveries(state, data, alwaysDiscover)
 
-    expect(result.messages[0]).toMatch(/Pvt\. Morozov/i)
+    expect(result.messages[0]).toMatch(/a guard/i)
     expect(result.messages[0]).toMatch(/alarm is raised/i)
   })
 
@@ -157,8 +157,8 @@ describe('checkDiscoveries — trigger', () => {
     )
     const result = checkDiscoveries(state, data, alwaysDiscover)
 
-    expect(result.messages[0]).toMatch(/Pvt\. Morozov/i)
-    expect(result.messages[0]).toMatch(/Sgt\. Volkov/i)
+    expect(result.messages[0]).toMatch(/a guard/i)
+    expect(result.messages[0]).toMatch(/found/i)
   })
 
   it('does not trigger when no active guard is near the body', () => {

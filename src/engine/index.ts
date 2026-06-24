@@ -16,7 +16,7 @@ import { checkDetection } from './detection'
 import { checkDisguise } from './disguise'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
-import { initEnemyState } from './room'
+import { initEnemyState, enemyLabel, cap } from './room'
 
 export interface EngineResult {
   state: GameState
@@ -167,7 +167,8 @@ function wakeEnemies(
       state.time.elapsed >= enemyState.unconsciousUntil
     ) {
       updatedEnemyStates[id] = { ...enemyState, status: 'active', unconsciousUntil: undefined, awareness: 'alert' }
-      const name = data.enemyData[id]?.name ?? 'Someone'
+      const enemy = data.enemyData[id]
+      const name = enemy ? cap(enemyLabel(enemy, data)) : 'Someone'
       messages.push(`${name} regains consciousness.`)
       changed = true
       // Remove from any room's stationary list — they resume patrol-based positioning

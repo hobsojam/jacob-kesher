@@ -3,7 +3,7 @@ import type { GameState, NoiseLevel } from '../types/state'
 import { rollD20 } from './dice'
 import { guardPosition } from './patrol'
 import { escalateAwareness } from './alarm'
-import { initEnemyState } from './room'
+import { initEnemyState, enemyLabel, cap } from './room'
 
 const NOISE_DC: Record<NoiseLevel, number | null> = {
   silent:   null,
@@ -55,8 +55,8 @@ export function checkDetection(
     changed = true
     messages.push(
       next === 'alert'
-        ? `${enemy.name} is on high alert.`
-        : `${enemy.name} heard something.`,
+        ? `${cap(enemyLabel(enemy, data))} is on high alert.`
+        : `${cap(enemyLabel(enemy, data))} heard something.`,
     )
   }
 

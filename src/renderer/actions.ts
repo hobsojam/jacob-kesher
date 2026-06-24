@@ -7,10 +7,12 @@ import { SKILLS } from '../constants'
 
 export interface ActionButton {
   label: string
+  shortLabel?: string   // abbreviated label for use inside accordion bodies
   action: Action
   category: 'move' | 'take' | 'examine' | 'combat' | 'loot' | 'inventory' | 'misc'
   disabled?: boolean
   disabledReason?: string
+  groupId?: string      // enemy ID; buttons with the same groupId collapse under one accordion
 }
 
 export function computeActions(state: GameState, data: GameData): ActionButton[] {
@@ -119,24 +121,28 @@ function enemyButtons(roomId: string, state: GameState, data: GameData): ActionB
       const awareness = enemyState?.awareness ?? 'unaware'
       const canTakedown = awareness === 'unaware'
       buttons.push(
-        { label: `Attack ${displayName}`,         action: { type: 'attack', enemyId }, category: 'combat' },
+        { label: `Attack ${displayName}`, shortLabel: 'Attack', action: { type: 'attack', enemyId }, category: 'combat', groupId: enemyId },
         {
           label: `Knock out ${displayName}`,
+          shortLabel: 'Knock out',
           action: { type: 'stealth_takedown', enemyId, intent: 'neutralise' },
           category: 'combat',
+          groupId: enemyId,
           disabled: !canTakedown,
           disabledReason: canTakedown ? undefined : 'Guard is aware of you',
         },
         {
           label: `Kill ${displayName} (silent)`,
+          shortLabel: 'Kill silently',
           action: { type: 'stealth_takedown', enemyId, intent: 'kill' },
           category: 'combat',
+          groupId: enemyId,
           disabled: !canTakedown,
           disabledReason: canTakedown ? undefined : 'Guard is aware of you',
         },
       )
       if (template?.canBeBluffed) {
-        buttons.push({ label: `Talk to ${displayName}`, action: { type: 'talk', enemyId }, category: 'misc' })
+        buttons.push({ label: `Talk to ${displayName}`, shortLabel: 'Talk', action: { type: 'talk', enemyId }, category: 'misc', groupId: enemyId })
       }
     } else {
       buttons.push(...lootButtons(enemyId, displayName, enemyState.inventory, data))
@@ -154,7 +160,13 @@ function lootButtons(
   return inventory.flatMap((itemId) => {
     const item = data.itemData[itemId]
     if (!item) return []
-    return [{ label: `Loot ${item.label} from ${enemyName}`, action: { type: 'loot' as const, enemyId, itemId }, category: 'loot' as const }]
+    return [{
+      label: `Loot ${item.label} from ${enemyName}`,
+      shortLabel: item.label,
+      action: { type: 'loot' as const, enemyId, itemId },
+      category: 'loot' as const,
+      groupId: enemyId,
+    }]
   })
 }
 
