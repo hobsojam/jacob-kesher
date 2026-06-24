@@ -78,6 +78,13 @@
       "label": "Pipe Wrench",
       "description": "A heavy adjustable wrench, slick with grease. Not elegant, but effective.",
       "type": "weapon_melee"
+    },
+    {
+      "id": "soviet_uniform",
+      "label": "Soviet Uniform",
+      "description": "Standard-issue drab green, rank insignia for a private. Wearing it you might pass a cursory inspection — provided you keep moving and don't let anyone look too closely.",
+      "type": "gadget",
+      "effect": { "type": "set_global_flag", "flag": "wearing_uniform" }
     }
   ]
 }

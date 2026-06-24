@@ -13,6 +13,7 @@ import { handleUse } from './use'
 import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
 import { checkDetection } from './detection'
+import { checkDisguise } from './disguise'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
 import { initEnemyState } from './room'
@@ -51,37 +52,39 @@ export function processAction(
     messages.push(...m)
   }
 
-  // Alert guards in the new room get a free attack (after detection resolves)
-  let afterAmbush = afterProximity
-  if (moved) {
-    const { state: s, messages: m } = guardAmbush(afterProximity, data)
-    afterAmbush = s
-    messages.push(...m)
-  }
-
   // Noise from the action reaches guards within their detection radius
-  let afterNoise = afterAmbush
+  let afterNoise = afterProximity
   if (result.noise) {
     const { state: s, messages: m } = checkDetection(
       result.noise,
-      afterAmbush.protagonist.currentRoom,
-      afterAmbush,
+      afterProximity.protagonist.currentRoom,
+      afterProximity,
       data,
     )
     afterNoise = s
     messages.push(...m)
   }
 
-  // A failed bluff or search interruption leaves an alert guard in the same room;
-  // give them the free attack they would get if Jacob had walked in on them
-  if (action.type === 'talk' || action.type === 'search') {
-    const { state: s, messages: m } = guardAmbush(afterNoise, data)
-    afterNoise = s
+  // Disguise check: guards in the same room roll against Jacob's uniform.
+  // Success resets awareness (guard accepts the disguise); failure sets alert
+  // and blows the cover. Runs after sound detection so it can override it.
+  let afterDisguise = afterNoise
+  if (afterNoise.flags['wearing_uniform']) {
+    const { state: s, messages: m } = checkDisguise(afterNoise, data)
+    afterDisguise = s
+    messages.push(...m)
+  }
+
+  // Alert guards in the room get a free attack — after disguise may have de-escalated
+  let afterAmbush = afterDisguise
+  if (moved || action.type === 'talk' || action.type === 'search') {
+    const { state: s, messages: m } = guardAmbush(afterDisguise, data)
+    afterAmbush = s
     messages.push(...m)
   }
 
   // Promote hidden items unblocked by room flags set this turn
-  const revealed = checkReveals(afterNoise, data)
+  const revealed = checkReveals(afterAmbush, data)
 
   const effectiveCost = result.timeCost ?? ACTION_COSTS[action.type] ?? 1
   const advanced = advanceTime(action.type, revealed, result.timeCost)

@@ -12,7 +12,7 @@ const alwaysMiss = () => 1
 const guardTemplate: EnemyTemplate = {
   id: 'guard',
   type: 'guard',
-  stats: { strength: 3, agility: 3, health: 1 },
+  stats: { strength: 3, agility: 3, health: 1, intelligence: 2 },
   detectionRadius: 1,
   canBeBluffed: true,
   canBeDisguised: true,
@@ -21,7 +21,7 @@ const guardTemplate: EnemyTemplate = {
 const dogTemplate: EnemyTemplate = {
   id: 'dog',
   type: 'dog',
-  stats: { strength: 2, agility: 4, health: 1 },
+  stats: { strength: 2, agility: 4, health: 1, intelligence: 2 },
   detectionRadius: 2,
   canBeBluffed: false,
   canBeDisguised: false,

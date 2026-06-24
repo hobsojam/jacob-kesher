@@ -1,4 +1,4 @@
-import type { GameData, ItemData, RoomData } from '../src/types/data'
+import type { GameData, EnemyTemplate, ItemData, RoomData } from '../src/types/data'
 import type { GameState, Inventory, RoomState } from '../src/types/state'
 
 export const emptyInventory = (): Inventory => ({
@@ -46,6 +46,18 @@ export const makeState = (partial: Partial<GameState> = {}): GameState => {
     enemyStates: {},
     itemStates: {},
     flags: {},
+    ...rest,
+  }
+}
+
+export const makeTemplate = (partial: Partial<EnemyTemplate> & { id: string }): EnemyTemplate => {
+  const { stats: partialStats, ...rest } = partial
+  return {
+    type: 'guard',
+    stats: { strength: 4, agility: 3, health: 1, intelligence: 2, ...partialStats },
+    detectionRadius: 1,
+    canBeBluffed: false,
+    canBeDisguised: true,
     ...rest,
   }
 }

@@ -11,7 +11,7 @@
         "cycleTime": 8,
         "startOffset": 0
       },
-      "inventory": []
+      "inventory": ["soviet_uniform"]
     },
     {
       "id": "roaming_guard",
@@ -24,7 +24,7 @@
         "cycleTime": 6,
         "startOffset": 0
       },
-      "inventory": ["service_keycard"]
+      "inventory": ["service_keycard", "soviet_uniform"]
     },
     {
       "id": "corridor_guard",
@@ -32,7 +32,7 @@
       "description": "A corporal standing at ease at the far end of the corridor, rifle slung, eyes forward.",
       "templateId": "guard",
       "roomId": "ground_floor_corridor",
-      "inventory": []
+      "inventory": ["soviet_uniform"]
     },
     {
       "id": "comms_guard",
@@ -40,7 +40,7 @@
       "description": "A signals private hunched over the radio console, headphones on, pen moving across a notepad.",
       "templateId": "guard",
       "roomId": "comms_room",
-      "inventory": []
+      "inventory": ["soviet_uniform"]
     },
     {
       "id": "barracks_guard_1",
@@ -48,7 +48,7 @@
       "description": "A soldier asleep in his bunk, rifle leaning against the wall beside him.",
       "templateId": "guard",
       "roomId": "barracks",
-      "inventory": [],
+      "inventory": ["soviet_uniform"],
       "startUnconscious": 80
     },
     {
@@ -57,7 +57,7 @@
       "description": "A soldier asleep in his bunk, one arm over his face.",
       "templateId": "guard",
       "roomId": "barracks",
-      "inventory": [],
+      "inventory": ["soviet_uniform"],
       "startUnconscious": 80
     },
     {
@@ -66,7 +66,7 @@
       "description": "A soldier asleep in his bunk, snoring quietly.",
       "templateId": "guard",
       "roomId": "barracks",
-      "inventory": [],
+      "inventory": ["soviet_uniform"],
       "startUnconscious": 80
     }
   ]
