@@ -106,6 +106,7 @@
           "destinationId": "service_yard",
           "label": "Climb the fence",
           "exitType": "climb",
+          "note": "Overrides the default climb check: non-blocking (you clear the wire regardless) and raises alarm directly rather than going through the noise/awareness chain. The torch-sweep flavour requires a specific fail message.",
           "roll": {
             "stat": "agility",
             "skillId": "acrobatics",
