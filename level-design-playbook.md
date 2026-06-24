@@ -4,7 +4,7 @@ This document defines the vocabulary for generating credible missions. Read it b
 
 The playbook operates at two levels: **patterns** (named, reusable design building blocks) and **constraints** (per-phase minimums that keep missions coherent). A generation task proceeds: goal → seven-phase skeleton → area plans using patterns below → room JSON.
 
-The seven phases are: **Briefing → Approach → Infiltration → Exploration → Climax → Escape → Debrief**. Acts 0 and 6 (Briefing and Debrief) are timer-paused bookends in the Whitehall office; Acts 1–5 are the field mission.
+The seven phases are: **Briefing → Approach → Infiltration → Exploration → Climax → Escape Leg → End Scene**. Acts 0 and 6 (Briefing and End Scene) are timer-paused bookends; Acts 1–5 are the field mission.
 
 ---
 
@@ -60,7 +60,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 ### Act 2 — Infiltration
 
-**Feel:** First real decision. The player commits to an approach and lives with it. Two viable routes minimum — one riskier, one slower. At least one item that opens a route is gated behind an enemy.
+**Feel:** First real decision. The player commits to an approach and lives with it. Two viable routes minimum — one riskier, one slower.
 
 **Tone cues:** The threshold between outside and inside. A loading bay, a service entrance, a basement. Functional, unglamorous. The enemy here is doing a job, not guarding a treasure.
 
@@ -88,7 +88,9 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 - 1 chokepoint guard (stationed, blocks a key exit — must be bypassed, neutralised, or bluffed)
 - 1 multi-route unlock (2–3 ways to get the key item or bypass the lock)
 - 1 safe room (no enemies — a break in tension, often a search reward)
-- 1 high-risk side room (enemy present, optional but rewarding to visit)
+
+**Optional elements:**
+- 1 high-risk side room (enemy present, rewarding to visit but not required for the critical path)
 
 **Exit into Act 4:** A locked door requiring the key item found in this act. The player earns Act 4 by solving Act 3.
 
@@ -96,7 +98,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 ### Act 4 — Climax
 
-**Feel:** No enemies. Pure time pressure. The player does the thing they came for. Short. Quiet. The tension is the turn counter, not a guard.
+**Feel:** Pure time pressure. The player does the thing they came for. Short. Quiet. The tension is the turn counter.
 
 **Tone cues:** The object itself — a machine, a safe, a person. Technical and specific. Whatever Jacob photographs or extracts should feel real enough to care about losing.
 
@@ -106,7 +108,8 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 - 1 examine target that tells the player something about what they're looking at
 - 0 required items beyond what unlocks the door (found in Act 3)
 
-Primary tension should be the timer, not combat. Enemies are not prohibited, but they should be exceptional — a villain present in the climax room, a dog that patrols the vault. If an enemy is here, there must be a non-combat way past them.
+**Design rules:**
+- Primary tension should be the timer, not combat. Enemies are not prohibited but should be exceptional — a villain in the room, a dog on a short patrol. If an enemy is present, there must be a non-combat way past them.
 
 **Exit into Act 5:** Same door as entry — Act 4 is always a dead end. The exit back is the beginning of the escape.
 
@@ -130,7 +133,7 @@ Primary tension should be the timer, not combat. Enemies are not prohibited, but
 
 2. **Close one route, leave one open.** The alarm closes the easy route; the bypass remains. The player is forced to use something they may have found but not needed.
 
-3. **Transform, don't populate.** Reposition existing guards via `alarmRoomId` rather than adding new ones. The world feels changed, not expanded.
+3. **Transform, don't populate.** Prefer repositioning existing guards via `alarmRoomId` over adding new ones. New guards at the extraction point or a previously empty location are valid when the mission demands it; new guards reappearing in rooms the player has already cleared feel arbitrary.
 
 4. **Let the player's choices echo.** A guard they neutralised is still down. A route they found is still open. The escape rewards systematic play.
 
@@ -277,7 +280,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 - The bypass room itself (ventilation shaft, drain, fire escape) — adds a room to the map
 
 **Design rules:**
-- The bypass should skip the chokepoint or patrol, not a locked door (locks require items; bypasses should be physical)
+- The bypass route must be traversable without items — it can route around a locked door, a guard, or a patrol. The point is that the player doesn't need the blocked route's key to use it. The bypass itself must not have an item gate.
 - Bypasses that are too obvious remove tension from the main route; make them findable through search or examine
 - The bypass room should have character — it shouldn't just be a corridor. A ventilation shaft has sounds from below; a drain has smell and darkness
 
@@ -314,7 +317,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 
 **Data required:**
 - `RoomData.addenda` entries keyed to alarm flags
-- `Exit` with `requires.flag` checking alarm state (e.g. only available when alarm NOT raised)
+- `Exit.blockedBy` referencing a guard repositioned to that exit via `alarmRoomId` — the correct way to close a route on alarm. Note: `Exit.requires.flag` checks only that a flag IS set; it cannot check for a flag being absent, so it cannot be used to close an exit when `alarm_raised`.
 - `EnemyData.alarmRoomId` — where a guard moves when `alarm_raised` is set
 
 **Design rules:**
@@ -350,7 +353,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 
 ## Branch Patterns
 
-A branch is any point where the player has a genuine choice of route. Every mission should have at least two branches; Act 3 should have three.
+A branch is any point where the player has a genuine choice of route. Every mission should have at least two branches. Act 3, as the longest act, typically supports more — aim for two or three there, but don't force it if the room count is low.
 
 ### RISK BRANCH
 
@@ -445,20 +448,20 @@ A guard who is somewhere benign normally but moves to a critical location when `
 
 | Category | Count | Notes |
 |----------|-------|-------|
-| Starting gear | 0–2 | Issued at briefing; defines player capability |
+| Starting gear | 0–2 | Issued at briefing; not counted toward the world item total |
 | Key items | 1–2 | Required to reach Act 4; every key item must have an alternate acquisition route |
-| Optional route items | 2–4 | Open alternate paths or reduce difficulty; the player can complete the mission without them via a harder route |
-| Search rewards | 2–4 | Hidden items; discoverable but not required |
+| Optional route items | 1–3 | Open alternate paths or reduce difficulty; completable without them via a harder route |
+| Search rewards | 1–3 | Hidden items; discoverable but not required |
 | Enemy loot | 1–2 | Items on enemies worth acquiring; drives engagement with PATROL WINDOW and CHOKEPOINT GUARD |
 
-More than 8–10 items total and the inventory becomes unwieldy. Fewer than 4 and the world feels sparse.
+Aim for 4–10 items discoverable in the world (key items + optional route items + search rewards + enemy loot, not counting starting gear). Fewer than 4 and the world feels sparse; more than 10 and inventory management crowds out decision-making.
 
 ### KEY ITEM RULES
 
 - Every key item must have at least one findable alternative or bypass
 - Never put the only key item in a room with no safe entry (locked → dead end)
 - A key item carried by an enemy should be gettable three ways: loot the enemy, find the alternate item elsewhere, use a skill bypass
-- Keycards are single-use gates; document what they open in the `usableOn` field
+- Keycards gate exits via `Exit.requires.itemId` — document which exit each keycard unlocks in the flags reference table
 
 ### SEARCH REWARD RULES
 
@@ -523,9 +526,9 @@ Patterns to avoid. If you find one in a skeleton, redesign.
 Before writing JSON for any mission, verify the skeleton satisfies these:
 
 **Structure**
-- [ ] Seven phases with distinct feel (Briefing, Approach, Infiltration, Exploration, Climax, Escape, Debrief)
+- [ ] Seven phases with distinct feel (Briefing, Approach, Infiltration, Exploration, Climax, Escape Leg, End Scene)
 - [ ] Briefing room uses `timerStartRoomId` to pause timer; handler name and room consistent with prior missions
-- [ ] Room counts within phase budgets (Approach 1–3, Infiltration 2–4, Exploration 3–6, Climax 1–2, Escape reuses entry)
+- [ ] Room counts within phase budgets (Approach 1–3, Infiltration 2–4, Exploration 3–6, Climax 1–2)
 - [ ] Acts 2 and 3 each have at least one branch
 - [ ] Escape leg: at least one route closure, at least one surviving route
 - [ ] Extraction point is narratively motivated; Act 4 precondition flag required to use it
