@@ -95,6 +95,22 @@
           "destinationId": "service_yard",
           "label": "Crawl through the fence",
           "requires": { "flag": "fence_cut" }
+        },
+        {
+          "destinationId": "guardhouse",
+          "label": "Enter the guardhouse",
+          "blockedBy": "fence_guard"
+        },
+        {
+          "destinationId": "service_yard",
+          "label": "Climb the fence",
+          "roll": {
+            "stat": "agility",
+            "skillId": "acrobatics",
+            "dc": 12,
+            "failMessage": "You clear the wire, but a sweep of the patrol torch catches you on the way down. The siren starts.",
+            "failFlag": "alarm_raised"
+          }
         }
       ],
       "itemIds": [],
@@ -104,11 +120,6 @@
           "id": "fence",
           "label": "the perimeter fence",
           "description": "Chain-link, well-maintained. The lower section near the ditch looks weaker."
-        },
-        {
-          "id": "guardhouse",
-          "label": "the guardhouse",
-          "description": "A small booth. Light on, shadow moving inside."
         }
       ]
     },
@@ -520,6 +531,25 @@
         }
       ],
       "searchDifficulty": 2
+    },
+    {
+      "id": "guardhouse",
+      "label": "Guardhouse",
+      "description": "A cramped duty booth. A thermal flask on the windowsill, a duty log open on the desk, the smell of cheap cigarettes. A door in the back wall leads directly into the service yard.",
+      "addenda": [],
+      "exits": [
+        { "destinationId": "perimeter_fence", "label": "Back to the fence" },
+        { "destinationId": "service_yard", "label": "Through to the service yard" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "duty_log",
+          "label": "the duty log",
+          "description": "Entries in a neat hand. Morozov has been at this post eighteen months. His handwriting gets worse toward the end of each shift."
+        }
+      ]
     }
   ]
 }

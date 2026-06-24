@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { handleMove } from '../../src/engine/movement'
 import { makeRoom, makeState, makeRoomsData } from '../helpers'
 
@@ -204,5 +204,45 @@ describe('handleMove', () => {
     const result = handleMove('go north', makeState(), data)
 
     expect(result.messages).toHaveLength(0)
+  })
+
+  it('roll success: moves to destination with no fail message or flag', () => {
+    const data = makeData([
+      makeRoom({
+        id: 'room_a',
+        exits: [{
+          destinationId: 'room_b',
+          label: 'climb',
+          roll: { stat: 'agility', skillId: 'acrobatics', dc: 15, failMessage: 'You are spotted.', failFlag: 'alarm_raised' },
+        }],
+      }),
+      makeRoom({ id: 'room_b' }),
+    ])
+    vi.spyOn(Math, 'random').mockReturnValue(0.99) // rollD20 = 20; 20+5+0 = 25 >= 15
+    const result = handleMove('climb', makeState(), data)
+
+    expect(result.state.protagonist.currentRoom).toBe('room_b')
+    expect(result.messages).toHaveLength(0)
+    expect(result.state.flags['alarm_raised']).toBeFalsy()
+  })
+
+  it('roll failure: moves to destination but sets failFlag and appends failMessage', () => {
+    const data = makeData([
+      makeRoom({
+        id: 'room_a',
+        exits: [{
+          destinationId: 'room_b',
+          label: 'climb',
+          roll: { stat: 'agility', skillId: 'acrobatics', dc: 15, failMessage: 'You are spotted.', failFlag: 'alarm_raised' },
+        }],
+      }),
+      makeRoom({ id: 'room_b' }),
+    ])
+    vi.spyOn(Math, 'random').mockReturnValue(0) // rollD20 = 1; 1+5+0 = 6 < 15
+    const result = handleMove('climb', makeState(), data)
+
+    expect(result.state.protagonist.currentRoom).toBe('room_b')
+    expect(result.messages[0]).toBe('You are spotted.')
+    expect(result.state.flags['alarm_raised']).toBe(true)
   })
 })

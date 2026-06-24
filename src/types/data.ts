@@ -11,6 +11,15 @@ export interface Exit {
   }
   hidden?: boolean
   blockedBy?: string   // enemy ID; exit is impassable while that enemy is active
+  // Probabilistic check resolved after moving: d20 + stat + skill vs dc.
+  // Move always completes; failure sets failFlag and appends failMessage.
+  roll?: {
+    stat: 'strength' | 'agility' | 'intelligence' | 'charisma'
+    skillId?: SkillId
+    dc: number
+    failMessage: string
+    failFlag?: string
+  }
 }
 
 export interface Addendum {
