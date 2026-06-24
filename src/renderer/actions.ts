@@ -29,7 +29,7 @@ export function computeActions(state: GameState, data: GameData): ActionButton[]
     ...moveButtons(room, roomState, state, data),
     ...takeButtons(roomState, data),
     ...examineButtons(room),
-    ...interactButtons(room),
+    ...interactButtons(room, state),
     ...enemyButtons(currentRoom, state, data),
     ...miscButtons(previousRoomId, activeEnemyPresent),
   ]
@@ -92,9 +92,15 @@ function examineButtons(room: RoomData): ActionButton[] {
   }))
 }
 
-function interactButtons(room: RoomData): ActionButton[] {
+function interactButtons(room: RoomData, state: GameState): ActionButton[] {
   return room.examineTargets.flatMap((target) => {
     if (!target.effect || target.effect.length === 0) return []
+    const alreadyDone = target.effect.some((e) => {
+      if (e.type === 'set_global_flag') return !!state.flags[e.flag]
+      if (e.type === 'set_room_flag') return !!state.roomStates[state.protagonist.currentRoom]?.flags[e.flag]
+      return false
+    })
+    if (alreadyDone) return []
     const label = target.interactLabel ?? `Interact with ${target.label}`
     return [{ label, action: { type: 'interact' as const, targetId: target.id }, category: 'examine' as const }]
   })

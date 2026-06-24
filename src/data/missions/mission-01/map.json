@@ -509,7 +509,8 @@
           "description": "A cutoff lever. Pull it and the compound loses power — lights out, cameras blind, but someone will come to check.",
           "interactLabel": "Cut the power",
           "effect": [
-            { "type": "set_global_flag", "flag": "power_cut" }
+            { "type": "set_global_flag", "flag": "power_cut" },
+            { "type": "message", "text": "You pull the lever. The generators cycle down with a deep groan. The lights die." }
           ]
         },
         {
