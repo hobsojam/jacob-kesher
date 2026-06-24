@@ -1,8 +1,12 @@
 import type { SkillId } from './state'
 
+export type ExitType = 'standard' | 'crawl' | 'climb' | 'fall' | 'special'
+
 export interface Exit {
   destinationId: string
   label: string
+  exitType?: ExitType  // governs which movement modes are offered; default 'standard'
+  note?: string        // design note; ignored by the engine
   requires?: {
     itemId?: string
     skillId?: SkillId

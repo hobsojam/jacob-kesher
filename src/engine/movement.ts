@@ -10,6 +10,7 @@ export function handleMove(
   exitLabel: string,
   state: GameState,
   data: GameData,
+  mode?: 'sneak' | 'run',
 ): SubSystemResult {
   const currentRoom =
     data.roomIndex[state.protagonist.currentRoom] ?? FALLBACK_ROOM
@@ -58,6 +59,23 @@ export function handleMove(
     }
   }
 
+  // run is only valid for standard exits; silently fall back for crawl/climb/fall/special
+  const exitType = exit.exitType ?? 'standard'
+  const effectiveMode = mode === 'run' && exitType !== 'standard' ? undefined : mode
+
+  // Climb: blocking pre-move acrobatics check (skipped when an explicit roll is defined)
+  if (exitType === 'climb' && !exit.roll) {
+    const acrobatics = state.protagonist.skills.find((s) => s.id === 'acrobatics')?.level ?? 0
+    const total = rollD20() + state.protagonist.stats.agility + acrobatics
+    if (total < 12) {
+      return {
+        state,
+        messages: ['You lose your grip and drop back down.'],
+        noise: 'loud',
+      }
+    }
+  }
+
   const destination = data.roomIndex[exit.destinationId] ?? FALLBACK_ROOM
 
   const existingRoomState = state.roomStates[destination.id]
@@ -86,6 +104,9 @@ export function handleMove(
 
   const messages: string[] = []
 
+  if (effectiveMode === 'sneak') messages.push('You move in silence.')
+  else if (effectiveMode === 'run') messages.push('You break into a run.')
+
   if (exit.roll) {
     const { stat, skillId, dc, failMessage, failFlag } = exit.roll
     const skillLevel = skillId
@@ -100,5 +121,21 @@ export function handleMove(
     }
   }
 
-  return { state: newState, messages }
+  // Fall: post-move acrobatics check; failure applies 1 HP (skipped when an explicit roll is defined)
+  if (exitType === 'fall' && !exit.roll) {
+    const acrobatics = state.protagonist.skills.find((s) => s.id === 'acrobatics')?.level ?? 0
+    const total = rollD20() + state.protagonist.stats.agility + acrobatics
+    if (total < 10) {
+      const health = Math.max(0, newState.protagonist.health - 1)
+      newState = { ...newState, protagonist: { ...newState.protagonist, health } }
+      messages.push('You land badly and take a knock.')
+    }
+  }
+
+  return {
+    state: newState,
+    messages,
+    timeCost: effectiveMode === 'sneak' ? 2 : effectiveMode === 'run' ? 0 : undefined,
+    moveMode: effectiveMode,
+  }
 }

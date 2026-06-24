@@ -94,6 +94,7 @@
         {
           "destinationId": "service_yard",
           "label": "Crawl through the fence",
+          "exitType": "crawl",
           "requires": { "flag": "fence_cut" }
         },
         {
@@ -104,6 +105,8 @@
         {
           "destinationId": "service_yard",
           "label": "Climb the fence",
+          "exitType": "climb",
+          "note": "Overrides the default climb check: non-blocking (you clear the wire regardless) and raises alarm directly rather than going through the noise/awareness chain. The torch-sweep flavour requires a specific fail message.",
           "roll": {
             "stat": "agility",
             "skillId": "acrobatics",
@@ -140,7 +143,7 @@
           "label": "Loading bay door",
           "requires": { "flag": "loading_bay_door_open" }
         },
-        { "destinationId": "ventilation_shaft", "label": "Ventilation grille" },
+        { "destinationId": "ventilation_shaft", "label": "Ventilation grille", "exitType": "crawl" },
         { "destinationId": "generator_room", "label": "Generator room door" }
       ],
       "itemIds": [],
@@ -213,8 +216,8 @@
         }
       ],
       "exits": [
-        { "destinationId": "service_yard", "label": "Crawl toward the service yard" },
-        { "destinationId": "ground_floor_corridor", "label": "Crawl toward the corridor" }
+        { "destinationId": "service_yard", "label": "Crawl toward the service yard", "exitType": "crawl" },
+        { "destinationId": "ground_floor_corridor", "label": "Crawl toward the corridor", "exitType": "crawl" }
       ],
       "itemIds": [],
       "hiddenItemIds": [],
@@ -242,7 +245,7 @@
       ],
       "exits": [
         { "destinationId": "loading_bay", "label": "Loading bay" },
-        { "destinationId": "ventilation_shaft", "label": "Ventilation grille (low, near the loading bay end)" },
+        { "destinationId": "ventilation_shaft", "label": "Ventilation grille (low, near the loading bay end)", "exitType": "crawl" },
         { "destinationId": "mess_hall", "label": "Mess hall" },
         { "destinationId": "comms_room", "label": "Comms room" },
         { "destinationId": "duty_office", "label": "Duty office", "blockedBy": "corridor_guard" },

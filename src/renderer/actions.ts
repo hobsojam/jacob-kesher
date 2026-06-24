@@ -1,4 +1,4 @@
-import type { Exit, GameData, RoomData } from '../types/data'
+import type { Exit, ExitType, GameData, RoomData } from '../types/data'
 import type { GameState, RoomState } from '../types/state'
 import type { Action } from '../types/actions'
 import { enemyDisplayName, enemiesInRoom } from './room'
@@ -12,7 +12,8 @@ export interface ActionButton {
   category: 'move' | 'take' | 'examine' | 'combat' | 'loot' | 'inventory' | 'misc'
   disabled?: boolean
   disabledReason?: string
-  groupId?: string      // enemy ID; buttons with the same groupId collapse under one accordion
+  groupId?: string       // shared ID for accordion grouping
+  groupLabel?: string    // accordion header text for non-enemy groups (e.g. exit label)
 }
 
 export function computeActions(state: GameState, data: GameData): ActionButton[] {
@@ -43,17 +44,61 @@ function moveButtons(
   state: GameState,
   data: GameData,
 ): ActionButton[] {
-  return room.exits
-    .filter((exit) => !exit.hidden || !!roomState.flags[`exit_visible_${exit.destinationId}`])
-    .map((exit) => {
-      const btn: ActionButton = {
-        label: exit.label,
-        action: { type: 'move', exitLabel: exit.label },
-        category: 'move',
-      }
+  const inMission = state.time.timerActive !== false
+  const visibleExits = room.exits.filter(
+    (exit) => !exit.hidden || !!roomState.flags[`exit_visible_${exit.destinationId}`],
+  )
+
+  if (!inMission) {
+    // Pre-mission transitions: single ungrouped button per exit (no mode choice)
+    return visibleExits.map((exit) => {
+      const btn: ActionButton = { label: exit.label, action: { type: 'move', exitLabel: exit.label }, category: 'move' }
       if (exit.requires) applyRequirement(btn, exit.requires, state, data)
       return btn
     })
+  }
+
+  // In-mission: per-exit accordion groups with mode buttons based on exit type
+  return visibleExits.flatMap((exit) => exitModeButtons(exit, state, data))
+}
+
+function exitModeButtons(exit: Exit, state: GameState, data: GameData): ActionButton[] {
+  const groupId = `exit_${exit.destinationId}`
+  const groupLabel = exit.label
+  const type: ExitType = exit.exitType ?? 'standard'
+
+  const req = exit.requires ? reqDisabled(exit, state, data) : {}
+  const base = { category: 'move' as const, groupId, groupLabel, ...req }
+
+  switch (type) {
+    case 'crawl':
+      return [
+        { ...base, label: 'Crawl quietly', action: { type: 'move', exitLabel: exit.label, mode: 'sneak' as const } },
+        { ...base, label: 'Crawl',         action: { type: 'move', exitLabel: exit.label } },
+      ]
+    case 'climb':
+      return [
+        { ...base, label: 'Climb carefully', action: { type: 'move', exitLabel: exit.label, mode: 'sneak' as const } },
+        { ...base, label: 'Climb',           action: { type: 'move', exitLabel: exit.label } },
+      ]
+    case 'fall':
+    case 'special':
+      return [
+        { ...base, label: exit.label, action: { type: 'move', exitLabel: exit.label } },
+      ]
+    default: // standard
+      return [
+        { ...base, label: 'Sneak', action: { type: 'move', exitLabel: exit.label, mode: 'sneak' as const } },
+        { ...base, label: 'Move',  action: { type: 'move', exitLabel: exit.label } },
+        { ...base, label: 'Run',   action: { type: 'move', exitLabel: exit.label, mode: 'run' as const } },
+      ]
+  }
+}
+
+function reqDisabled(exit: Exit, state: GameState, data: GameData): { disabled?: boolean; disabledReason?: string } {
+  const tmp: ActionButton = { label: '', action: { type: 'move', exitLabel: '' }, category: 'move' }
+  applyRequirement(tmp, exit.requires!, state, data)
+  return { disabled: tmp.disabled, disabledReason: tmp.disabledReason }
 }
 
 function applyRequirement(
