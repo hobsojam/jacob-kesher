@@ -2,13 +2,42 @@
 
 This document defines the vocabulary for generating credible missions. Read it before designing a skeleton, then apply its patterns when filling in room detail.
 
-The playbook operates at two levels: **patterns** (named, reusable design building blocks) and **constraints** (per-phase minimums that keep missions coherent). A generation task proceeds: goal → five-act skeleton → area plans using patterns below → room JSON.
+The playbook operates at two levels: **patterns** (named, reusable design building blocks) and **constraints** (per-phase minimums that keep missions coherent). A generation task proceeds: goal → seven-phase skeleton → area plans using patterns below → room JSON.
+
+The seven phases are: **Briefing → Approach → Infiltration → Exploration → Climax → Escape → Debrief**. Acts 0 and 6 (Briefing and Debrief) are timer-paused bookends in the Whitehall office; Acts 1–5 are the field mission.
 
 ---
 
 ## Phase Vocabulary
 
 Each act has a distinct feel. If two adjacent acts feel the same, merge them or redesign the transition.
+
+### Act 0 — Briefing
+
+**Feel:** Calm before. The player is not yet Jacob-in-the-field; they are Jacob being told what to do and given the tools to do it. No threat, no timer, no urgency — the tension is entirely implied. The office is the same office every time. The handler doesn't wish you luck.
+
+**Tone cues:** London. Grey. A first-floor room with no sign on the door. Files on a desk that has seen thirty years of crises. The handler sets down a pen when you enter and picks it up when you leave. Whatever you're about to do is already decided.
+
+**Engine mechanics:** `startingRoomId` is the briefing room. `timerStartRoomId` is the first field room (e.g. `mountain_road`). Timer is paused (`timerActive: false`) until the player moves to `timerStartRoomId`. No action costs accrue. The player can examine freely.
+
+**Minimum requirements:**
+- 1 room
+- 0 enemies
+- Examine targets: the handler (examine → mission parameters in dialogue form), the mission folder/map, any starting gear visible on the desk
+- 1 interact on the handler or mission documents that sets a `[handler]_briefed` flag
+- 1 exit gated on `[handler]_briefed`: "Depart for the field" → Act 1 start room
+- Starting gear issued here — items appear in `itemIds`, player takes them before departing
+
+**Design rules:**
+- The handler has a consistent name across missions (Alderton in M01). Use the same name and room unless the story explicitly changes the posting.
+- Examine targets should tell the player what they need to know without spelling out the mechanics. "The cipher officer returns at nine" tells the player about the deadline; a turn counter does not.
+- Do not put any puzzle or challenge in the briefing room. It is exposition, not gameplay.
+- One exit only. There is no second option.
+- The room's addenda should be empty at game start — nothing changes here while Jacob is away.
+
+**Exit into Act 1:** Departing for the field activates the timer. Everything that happens next costs turns.
+
+---
 
 ### Act 1 — Approach
 
@@ -93,7 +122,36 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 - 0 new locks (the player has no time to find new items)
 - World state changes driven by the `alarm_raised` flag already set during play
 
-**Exit from Act 5:** Interact with extraction point in Act 1's room. Requires the mission precondition flag set in Act 4.
+**Exit from Act 5:** Interact with the extraction point. Requires the mission precondition flag set in Act 4. The extraction point can be anywhere that makes narrative sense — the starting room, a new location, a vehicle, a radio in a room the player has never seen. It is not required to be where Act 1 began.
+
+---
+
+### Act 6 — Debrief
+
+**Feel:** The same office. The same desk. Jacob sits in the chair opposite Alderton, and Alderton reads from the report before him without looking up. Whatever happened in the field is now a bureaucratic fact. The handler's assessment is dry, precise, and final.
+
+**Tone cues:** London again. The mission is over but its consequences are not. Alderton does not celebrate; he accounts. A clean extraction is noted without warmth. A raised alarm is noted without anger. A dead civilian is noted with a single sentence and a pause.
+
+**Engine mechanics:** Currently implemented as renderer-level narrative text triggered at game-over (see `debriefLine()` in `renderer/index.ts`). A full in-game debrief room would require the extraction point to route to `debrief_room` rather than setting `mission_complete` immediately — extraction sets a `[mission]_extracted` flag, the debrief room reads flags and presents addenda, and a final exit ("Leave the office") sets `mission_complete`. This engine change is deferred; the renderer text is the current implementation.
+
+**Minimum requirements (full in-game room, when implemented):**
+- 1 room (same `briefing_room` or a new `debrief_room` — handler returns to the office)
+- 0 enemies
+- Addenda driven by mission outcome flags:
+  - `alarm_raised` → handler notes the complication, matter-of-factly
+  - `[civilian]_killed` → "There will be a note in your file."
+  - Clean extraction → no comment; Alderton moves to the next item
+  - Time remaining → tight finish gets a dry remark; comfortable margin gets nothing
+- 1 exit: "Leave the office" → sets `mission_complete`
+- No puzzles, no items, no new information about the current mission
+
+**Design rules:**
+- Addenda should reflect what the player did, not what the mission hoped they'd do. If no civilians were harmed and the alarm wasn't raised, Alderton says almost nothing — that is the correct outcome, not a special achievement.
+- The handler's voice is consistent across missions. He does not emote. He moves from fact to fact. Reserve judgement for the spaces between.
+- If the debrief seeds the next mission (a folder pushed across the desk, a name mentioned), it must be in an examine target, not mandatory read text. The player can leave without seeing it.
+- The debrief room should feel identical to the briefing room — same description, same furniture — except for the time of day and what's on the desk.
+
+**Exit from Act 6:** "Leave the office." Sets `mission_complete`. Game over.
 
 ---
 
@@ -445,7 +503,7 @@ The escape is not a separate act in terms of rooms — it reuses Act 1–3 rooms
 
 3. **Let the player's choices echo.** A guard they neutralised is still down. A route they found is still there. The escape rewards systematic play.
 
-4. **The extraction point is where Act 1 started.** The player returns to the beginning to leave. The familiar room feels different now — the mission is done, the car is waiting.
+4. **The extraction point can be anywhere.** It does not have to be where Act 1 started. A car in the trees is one option; so is an experimental jet on a runway, a contact in a safe house, or a radio in a room Jacob has never visited. What matters is that the extraction point is reachable through the post-alarm map and that it requires the Act 4 precondition flag.
 
 5. **Don't add new puzzles.** The escape is about routing under pressure, not solving new locks. The player has no time to search or examine.
 
@@ -473,10 +531,13 @@ Patterns to avoid. If you find one in a skeleton, redesign.
 Before writing JSON for any mission, verify the skeleton satisfies these:
 
 **Structure**
-- [ ] Five acts with distinct feel
+- [ ] Seven phases with distinct feel (Briefing, Approach, Infiltration, Exploration, Climax, Escape, Debrief)
+- [ ] Briefing room uses `timerStartRoomId` to pause timer; handler name and room consistent with prior missions
 - [ ] Room counts within phase budgets (Approach 1–3, Infiltration 2–4, Exploration 3–6, Climax 1–2, Escape reuses entry)
 - [ ] Acts 2 and 3 each have at least one branch
 - [ ] Escape leg uses at least one Act 2 bypass route
+- [ ] Extraction point is narratively motivated; precondition flag from Act 4 is required
+- [ ] Debrief addenda planned for: `alarm_raised`, any civilian casualties, time-on-station remark
 
 **Challenges**
 - [ ] At least one PATROL WINDOW or CHOKEPOINT GUARD per act (except Climax)
