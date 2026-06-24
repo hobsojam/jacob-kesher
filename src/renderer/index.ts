@@ -112,6 +112,12 @@ function render(): void {
       }
       actionsEl.appendChild(el)
     }
+  } else {
+    const restartBtn = document.createElement('button')
+    restartBtn.textContent = 'Restart mission'
+    restartBtn.className = 'btn-misc'
+    restartBtn.addEventListener('click', () => window.location.reload())
+    actionsEl.appendChild(restartBtn)
   }
 
   renderSaveLoad(actionsEl)
@@ -184,9 +190,48 @@ function dispatch(action: Parameters<typeof processAction>[0]): void {
       failed:  '--- Mission failed. ---',
     }
     appendMessages([endings[result.gameOver] ?? '--- Game over. ---'])
+    showDebrief(result.gameOver, currentState)
   }
 
   render()
+}
+
+function debriefLine(outcome: string, state: GameState): string {
+  if (outcome === 'success') {
+    const remaining = state.time.missionDeadline - state.time.elapsed
+    if (remaining <= 10) {
+      return '"You cut that a bit fine, Kesher. Another thirty seconds and we would have had a very different conversation."'
+    }
+    return '"Not bad, Kesher. The photographs are with analysis. We will know more by Thursday."'
+  }
+  if (state.flags['machine_photographed']) {
+    return '"Did you forget the camera, Kesher? The photographs were on the film. The film was in the camera. The camera was not in the car."'
+  }
+  if (outcome === 'timeout') {
+    return '"The cipher officer came back. We had one window, Kesher. We will not get another one."'
+  }
+  if (outcome === 'dead') {
+    return '"We will arrange repatriation. The mission is closed."'
+  }
+  return '"The mission is over, Kesher."'
+}
+
+function showDebrief(outcome: string, state: GameState): void {
+  const enemyStates = Object.values(state.enemyStates)
+  const neutralised = enemyStates.filter((e) => e.status === 'unconscious').length
+  const killed = enemyStates.filter((e) => e.status === 'dead').length
+  const healthLost = state.protagonist.maxHealth - state.protagonist.health
+
+  appendSeparator()
+  appendMessages(['Whitehall'], true)
+  appendMessages(['The same office. No sign on the door. Alderton sets down his pen.'])
+  appendMessages([debriefLine(outcome, state)])
+  appendMessages([
+    `— Time on station: ${state.time.elapsed} of ${state.time.missionDeadline} turns`,
+    `— Condition on extraction: ${state.protagonist.health}/${state.protagonist.maxHealth}${healthLost > 0 ? ` (${healthLost} damage taken)` : ''}`,
+    ...(neutralised > 0 ? [`— Contacts neutralised: ${neutralised}`] : []),
+    ...(killed > 0 ? [`— Contacts eliminated: ${killed}`] : []),
+  ])
 }
 
 export function startGame(data: GameData, state: GameState): void {
