@@ -245,4 +245,66 @@ describe('handleMove', () => {
     expect(result.messages[0]).toBe('You are spotted.')
     expect(result.state.flags['alarm_raised']).toBe(true)
   })
+
+  describe('movement modes', () => {
+    it('sneak sets timeCost 2 and moveMode sneak', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'go north' }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      const result = handleMove('go north', makeState(), data, 'sneak')
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.timeCost).toBe(2)
+      expect(result.moveMode).toBe('sneak')
+      expect(result.messages).toContain('You move in silence.')
+    })
+
+    it('run sets timeCost 0 and moveMode run', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'go north' }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      const result = handleMove('go north', makeState(), data, 'run')
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.timeCost).toBe(0)
+      expect(result.moveMode).toBe('run')
+      expect(result.messages).toContain('You break into a run.')
+    })
+
+    it('run is downgraded to normal move for crawl exits', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'crawl through', exitType: 'crawl' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      const result = handleMove('crawl through', makeState(), data, 'run')
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.timeCost).toBeUndefined()  // normal cost
+      expect(result.moveMode).toBeUndefined()
+    })
+
+    it('run is downgraded to normal move for climb exits', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'climb', exitType: 'climb' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      const result = handleMove('climb', makeState(), data, 'run')
+
+      expect(result.timeCost).toBeUndefined()
+      expect(result.moveMode).toBeUndefined()
+    })
+
+    it('sneak is valid for crawl exits', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'crawl through', exitType: 'crawl' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      const result = handleMove('crawl through', makeState(), data, 'sneak')
+
+      expect(result.timeCost).toBe(2)
+      expect(result.moveMode).toBe('sneak')
+    })
+  })
 })

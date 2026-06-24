@@ -1,5 +1,5 @@
 export type Action =
-  | { type: 'move'; exitLabel: string }
+  | { type: 'move'; exitLabel: string; mode?: 'sneak' | 'run' }
   | { type: 'take'; itemId: string }
   | { type: 'drop'; itemId: string }
   | { type: 'examine'; targetId: string }

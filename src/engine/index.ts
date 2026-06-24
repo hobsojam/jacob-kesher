@@ -13,6 +13,7 @@ import { handleUse } from './use'
 import { handleInteract } from './interact'
 import { handleTalk } from './dialogue'
 import { checkDetection } from './detection'
+import { guardPosition } from './patrol'
 import { checkDisguise } from './disguise'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
@@ -36,20 +37,33 @@ export function processAction(
     action.type === 'move' &&
     result.state.protagonist.currentRoom !== state.protagonist.currentRoom
 
-  // Movement triggers a proximity check: nearby guards may hear Jacob enter
+  // Movement triggers a proximity check: nearby guards may hear or see Jacob enter.
+  // run: skip detection roll — any active enemy in the room auto-alerts immediately.
+  // sneak: detection DC raised by +4 on top of the covert skill bonus.
   let afterProximity = result.state
   if (moved) {
-    const covertLevel = result.state.protagonist.skills?.find((sk) => sk.id === 'covert')?.level ?? 0
-    const { state: s, messages: m } = checkDetection(
-      'quiet',
-      result.state.protagonist.currentRoom,
-      result.state,
-      data,
-      undefined,
-      covertLevel,
-    )
-    afterProximity = s
-    messages.push(...m)
+    if (result.moveMode === 'run') {
+      const { state: s, messages: m } = autoAlertEnemiesInRoom(
+        result.state.protagonist.currentRoom,
+        result.state,
+        data,
+      )
+      afterProximity = s
+      messages.push(...m)
+    } else {
+      const covertLevel = result.state.protagonist.skills?.find((sk) => sk.id === 'covert')?.level ?? 0
+      const sneakBonus = result.moveMode === 'sneak' ? 4 : 0
+      const { state: s, messages: m } = checkDetection(
+        'quiet',
+        result.state.protagonist.currentRoom,
+        result.state,
+        data,
+        undefined,
+        covertLevel + sneakBonus,
+      )
+      afterProximity = s
+      messages.push(...m)
+    }
   }
 
   // Noise from the action reaches guards within their detection radius
@@ -114,7 +128,7 @@ function dispatch(
 ): SubSystemResult {
   switch (action.type) {
     case 'move':
-      return handleMove(action.exitLabel, state, data)
+      return handleMove(action.exitLabel, state, data, action.mode)
     case 'take':
       return handleTake(action.itemId, state, data)
     case 'drop':
@@ -183,6 +197,36 @@ function wakeEnemies(
 
   return {
     state: changed ? { ...state, enemyStates: updatedEnemyStates, roomStates: updatedRoomStates } : state,
+    messages,
+  }
+}
+
+function autoAlertEnemiesInRoom(
+  roomId: string,
+  state: GameState,
+  data: GameData,
+): { state: GameState; messages: string[] } {
+  const messages: string[] = []
+  const updatedEnemyStates = { ...state.enemyStates }
+  let changed = false
+
+  for (const enemy of Object.values(data.enemyData)) {
+    const es = state.enemyStates[enemy.id]
+    if (es && es.status !== 'active') continue
+
+    const enemyRoom = enemy.patrol
+      ? guardPosition(enemy.patrol, state.time.elapsed)
+      : enemy.roomId
+
+    if (enemyRoom !== roomId) continue
+
+    updatedEnemyStates[enemy.id] = { ...(es ?? initEnemyState(enemy)), awareness: 'alert' }
+    changed = true
+    messages.push(`${cap(enemyLabel(enemy, data))} spots you.`)
+  }
+
+  return {
+    state: changed ? { ...state, enemyStates: updatedEnemyStates } : state,
     messages,
   }
 }

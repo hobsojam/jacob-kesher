@@ -189,7 +189,18 @@ function renderAccordion(
 function renderActionButtons(container: HTMLElement, state: GameState, data: GameData): void {
   const buttons = computeActions(state, data)
 
-  // Category sections (exits, examine, take, misc)
+  // Per-exit accordion groups (in-mission only; pre-mission moves are ungrouped)
+  const exitGroupIds = [...new Set(
+    buttons.filter((b) => b.groupId?.startsWith('exit_')).map((b) => b.groupId!),
+  )]
+  for (const groupId of exitGroupIds) {
+    if (!seenEnemyGroups.has(groupId)) { seenEnemyGroups.add(groupId); openGroups.add(groupId) }
+    const groupButtons = buttons.filter((b) => b.groupId === groupId)
+    const label = groupButtons[0]?.groupLabel ?? groupId
+    renderAccordion(container, groupId, label, 'move', groupButtons)
+  }
+
+  // Category sections (exits section handles pre-mission ungrouped moves; examine, take, misc always)
   for (const section of SECTIONS) {
     const btns = buttons.filter((b) => !b.groupId && section.categories.includes(b.category))
     if (btns.length === 0) continue
@@ -197,8 +208,10 @@ function renderActionButtons(container: HTMLElement, state: GameState, data: Gam
   }
 
   // Per-enemy accordion groups — auto-expand on first appearance
-  const groupIds = [...new Set(buttons.map((b) => b.groupId).filter((id): id is string => !!id))]
-  for (const groupId of groupIds) {
+  const enemyGroupIds = [...new Set(
+    buttons.filter((b) => b.groupId && !b.groupId.startsWith('exit_')).map((b) => b.groupId!),
+  )]
+  for (const groupId of enemyGroupIds) {
     if (!seenEnemyGroups.has(groupId)) { seenEnemyGroups.add(groupId); openGroups.add(groupId) }
     const groupButtons = buttons.filter((b) => b.groupId === groupId)
     const enemy = data.enemyData[groupId]

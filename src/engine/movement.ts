@@ -10,6 +10,7 @@ export function handleMove(
   exitLabel: string,
   state: GameState,
   data: GameData,
+  mode?: 'sneak' | 'run',
 ): SubSystemResult {
   const currentRoom =
     data.roomIndex[state.protagonist.currentRoom] ?? FALLBACK_ROOM
@@ -58,6 +59,10 @@ export function handleMove(
     }
   }
 
+  // run is only valid for standard exits; silently fall back for crawl/climb/fall/special
+  const exitType = exit.exitType ?? 'standard'
+  const effectiveMode = mode === 'run' && exitType !== 'standard' ? undefined : mode
+
   const destination = data.roomIndex[exit.destinationId] ?? FALLBACK_ROOM
 
   const existingRoomState = state.roomStates[destination.id]
@@ -86,6 +91,9 @@ export function handleMove(
 
   const messages: string[] = []
 
+  if (effectiveMode === 'sneak') messages.push('You move in silence.')
+  else if (effectiveMode === 'run') messages.push('You break into a run.')
+
   if (exit.roll) {
     const { stat, skillId, dc, failMessage, failFlag } = exit.roll
     const skillLevel = skillId
@@ -100,5 +108,10 @@ export function handleMove(
     }
   }
 
-  return { state: newState, messages }
+  return {
+    state: newState,
+    messages,
+    timeCost: effectiveMode === 'sneak' ? 2 : effectiveMode === 'run' ? 0 : undefined,
+    moveMode: effectiveMode,
+  }
 }
