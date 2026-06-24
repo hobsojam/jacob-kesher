@@ -18,7 +18,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 **Tone cues:** London. Grey. A first-floor room with no sign on the door. Files on a desk that has seen thirty years of crises. The handler sets down a pen when you enter and picks it up when you leave. Whatever you're about to do is already decided.
 
-**Engine mechanics:** `startingRoomId` is the briefing room. `timerStartRoomId` is the first field room (e.g. `mountain_road`). Timer is paused (`timerActive: false`) until the player moves to `timerStartRoomId`. No action costs accrue. The player can examine freely.
+**Engine mechanics:** `startingRoomId` is the briefing room. `timerStartRoomId` is the first field room (e.g. `mountain_road`). Timer is paused (`timerActive: false`) until the player moves to `timerStartRoomId`. The timer does not advance. The player can examine freely.
 
 **Minimum requirements:**
 - 1 room
@@ -41,7 +41,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 ### Act 1 — Approach
 
-**Feel:** Quiet. Orientating. The player is learning the engine while the fiction establishes place and threat. One guard maximum. No locked doors. No items strictly required.
+**Feel:** Quiet. Orientating. The fiction establishes place and threat before the clock starts pressing. One guard maximum. No locked doors. No items strictly required.
 
 **Tone cues:** Exterior. Cold. The enemy installation seen from the outside — imposing but not yet personal. The guard here has a name and probably a habit.
 
@@ -71,7 +71,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 - 1 environment bypass (route that avoids the key entirely, at higher time or risk cost)
 - 1 branch (the bypass vs. the key route)
 
-**Exit into Act 3:** Both routes in Act 2 must converge at a single entry point to the hub. The player arrives at Act 3 with different items and information depending on how they came through.
+**Exit into Act 3:** Both routes in Act 2 should typically converge at a single entry point to the hub. The player arrives at Act 3 with different items and information depending on how they came through.
 
 ---
 
@@ -104,14 +104,14 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 **Minimum requirements:**
 - 1–2 rooms
-- 1 objective action (interact or use-on) that sets the mission_complete precondition flag
+- 1 objective action (interact or use-on) that sets a mission precondition flag (e.g. `machine_photographed`) — not `mission_complete` itself, which is set later by the extraction interact
 - 1 examine target that tells the player something about what they're looking at
 - 0 required items beyond what unlocks the door (found in Act 3)
 
 **Design rules:**
 - Primary tension should be the timer, not combat. Enemies are not prohibited but should be exceptional — a villain in the room, a dog on a short patrol. If an enemy is present, there must be a non-combat way past them.
 
-**Exit into Act 5:** Same door as entry — Act 4 is always a dead end. The exit back is the beginning of the escape.
+**Exit into Act 5:** The route out of Act 4 starts the escape. A single-room Act 4 is typically a dead end — exit the way you entered. If Act 4 has two rooms, one may open onto new escape territory rather than backtracking.
 
 ---
 
@@ -124,7 +124,6 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 **Minimum requirements:**
 - 1 route closure (alarm or repositioned guard makes the straightforward exit impossible)
 - 1 surviving escape route
-- 0 new locks (the player has no time to find new items)
 - World state changes driven by flags already set during play
 
 **Design principles:**
@@ -156,7 +155,7 @@ Each act has a distinct feel. If two adjacent acts feel the same, merge them or 
 
 **Minimum requirements:**
 - Some form of resolution — the game must not end mid-action
-- Flag-driven variation: the end scene should differ based on at least `alarm_raised` and mission outcome
+- Flag-driven variation: the end scene should differ based on at least `alarm_raised`, any civilian casualty flags, and time remaining (tight finish vs. comfortable margin)
 - No new puzzles, locks, or items
 
 **Design rules:**
@@ -185,7 +184,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 
 **Design rules:**
 - Cycle time of 4–8 turns is readable without being punishing
-- At least one room in the patrol route should be visible to the player before they commit to moving
+- The room description should make the guard's patrol presence clear before the player commits to moving through — describe footsteps, a returning figure, the sound of the circuit. The player should be able to infer the window from the room they're already in
 - A patrol that covers 3+ rooms becomes unpredictable; keep them on 2-room cycles unless the mission is deliberately hard
 - Pair with a SEARCH REWARD in the room being patrolled — makes the risk worth taking
 
@@ -244,7 +243,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 - Routes should be discovered through play, not listed in a tutorial
 - Each route should feel like a genuine choice, not an obvious correct answer
 
-**M01 example:** Three routes to `cipher_room_key`: (1) `duty_office_key` from mess_hall search → use on drawer, (2) skill-check lock-pick on drawer, (3) `maintenance_key` from loading_bay search → `supply_cabinet` in comms_room reveals duplicate.
+**M01 example:** Three routes to `cipher_room_key`: (1) find `duty_office_key` in mess_hall search → use on drawer to unlock it, (2) safecracking skill check on the drawer directly, (3) find `maintenance_key` in loading_bay search → use on `supply_cabinet` in comms_room → duplicate `cipher_room_key` revealed.
 
 ---
 
@@ -323,7 +322,7 @@ Named building blocks. Each mission should use 3–5 patterns across the field a
 **Design rules:**
 - Pre-design the alarm state alongside the normal state. Every room should have an addendum for `alarm_raised` if guards reposition there.
 - Close the easy route, not the only route. An alarm that makes escape impossible is a game-ending trap.
-- The bypass established in Act 2 should always survive the alarm state — that's its purpose.
+- At least one escape route must survive the alarm state. If the escape retraces Act 2 rooms, the bypass established there is the natural candidate; if the escape opens new territory, ensure that territory remains accessible under alarm.
 - Guard repositioning should be narratively motivated (Volkov goes to guard the loading bay — of course he does)
 
 **M01 example:** `alarm_raised` → Volkov repositions to loading_bay (blocking it), Petrov patrols full corridor, Morozov goes alert at fence. Ventilation shaft remains open.
@@ -498,7 +497,7 @@ Avoid abbreviations. Flag names are read by the renderer and appear in addenda �
 Every room should have addenda for:
 1. The alarm state (if guards reposition there or the room changes feel)
 2. Any local flag change that visibly affects the room (fence_cut, drawer_unlocked)
-3. The precondition flag at the extraction point (signals that escape is ready)
+3. The precondition flag in the extraction point room only (e.g. `machine_photographed` changes the addendum in `mountain_road` to signal the car is waiting)
 
 Addenda should change what the player sees, not just repeat what they did. "The fence has a gap" not "You cut the fence."
 
@@ -546,7 +545,7 @@ Before writing JSON for any mission, verify the skeleton satisfies these:
 - [ ] No patrol synchronisation (check `startOffset`)
 
 **Items**
-- [ ] 4–10 items total
+- [ ] 4–10 items discoverable in the world (not counting starting gear issued at briefing)
 - [ ] Every key item has an alternate route or bypass
 - [ ] Starting gear documented in protagonist state
 
