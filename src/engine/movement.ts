@@ -63,6 +63,19 @@ export function handleMove(
   const exitType = exit.exitType ?? 'standard'
   const effectiveMode = mode === 'run' && exitType !== 'standard' ? undefined : mode
 
+  // Climb: blocking pre-move acrobatics check (skipped when an explicit roll is defined)
+  if (exitType === 'climb' && !exit.roll) {
+    const acrobatics = state.protagonist.skills.find((s) => s.id === 'acrobatics')?.level ?? 0
+    const total = rollD20() + state.protagonist.stats.agility + acrobatics
+    if (total < 12) {
+      return {
+        state,
+        messages: ['You lose your grip and drop back down.'],
+        noise: 'loud',
+      }
+    }
+  }
+
   const destination = data.roomIndex[exit.destinationId] ?? FALLBACK_ROOM
 
   const existingRoomState = state.roomStates[destination.id]
@@ -105,6 +118,17 @@ export function handleMove(
       if (failFlag) {
         newState = { ...newState, flags: { ...newState.flags, [failFlag]: true } }
       }
+    }
+  }
+
+  // Fall: post-move acrobatics check; failure applies 1 HP (skipped when an explicit roll is defined)
+  if (exitType === 'fall' && !exit.roll) {
+    const acrobatics = state.protagonist.skills.find((s) => s.id === 'acrobatics')?.level ?? 0
+    const total = rollD20() + state.protagonist.stats.agility + acrobatics
+    if (total < 10) {
+      const health = Math.max(0, newState.protagonist.health - 1)
+      newState = { ...newState, protagonist: { ...newState.protagonist, health } }
+      messages.push('You land badly and take a knock.')
     }
   }
 

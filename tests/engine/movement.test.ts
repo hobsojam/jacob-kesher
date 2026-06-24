@@ -307,4 +307,122 @@ describe('handleMove', () => {
       expect(result.moveMode).toBe('sneak')
     })
   })
+
+  describe('climb exits', () => {
+    it('success: moves to destination when acrobatics roll meets DC 12', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'climb', exitType: 'climb' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0.5) // d20=11, +5 agility = 16 >= 12
+      const result = handleMove('climb', makeState(), data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+    })
+
+    it('failure: stays in origin room', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'climb', exitType: 'climb' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0) // d20=1, +5 agility = 6 < 12
+      const result = handleMove('climb', makeState(), data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_a')
+      expect(result.messages[0]).toMatch(/grip/i)
+    })
+
+    it('failure: returns loud noise so the pipeline triggers a detection check', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'climb', exitType: 'climb' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      const result = handleMove('climb', makeState(), data)
+
+      expect(result.noise).toBe('loud')
+    })
+
+    it('failure: acrobatics skill reduces chance of failure', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'climb', exitType: 'climb' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      // d20=1, +5 agility + 6 acrobatics = 12 exactly — meets DC 12
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      const state = makeState()
+      state.protagonist.skills = [{ id: 'acrobatics', label: 'Acrobatics', level: 6 }]
+      const result = handleMove('climb', state, data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+    })
+
+    it('explicit roll overrides the auto-check', () => {
+      const data = makeData([
+        makeRoom({
+          id: 'room_a',
+          exits: [{
+            destinationId: 'room_b',
+            label: 'climb',
+            exitType: 'climb' as const,
+            roll: { stat: 'agility', dc: 5, failMessage: 'Custom fail.', failFlag: 'alarm_raised' },
+          }],
+        }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0.99) // high roll — explicit DC 5 easily met
+      const result = handleMove('climb', makeState(), data)
+
+      // move completes (non-blocking explicit roll)
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+    })
+  })
+
+  describe('fall exits', () => {
+    it('success: moves with no damage when acrobatics roll meets DC 10', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'drop', exitType: 'fall' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0.25) // d20=6, +5 agility = 11 >= 10
+      const result = handleMove('drop', makeState(), data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.state.protagonist.health).toBe(10)
+    })
+
+    it('failure: moves but takes 1 HP damage', () => {
+      const data = makeData([
+        makeRoom({ id: 'room_a', exits: [{ destinationId: 'room_b', label: 'drop', exitType: 'fall' as const }] }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0) // d20=1, +5 agility = 6 < 10
+      const result = handleMove('drop', makeState(), data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.state.protagonist.health).toBe(9)
+      expect(result.messages).toContain('You land badly and take a knock.')
+    })
+
+    it('explicit roll overrides the auto-check', () => {
+      const data = makeData([
+        makeRoom({
+          id: 'room_a',
+          exits: [{
+            destinationId: 'room_b',
+            label: 'drop',
+            exitType: 'fall' as const,
+            roll: { stat: 'agility', dc: 99, failMessage: 'Custom.', failFlag: 'custom_flag' },
+          }],
+        }),
+        makeRoom({ id: 'room_b' }),
+      ])
+      vi.spyOn(Math, 'random').mockReturnValue(0)
+      const result = handleMove('drop', makeState(), data)
+
+      expect(result.state.protagonist.currentRoom).toBe('room_b')
+      expect(result.state.protagonist.health).toBe(10) // auto fall-damage not applied
+      expect(result.state.flags['custom_flag']).toBe(true)
+    })
+  })
 })
