@@ -4,6 +4,7 @@ import type { SubSystemResult } from '../types/engine'
 import { FALLBACK_ROOM } from '../constants'
 import { initRoomState } from './room'
 import { inventoryContains } from './inventory'
+import { rollD20 } from './dice'
 
 export function handleMove(
   exitLabel: string,
@@ -69,7 +70,7 @@ export function handleMove(
     state.time.timerActive === false &&
     destination.id === data.timerStartRoomId
 
-  const newState: GameState = {
+  let newState: GameState = {
     ...state,
     protagonist: {
       ...state.protagonist,
@@ -83,8 +84,21 @@ export function handleMove(
     time: activatingTimer ? { ...state.time, timerActive: true } : state.time,
   }
 
-  return {
-    state: newState,
-    messages: [],
+  const messages: string[] = []
+
+  if (exit.roll) {
+    const { stat, skillId, dc, failMessage, failFlag } = exit.roll
+    const skillLevel = skillId
+      ? (state.protagonist.skills.find((s) => s.id === skillId)?.level ?? 0)
+      : 0
+    const total = rollD20() + state.protagonist.stats[stat] + skillLevel
+    if (total < dc) {
+      messages.push(failMessage)
+      if (failFlag) {
+        newState = { ...newState, flags: { ...newState.flags, [failFlag]: true } }
+      }
+    }
   }
+
+  return { state: newState, messages }
 }
