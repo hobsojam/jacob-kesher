@@ -505,7 +505,7 @@ The escape is not a separate act in terms of rooms — it reuses Act 1–3 rooms
 
 4. **The extraction point can be anywhere.** It does not have to be where Act 1 started. A car in the trees is one option; so is an experimental jet on a runway, a contact in a safe house, or a radio in a room Jacob has never visited. What matters is that the extraction point is reachable through the post-alarm map and that it requires the Act 4 precondition flag.
 
-5. **Don't add new puzzles.** The escape is about routing under pressure, not solving new locks. The player has no time to search or examine.
+5. **Don't add new locks; do add new pressure.** The escape can introduce guards, a repositioned enemy at the extraction point, or a route that's riskier than it looked going in. What it cannot introduce is a new key the player doesn't have, a hidden item requiring search, or a puzzle that needs preparation. The constraint is on *preparation*, not on *threat*.
 
 ---
 
