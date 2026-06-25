@@ -2,7 +2,7 @@ import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import type { SubSystemResult } from '../types/engine'
 import { ACTION_COSTS } from '../constants'
-import { guardPosition, enemyPosition } from './patrol'
+import { guardPosition } from './patrol'
 import { initEnemyState } from './room'
 
 export function handleSearch(state: GameState, data: GameData): SubSystemResult {
