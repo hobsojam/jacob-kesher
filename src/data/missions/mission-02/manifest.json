@@ -1,0 +1,19 @@
+{
+  "id": "mission-02",
+  "title": "A Quiet Extraction",
+  "description": "Extract a Soviet defector from the consulate in Vienna before the night duty officer rotation at 2300.",
+  "startingRoomId": "whitehall_office",
+  "timerStartRoomId": "neustiftgasse",
+  "missionDeadline": 60,
+  "deadlineMessage": "Somewhere in the building, a clock strikes the hour. The duty officer rotation. Kuznetsov cannot leave without a Soviet escort now.",
+  "protagonist": {
+    "health": 10,
+    "stats": { "strength": 3, "agility": 4, "intelligence": 3, "charisma": 3 },
+    "inventory": {
+      "weapons": [null, null],
+      "gadgets": [null, null],
+      "small": ["diplomatic_credentials", null, null],
+      "special": null
+    }
+  }
+}

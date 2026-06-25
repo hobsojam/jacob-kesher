@@ -18,6 +18,16 @@
       "canBeBluffed": true,
       "canBeDisguised": false,
       "wakeAfterTurns": 20
+    },
+    {
+      "id": "civilian",
+      "type": "civilian",
+      "stats": { "strength": 2, "agility": 2, "health": 1, "intelligence": 3 },
+      "detectionRadius": 1,
+      "canBeBluffed": true,
+      "canBeDisguised": false,
+      "wakeAfterTurns": 10,
+      "discoveryRisk": 0.05
     }
   ]
 }

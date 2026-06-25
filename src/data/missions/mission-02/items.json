@@ -1,0 +1,119 @@
+{
+  "items": [
+    {
+      "id": "diplomatic_credentials",
+      "label": "Diplomatic Credentials",
+      "description": "A British cultural attaché's identification, supplemented by a visiting scholar's letter from the University of Edinburgh. The signatures are genuine. The name is not.",
+      "type": "document"
+    },
+    {
+      "id": "wire",
+      "label": "Lockpick Wire",
+      "description": "A short length of steel wire, bent at one end. Adequate for a standard pin-tumbler lock.",
+      "type": "gadget",
+      "usableOn": ["inner_door"],
+      "effect": { "type": "set_room_flag", "flag": "inner_door_unlocked" },
+      "targetEffects": {
+        "inner_door": [
+          { "type": "set_room_flag", "flag": "inner_door_unlocked" },
+          { "type": "message", "text": "The wire finds the pins. You ease the bolt back and hold the door." }
+        ]
+      }
+    },
+    {
+      "id": "service_key",
+      "label": "Service Key",
+      "description": "A brass key on a short chain. Unlocks the kitchen inner door. Someone left it in the rack over the worktop.",
+      "type": "keycard",
+      "usableOn": ["inner_door"],
+      "effect": { "type": "set_room_flag", "flag": "inner_door_unlocked" },
+      "targetEffects": {
+        "inner_door": [
+          { "type": "set_room_flag", "flag": "inner_door_unlocked" },
+          { "type": "message", "text": "The key turns smoothly. The bolt disengages." }
+        ]
+      }
+    },
+    {
+      "id": "stairwell_key",
+      "label": "Stairwell Key",
+      "description": "A heavy warded key. Unlocks the fire door on the ground-floor corridor.",
+      "type": "keycard",
+      "usableOn": ["stairwell_door"],
+      "effect": { "type": "set_room_flag", "flag": "stairwell_door_open" },
+      "targetEffects": {
+        "stairwell_door": [
+          { "type": "set_room_flag", "flag": "stairwell_door_open" },
+          { "type": "message", "text": "The door unlocks. You ease it open without a sound." }
+        ]
+      }
+    },
+    {
+      "id": "stairwell_key_b",
+      "label": "Stairwell Key",
+      "description": "A heavy warded key from the corridor cabinet. A spare, apparently.",
+      "type": "keycard",
+      "usableOn": ["stairwell_door"],
+      "effect": { "type": "set_room_flag", "flag": "stairwell_door_open" },
+      "targetEffects": {
+        "stairwell_door": [
+          { "type": "set_room_flag", "flag": "stairwell_door_open" },
+          { "type": "message", "text": "The door unlocks. You ease it open without a sound." }
+        ]
+      }
+    },
+    {
+      "id": "stairwell_key_c",
+      "label": "Stairwell Key",
+      "description": "A heavy warded key taken from Petrov. One of several on the ring.",
+      "type": "keycard",
+      "usableOn": ["stairwell_door"],
+      "effect": { "type": "set_room_flag", "flag": "stairwell_door_open" },
+      "targetEffects": {
+        "stairwell_door": [
+          { "type": "set_room_flag", "flag": "stairwell_door_open" },
+          { "type": "message", "text": "The door unlocks. You ease it open without a sound." }
+        ]
+      }
+    },
+    {
+      "id": "staff_id",
+      "label": "Staff Identity Card",
+      "description": "A consulate staff identity card — the name is Morozova, T., Cultural Affairs. The photograph is someone else. Useful if you need to look like you belong.",
+      "type": "document"
+    },
+    {
+      "id": "wheelchair",
+      "label": "Wheelchair",
+      "description": "A standard hospital-issue folding wheelchair. Old but functional. It will take Kuznetsov's weight.",
+      "type": "gadget",
+      "usableOn": ["kuznetsov"],
+      "targetEffects": {
+        "kuznetsov": [
+          { "type": "set_global_flag", "flag": "mobility_aid" },
+          { "type": "message", "text": "You unfold the wheelchair and position it. Kuznetsov lowers himself into it without comment. He is lighter than he looks." }
+        ]
+      }
+    },
+    {
+      "id": "cane",
+      "label": "Walking Cane",
+      "description": "A plain wooden cane, well-used. Kuznetsov's own — the hospital prescribed it three years ago. He has not used it as much as he should.",
+      "type": "gadget",
+      "usableOn": ["kuznetsov"],
+      "targetEffects": {
+        "kuznetsov": [
+          { "type": "set_global_flag", "flag": "mobility_aid" },
+          { "type": "message", "text": "You hand him the cane. He takes it, tests his weight, nods. It will do." }
+        ]
+      }
+    },
+    {
+      "id": "makarov_pistol",
+      "label": "Makarov Pistol",
+      "description": "Standard Soviet sidearm. Eight rounds, reliable, and considerably quieter than a rifle.",
+      "type": "weapon_ranged",
+      "damage": 1
+    }
+  ]
+}

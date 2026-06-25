@@ -1,7 +1,7 @@
 import type { GameData } from '../types/data'
 import type { GameState } from '../types/state'
 import { rollD20 } from './dice'
-import { guardPosition } from './patrol'
+import { enemyPosition } from './patrol'
 import { initEnemyState, enemyLabel, cap } from './room'
 
 export function checkDisguise(
@@ -23,9 +23,7 @@ export function checkDisguise(
     const es = next.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
 
-    const enemyRoom = enemy.patrol
-      ? guardPosition(enemy.patrol, next.time.elapsed)
-      : enemy.roomId
+    const enemyRoom = enemyPosition(enemy, next.time.elapsed, next.flags)
     if (enemyRoom !== currentRoom) continue
 
     const template = data.enemyTemplates[enemy.templateId]

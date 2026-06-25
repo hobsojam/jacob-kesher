@@ -1,7 +1,7 @@
 import type { GameData, RoomData } from '../types/data'
 import type { GameState, NoiseLevel } from '../types/state'
 import { rollD20 } from './dice'
-import { guardPosition } from './patrol'
+import { enemyPosition } from './patrol'
 import { escalateAwareness } from './alarm'
 import { initEnemyState, enemyLabel, cap } from './room'
 
@@ -38,9 +38,7 @@ export function checkDetection(
     const template = data.enemyTemplates[enemy.templateId]
     if (!template) continue
 
-    const enemyRoom = enemy.patrol
-      ? guardPosition(enemy.patrol, state.time.elapsed)
-      : enemy.roomId
+    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags)
 
     const distance = roomDistance(sourceRoomId, enemyRoom, data.roomIndex)
     if (distance > template.detectionRadius) continue

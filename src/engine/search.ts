@@ -17,12 +17,23 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
   const searchCost = Math.max(1, ACTION_COSTS.search + (room.searchDifficulty ?? 0))
 
   const interruptingGuards = Object.values(data.enemyData).filter((enemy) => {
-    if (!enemy.patrol) return false
     const enemyState = state.enemyStates[enemy.id]
     if (enemyState && enemyState.status !== 'active') return false
 
+    // Alarm-repositioned to a fixed room: interrupts immediately if in this room
+    if (state.flags['alarm_raised'] && enemy.alarmRoomId) {
+      return enemy.alarmRoomId === roomId
+    }
+
+    // Use alarm patrol if active, otherwise normal patrol
+    const effectivePatrol = state.flags['alarm_raised'] && enemy.alarmPatrol
+      ? enemy.alarmPatrol
+      : enemy.patrol
+
+    if (!effectivePatrol) return false  // truly stationary — handled by guardAmbush
+
     for (let t = state.time.elapsed; t < state.time.elapsed + searchCost; t++) {
-      if (guardPosition(enemy.patrol, t) === roomId) return true
+      if (guardPosition(effectivePatrol, t) === roomId) return true
     }
     return false
   })

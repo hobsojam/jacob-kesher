@@ -372,12 +372,14 @@ Notes: No enemies, no items. Tension is entirely the turn counter. The camera mu
 
 ## 6. Enemy Roster
 
-| ID | Name | Template | Room | Patrol | Inventory | discoveryRisk | Notes |
-|----|------|----------|------|--------|-----------|---------------|-------|
-| fence_guard | Pvt. Morozov | guard | perimeter_fence | perimeter_fence → ditch → perimeter_fence, cycle 8 | none | 0.1 | Patrol loops past fence gap — discovers fence_cut naturally |
-| roaming_guard | Sgt. Volkov | guard | service_yard | service_yard → loading_bay, cycle 6 | service_keycard | 0.1 | Carries keycard; if alarm_raised, stationed at loading_bay |
-| corridor_guard | Cpl. Petrov | guard | ground_floor_corridor | none (alarm_raised: patrols full corridor) | none | 0.1 | Blocks duty office wing |
-| comms_guard | Pvt. Nikitin | guard | comms_room | none | none | 0.1 | Can be avoided entirely; stationary, facing away |
+Key named enemies only. Additional generic guards (barracks_guard_1–3: Kozlov, Bykov, Zaitsev — three sleeping soldiers, startUnconscious: 80) are in enemies.json.
+
+| ID | Name | Template | Room | Patrol | alarmRoomId | Inventory | Notes |
+|----|------|----------|------|--------|-------------|-----------|-------|
+| fence_guard | Pvt. Morozov | guard | perimeter_fence | perimeter_fence → mountain_road, cycle 8 | — | mosin_nagant, soviet_uniform | Patrol loops past fence gap; goes alert on alarm_raised via normal system |
+| roaming_guard | Sgt. Volkov | guard | service_yard | service_yard → loading_bay, cycle 6 | loading_bay | makarov_pistol, service_keycard, soviet_uniform | Carries keycard; alarm pins him to loading_bay, forcing ventilation escape route |
+| corridor_guard | Cpl. Petrov | guard | ground_floor_corridor | none | — | soviet_uniform | Blocks duty office wing (blockedBy on exit); goes alert on alarm_raised |
+| comms_guard | Pvt. Nikitin | guard | comms_room | none | — | soviet_uniform | Can be avoided entirely; stationary, facing away |
 
 ---
 
