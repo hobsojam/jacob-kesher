@@ -1,0 +1,65 @@
+{
+  "enemies": [
+    {
+      "id": "exterior_guard",
+      "name": "Baranov",
+      "known": true,
+      "description": "A broad man in a dark coat, moving at the unhurried pace of someone with hours still to go on his shift.",
+      "templateId": "guard",
+      "roomId": "neustiftgasse",
+      "patrol": {
+        "roomIds": ["neustiftgasse", "side_alley"],
+        "cycleTime": 8,
+        "startOffset": 0
+      },
+      "alarmRoomId": "front_entrance",
+      "inventory": ["makarov_pistol"]
+    },
+    {
+      "id": "kitchen_guard",
+      "name": "Zima",
+      "known": true,
+      "description": "A compact man with a night-shift expression, moving between the kitchen and the yard on a circuit he has done a hundred times.",
+      "templateId": "guard",
+      "roomId": "kitchen",
+      "patrol": {
+        "roomIds": ["kitchen", "service_yard"],
+        "cycleTime": 6,
+        "startOffset": 0
+      },
+      "inventory": []
+    },
+    {
+      "id": "consulate_guard",
+      "name": "Petrov",
+      "known": true,
+      "description": "A guard standing near the far end of the corridor with the stillness of someone who has been here a long time and expects to be here longer.",
+      "templateId": "guard",
+      "roomId": "ground_floor_corridor",
+      "inventory": ["makarov_pistol", "stairwell_key_c"]
+    },
+    {
+      "id": "upper_floor_guard",
+      "name": "Volkov",
+      "known": true,
+      "description": "A tall man in a dark suit, moving between the landing and the far room at an even pace. He checks his watch at each end of the circuit.",
+      "templateId": "guard",
+      "roomId": "second_floor_landing",
+      "patrol": {
+        "roomIds": ["second_floor_landing", "kuznetsov_room"],
+        "cycleTime": 6,
+        "startOffset": 3
+      },
+      "inventory": []
+    },
+    {
+      "id": "consulate_nurse",
+      "name": "Irina Molova",
+      "known": true,
+      "description": "The duty nurse, seated at her desk with her back to the door, reading.",
+      "templateId": "civilian",
+      "roomId": "medical_room",
+      "inventory": []
+    }
+  ]
+}

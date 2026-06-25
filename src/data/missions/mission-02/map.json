@@ -1,0 +1,558 @@
+{
+  "rooms": [
+    {
+      "id": "whitehall_office",
+      "label": "Section Office, Whitehall",
+      "description": "The same office. Rain against the same sash windows. Alderton is at his desk, a street plan of the fourth district open in front of him — the consulate building circled in red ink. He closes the folder when Jacob enters.",
+      "addenda": [],
+      "exits": [
+        {
+          "destinationId": "neustiftgasse",
+          "label": "Depart for Vienna",
+          "requires": { "flag": "alderton_briefed" }
+        }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "alderton",
+          "label": "Alderton",
+          "description": "He speaks without looking up from the plan. 'Kuznetsov. First Secretary, Cultural Section. Bad hip — a road accident, Minsk, three years ago. He can walk, but not fast, and not stairs without support. He's agreed to come. He's been waiting.' He picks up his pen. 'You need to be out of the building before the duty officer rotation at eleven. The car will be on the side street. Grey Peugeot. Driver knows the route.' He doesn't wait for questions.",
+          "interactLabel": "Acknowledge briefing",
+          "effect": [
+            { "type": "set_global_flag", "flag": "alderton_briefed" }
+          ]
+        },
+        {
+          "id": "consulate_plan",
+          "label": "the street plan",
+          "description": "A 1:200 scale plan of the building and surrounding block. The consulate occupies the ground and first floors of a four-storey building on Neustiftgasse. A pencilled cross marks a ground-floor window: the kitchen. Another marks the side alley. A third marks Kuznetsov's room: fourteen, first floor."
+        },
+        {
+          "id": "briefing_window",
+          "label": "the window",
+          "description": "London in the rain. A bus. A man walking fast with his collar up. None of them know you exist. In forty-eight hours you'll be glad of that."
+        }
+      ]
+    },
+    {
+      "id": "neustiftgasse",
+      "label": "Neustiftgasse",
+      "description": "A respectable street in the fourth district — wide pavements, grey stone, the yellow stucco of the consulate building ahead. A lamp post casts a yellow oval on the wet cobbles. The consulate entrance is thirty metres ahead, lit by a single exterior lamp. The side alley is to your left.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "A light has come on in an upper window. Someone inside is moving fast."
+        }
+      ],
+      "exits": [
+        { "destinationId": "whitehall_office", "label": "Return to the briefing office" },
+        { "destinationId": "side_alley", "label": "Duck into the side alley" },
+        { "destinationId": "front_entrance", "label": "Cross the forecourt to the consulate entrance" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "consulate_exterior",
+          "label": "the consulate building",
+          "description": "Four storeys of grey stone, Soviet flag over the entrance. Most of the windows are dark. On the ground floor, left side, a light is on — the kitchen. The side alley runs along the right of the building and looks unlit."
+        },
+        {
+          "id": "baranov_exterior",
+          "label": "the guard",
+          "description": "A broad man in a dark coat, moving slowly along the pavement, then back. He has a smoke at the corner of the alley, then moves again. His name is Baranov. He has been doing this for two hours and does not look like a man who minds."
+        },
+        {
+          "id": "kitchen_light",
+          "label": "the kitchen light",
+          "description": "The ground-floor window on the left side of the building — warm light, the silhouette of someone at a worktop. When it goes off, the kitchen staff will have finished for the night. The service entrance will be unattended except for the night watch."
+        }
+      ]
+    },
+    {
+      "id": "side_alley",
+      "label": "Side Alley",
+      "description": "A narrow alley between the consulate and the building next door. Dustbins, a drainpipe, the smell of wet brick. A grey Peugeot is parked where the alley meets the far street, engine off, driver in his seat.",
+      "addenda": [
+        {
+          "flag": "defector_secured",
+          "text": "The Peugeot's engine turns over quietly. The driver has seen you."
+        }
+      ],
+      "exits": [
+        { "destinationId": "neustiftgasse", "label": "Back to the street" },
+        { "destinationId": "service_yard", "label": "Down the alley to the service yard" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["wire"],
+      "examineTargets": [
+        {
+          "id": "peugeot",
+          "label": "the grey Peugeot",
+          "description": "A 1961 Peugeot 404, grey, Austrian plates. The driver is in his seat, hat forward, not watching you. He knows you're here.",
+          "interactLabel": "Get Kuznetsov in the car",
+          "effect": [
+            {
+              "type": "set_global_flag_if",
+              "condition": "defector_secured",
+              "flag": "mission_complete",
+              "else_flag": "mission_failed"
+            }
+          ]
+        },
+        {
+          "id": "service_door_exterior",
+          "label": "the service door",
+          "description": "A steel door at the base of the building, set flush with the wall. No handle on this side. It opens outward from the basement storeroom when unlatched from inside."
+        },
+        {
+          "id": "alley_drain",
+          "label": "the drain cover",
+          "description": "A cast-iron drain cover, loose in its housing. The kind of loose that suggests someone was here before you."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "front_entrance",
+      "label": "Consulate Entrance Hall",
+      "description": "A panelled entrance hall, red carpet worn to grey in the centre, the Soviet coat of arms on the wall behind a reception desk. A young woman in a grey suit sits at the desk, a telephone beside her and a visitor's register open in front of her. The corridor beyond requires a signature.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Baranov is at the entrance, coat open, hand near his sidearm, watching the door."
+        },
+        {
+          "flag": "visitor_logged",
+          "text": "Your name is in the register."
+        }
+      ],
+      "exits": [
+        { "destinationId": "neustiftgasse", "label": "Back to the street" },
+        {
+          "destinationId": "ground_floor_corridor",
+          "label": "Through to the corridor",
+          "requires": { "flag": "visitor_logged" }
+        }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "receptionist",
+          "label": "the receptionist",
+          "description": "A woman in her thirties, unimpressed. She has been here since eight this morning and has four more hours to go. She picks up a pen.",
+          "interactLabel": "Sign the visitor register",
+          "interactRequires": { "itemId": "diplomatic_credentials" },
+          "effect": [
+            { "type": "set_global_flag", "flag": "visitor_logged" },
+            { "type": "message", "text": "You sign the register. She does not look at the name." }
+          ]
+        },
+        {
+          "id": "visitor_register",
+          "label": "the visitor register",
+          "description": "A hardback ledger. The last entry is from yesterday — a delegation from the East German trade ministry. Three names, a time, a signature that could be anything."
+        },
+        {
+          "id": "coat_of_arms",
+          "label": "the Soviet coat of arms",
+          "description": "Hammer, sickle, ears of wheat. The varnish is cracking at the bottom left corner."
+        }
+      ]
+    },
+    {
+      "id": "service_yard",
+      "label": "Service Yard",
+      "description": "A narrow yard between the consulate and a blank stone wall. Wooden pallets stacked against the building, a rubbish bin, a drain. The service door stands open — kitchen staff propped it when they took out the bins. No lights.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "A door bangs somewhere above. A light has come on in the upper floors."
+        }
+      ],
+      "exits": [
+        { "destinationId": "side_alley", "label": "Back to the alley" },
+        { "destinationId": "kitchen", "label": "Through the service door into the kitchen" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "service_door",
+          "label": "the service door",
+          "description": "A steel door, propped open with a bin. The kitchen beyond is lit and empty. The sound of the fan above the range."
+        },
+        {
+          "id": "service_pallets",
+          "label": "the pallets",
+          "description": "Stacked three high against the building. Nothing underneath. Good cover if you need to wait."
+        }
+      ]
+    },
+    {
+      "id": "kitchen",
+      "label": "Consulate Kitchen",
+      "description": "A working kitchen, larger than expected. Industrial range, stainless worktops, the smell of garlic and cleaning fluid. The evening staff have gone — equipment cooling, lights on. A door on the far wall leads into the consulate corridor. It is locked.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Voices from the corridor beyond the inner door. Someone is running."
+        },
+        {
+          "flag": "inner_door_unlocked",
+          "text": "The inner door to the corridor stands open."
+        }
+      ],
+      "exits": [
+        { "destinationId": "service_yard", "label": "Back through the service door" },
+        {
+          "destinationId": "ground_floor_corridor",
+          "label": "Through the inner door",
+          "requires": { "flag": "inner_door_unlocked" }
+        }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["service_key"],
+      "examineTargets": [
+        {
+          "id": "inner_door",
+          "label": "the inner door",
+          "description": "A wooden door with a standard pin-tumbler lock. Connects the kitchen to the ground-floor corridor. Locked from this side.",
+          "interactLabel": "Pick the lock",
+          "interactRequires": { "skillId": "safecracking", "skillLevel": 2 },
+          "effect": [
+            { "type": "set_room_flag", "flag": "inner_door_unlocked" },
+            { "type": "message", "text": "The lock gives. You ease the door open an inch and listen." }
+          ]
+        },
+        {
+          "id": "kitchen_range",
+          "label": "the range",
+          "description": "Still warm. Cabbage, something with dill. Whatever Zima eats for dinner is better than most of what Jacob has eaten this month."
+        },
+        {
+          "id": "duty_roster_kitchen",
+          "label": "the kitchen rota",
+          "description": "Pinned to the wall near the service door. Zima, M. — night check, 21:00 and 23:00. Tonight he is early."
+        }
+      ],
+      "searchDifficulty": 2
+    },
+    {
+      "id": "ground_floor_corridor",
+      "label": "Ground Floor Corridor",
+      "description": "A plastered corridor, strip lighting, numbered doors. The carpet runner is a different shade of red than the entrance hall. Petrov stands near the far end with his weight on one foot, looking at nothing in particular. There is a small key cabinet on the wall beside his post.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Petrov has moved to the corridor entrance, hand on his sidearm."
+        },
+        {
+          "flag": "stairwell_door_open",
+          "text": "The stairwell door is unlocked."
+        }
+      ],
+      "exits": [
+        { "destinationId": "front_entrance", "label": "Back to the entrance hall" },
+        { "destinationId": "kitchen", "label": "Through to the kitchen" },
+        { "destinationId": "duty_office", "label": "Duty office", "blockedBy": "consulate_guard" },
+        { "destinationId": "staff_common_room", "label": "Staff common room" },
+        { "destinationId": "medical_room", "label": "Medical room" },
+        { "destinationId": "service_corridor", "label": "Service corridor" },
+        {
+          "destinationId": "second_floor_landing",
+          "label": "Stairwell to the upper floor",
+          "requires": { "flag": "stairwell_door_open" }
+        }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["stairwell_key_b"],
+      "examineTargets": [
+        {
+          "id": "notice_board",
+          "label": "the notice board",
+          "description": "A duty roster, a memo about the boiler, a printed photograph of the Soviet premier. Petrov's name appears on the night duty list. The rota ends Friday."
+        },
+        {
+          "id": "stairwell_door",
+          "label": "the stairwell door",
+          "description": "A fire door with a simple warded lock. Access to the first floor — residential and senior staff quarters. Restricted after hours.",
+          "interactLabel": "Try the handle",
+          "effect": [
+            { "type": "message", "text": "Locked." }
+          ]
+        },
+        {
+          "id": "key_cabinet",
+          "label": "the key cabinet",
+          "description": "A small metal cabinet on the wall near Petrov's post. Locked with a warded lock. A spare for the stairwell, most likely.",
+          "interactLabel": "Open the cabinet",
+          "interactRequires": { "skillId": "safecracking", "skillLevel": 2 },
+          "effect": [
+            { "type": "set_room_flag", "flag": "key_cabinet_open" },
+            { "type": "message", "text": "The cabinet opens. A brass key on a hook." }
+          ]
+        }
+      ],
+      "searchDifficulty": 3,
+      "reveals": [
+        { "flag": "key_cabinet_open", "itemId": "stairwell_key_b" }
+      ]
+    },
+    {
+      "id": "duty_office",
+      "label": "Duty Officer's Office",
+      "description": "A small room at the end of the corridor — a desk, a bookshelf, a filing cabinet. A framed commendation on the wall in Cyrillic. Two chairs facing the desk, angled inward as if waiting for an argument to resume.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "The desk chair has been pushed back hard. Petrov left in a hurry."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "duty_desk",
+          "label": "the desk",
+          "description": "Papers, a cold glass of tea, an ashtray. A list of extension numbers, handwritten. Petrov has added his own notes in the margins — shift times, a name circled twice."
+        },
+        {
+          "id": "commendation",
+          "label": "the commendation",
+          "description": "Petrov, V.I. — for service to the ministry. Signed in 1956. Whatever he did, it was eight years ago."
+        },
+        {
+          "id": "petrov_letter",
+          "label": "the letter on the desk",
+          "description": "Half-written, in a small careful hand. It begins: 'Mother — the posting has been extended. I do not know when I will be back. The city is fine. The food is not so bad.' It ends there."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "staff_common_room",
+      "label": "Staff Common Room",
+      "description": "A low table, four chairs, a kettle on a sideboard. Magazines in Russian, a chess set mid-game on the windowsill. A roster on the wall shows who is on post tonight. The room is empty.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "The chess pieces have been knocked to the floor. Someone left in a hurry."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": ["stairwell_key", "staff_id"],
+      "examineTargets": [
+        {
+          "id": "roster",
+          "label": "the duty roster",
+          "description": "Tonight's posting. Petrov: ground floor, all night. Baranov: exterior, 20:00 to 00:00. Zima: kitchen and service, 21:00 to 01:00. Volkov: first floor residential, 21:00 to 05:00. A full house."
+        },
+        {
+          "id": "chess_set",
+          "label": "the chess set",
+          "description": "A problem in progress — white to play, pinned in an unfavourable endgame. Someone has been thinking about this for days."
+        },
+        {
+          "id": "staff_kettle",
+          "label": "the kettle",
+          "description": "Warm. Someone was here not long ago. A mug on the sideboard — half a cup of tea, no longer steaming."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "medical_room",
+      "label": "Medical Room",
+      "description": "A single-bed clinic. Bandages, a first aid cabinet on the wall, the smell of antiseptic. A wheelchair sits in the corner. Irina Molova, the duty nurse, is at a small desk near the window, reading, back to the door.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Irina is gone. The bandages on the desk are untouched, her chair pushed back."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the corridor" }
+      ],
+      "itemIds": ["wheelchair"],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "irina",
+          "label": "Irina Molova",
+          "description": "The duty nurse. Mid-forties, reading glasses, the expression of someone who has worked night shifts for too long. She has not heard you yet."
+        },
+        {
+          "id": "first_aid_cabinet",
+          "label": "the first aid cabinet",
+          "description": "Standard-issue Soviet medical kit. Bandages, iodine, a packet of aspirin. Nothing useful for tonight's work."
+        },
+        {
+          "id": "medical_notes",
+          "label": "the patient log",
+          "description": "Last entry, dated three weeks ago: a guard with a sprained wrist. Before that: Kuznetsov, Y. — referred for physiotherapy, hip. Not attended."
+        }
+      ],
+      "searchDifficulty": 2
+    },
+    {
+      "id": "service_corridor",
+      "label": "Service Corridor",
+      "description": "A narrow back corridor behind the main rooms — pipes, a junction box, the smell of old paint. A single bulb on a wire. Connects to the basement storeroom at the far end.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "A distant door banging somewhere in the stairwell. The pipes are cold."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back to the main corridor" },
+        { "destinationId": "basement_storeroom", "label": "Down to the basement storeroom" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "junction_box",
+          "label": "the junction box",
+          "description": "Electrical, clearly original. The building is older than its current use. Someone has added modern wiring alongside the old."
+        },
+        {
+          "id": "service_pipe",
+          "label": "the pipes",
+          "description": "Hot water runs here, ticking as it cools. The building has a boiler somewhere below."
+        },
+        {
+          "id": "service_notice",
+          "label": "the notice",
+          "description": "Taped to the wall: MAINTENANCE ONLY — NO ADMITTANCE. The tape is yellowed. No one has read it in years."
+        }
+      ]
+    },
+    {
+      "id": "basement_storeroom",
+      "label": "Basement Storeroom",
+      "description": "Low ceiling, bare concrete. Cardboard boxes, a broken trolley, a mop in a bucket of grey water. A steel door in the far wall opens outward onto the alley — the kind that only unlatches from inside.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "The building is moving above you. You can hear feet on the stairs."
+        }
+      ],
+      "exits": [
+        { "destinationId": "service_corridor", "label": "Back up the service corridor" },
+        { "destinationId": "side_alley", "label": "Out the service door to the alley" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "cardboard_boxes",
+          "label": "the cardboard boxes",
+          "description": "Ministry of Culture letterhead on the side. Pamphlets, most likely. Whatever is inside has not been opened."
+        },
+        {
+          "id": "service_door_inside",
+          "label": "the service door",
+          "description": "Steel, well-oiled. A simple latch. From outside there is no handle; from here, it opens easily."
+        },
+        {
+          "id": "broken_trolley",
+          "label": "the trolley",
+          "description": "A service trolley with a broken wheel, pushed against the wall. Someone started fixing it and lost interest."
+        }
+      ],
+      "searchDifficulty": 1
+    },
+    {
+      "id": "second_floor_landing",
+      "label": "First Floor Landing",
+      "description": "Carpeted, quieter than the ground floor. Four numbered doors, all closed. A fire door at the end of the landing connects to the service stairs. The corridor has a different quality of silence to the floor below.",
+      "addenda": [
+        {
+          "flag": "alarm_raised",
+          "text": "Footsteps from below. Volkov has heard something and is no longer moving slowly."
+        }
+      ],
+      "exits": [
+        { "destinationId": "ground_floor_corridor", "label": "Back down the stairwell" },
+        {
+          "destinationId": "service_corridor",
+          "label": "Service stairs",
+          "requires": { "flag": "mobility_aid" }
+        },
+        { "destinationId": "kuznetsov_room", "label": "Room 14" }
+      ],
+      "itemIds": [],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "fire_door",
+          "label": "the fire door",
+          "description": "A heavy fire door at the end of the landing. The service stairs beyond it are used for deliveries and maintenance. The latch opens from this side."
+        },
+        {
+          "id": "landing_window",
+          "label": "the landing window",
+          "description": "Overlooks the side alley. The grey Peugeot is visible from here — parked, engine off, driver in his seat."
+        },
+        {
+          "id": "room_numbers",
+          "label": "the room numbers",
+          "description": "Eleven, twelve, thirteen, fourteen. Kuznetsov's is the last door. Light under it."
+        }
+      ]
+    },
+    {
+      "id": "kuznetsov_room",
+      "label": "Room 14",
+      "description": "A single room — bed, a chair, a small desk. A coat is on the bed, a case beside it, packed. A man in his early fifties sits by the window in the dark. He stands when Jacob enters. The hip is immediately obvious. A walking cane is propped against the windowsill.",
+      "addenda": [
+        {
+          "flag": "defector_secured",
+          "text": "Kuznetsov is ready. He has been ready since yesterday."
+        },
+        {
+          "flag": "alarm_raised",
+          "text": "Voices in the building. Kuznetsov hears them too. His expression does not change."
+        }
+      ],
+      "exits": [
+        { "destinationId": "second_floor_landing", "label": "Back to the landing" }
+      ],
+      "itemIds": ["cane"],
+      "hiddenItemIds": [],
+      "examineTargets": [
+        {
+          "id": "kuznetsov",
+          "label": "Kuznetsov",
+          "description": "A lean man with close-cropped grey hair and the careful stillness of someone who has been waiting a long time. He says nothing about the hip. He says nothing at all until you speak.",
+          "interactLabel": "Get him ready to move",
+          "effect": [
+            { "type": "set_global_flag", "flag": "defector_secured" },
+            { "type": "message", "text": "He nods once. He picks up the case. He has been waiting for this moment for two weeks. You help him to his feet." }
+          ]
+        },
+        {
+          "id": "room_window",
+          "label": "the window",
+          "description": "The side alley, four floors below. The grey Peugeot is visible — engine off, driver in his seat. He is right where he should be."
+        },
+        {
+          "id": "kuznetsov_case",
+          "label": "the case",
+          "description": "A small leather case, worn at the corners. Whatever is inside, it is not much. He packed light and he packed early."
+        }
+      ]
+    }
+  ]
+}
