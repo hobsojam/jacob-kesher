@@ -52,3 +52,7 @@ TypeScript types are the source of truth for the data format. Run `npm run schem
 - **Mission 01: The Cipher Machine** — game data complete (14 rooms, 7 enemies, 10 items)
 - **Renderer** — in progress
 - **Deployed** — https://hobsojam.github.io/jacob-kesher/ (auto-deploys on push to `main`)
+
+## License
+
+The engine and other source code are licensed under [MIT](LICENSE). Mission narrative, room/item/dialogue text, and design documents are licensed under [CC BY-NC-ND 4.0](LICENSE-CONTENT) — you can read and share them, but not reuse or modify them commercially.
