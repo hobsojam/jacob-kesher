@@ -1,0 +1,21 @@
+Creative Content License
+
+Copyright (c) 2026 James Hobson
+
+The creative content of this project — mission narrative, room and item
+descriptions, dialogue, enemy names/descriptions, and design documents
+(including but not limited to everything under `src/data/missions/`,
+`src/data/templates.json`, `design.md` files, `mission-template.md`, and
+`level-design-playbook.md`) — is licensed under the Creative Commons
+Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0).
+
+You are free to read, share, and cite this content, provided you give
+appropriate credit. You may not use it for commercial purposes, and you may
+not distribute modified versions of it.
+
+Full license text: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+---
+
+This license applies to the creative/narrative content only. See `LICENSE`
+for the MIT license covering the game engine and other source code.
