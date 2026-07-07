@@ -112,6 +112,8 @@ export interface EnemyTemplate {
   canBeDisguised: boolean
   wakeAfterTurns?: number
   discoveryRisk?: number   // 0–1 probability per turn that a downed instance is found; default 0
+  canPursue?: boolean          // default false; if true, chases Jacob after an alert encounter
+  pursuitGiveUpTurns?: number  // turns without regaining contact before giving up; default 3
 }
 
 export interface PatrolRoute {

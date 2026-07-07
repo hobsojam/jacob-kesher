@@ -8,7 +8,8 @@
       "canBeBluffed": false,
       "canBeDisguised": true,
       "wakeAfterTurns": 15,
-      "discoveryRisk": 0.1
+      "discoveryRisk": 0.1,
+      "canPursue": true
     },
     {
       "id": "henchman",
@@ -17,7 +18,8 @@
       "detectionRadius": 1,
       "canBeBluffed": true,
       "canBeDisguised": false,
-      "wakeAfterTurns": 20
+      "wakeAfterTurns": 20,
+      "canPursue": true
     },
     {
       "id": "civilian",

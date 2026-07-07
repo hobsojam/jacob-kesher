@@ -20,6 +20,9 @@ export function handleSearch(state: GameState, data: GameData): SubSystemResult 
     const enemyState = state.enemyStates[enemy.id]
     if (enemyState && enemyState.status !== 'active') return false
 
+    // A pursuing guard could arrive at any point during the search — treat as a risk
+    if (enemyState?.pursuit) return true
+
     // Alarm-repositioned to a fixed room: interrupts immediately if in this room
     if (state.flags['alarm_raised'] && enemy.alarmRoomId) {
       return enemy.alarmRoomId === roomId

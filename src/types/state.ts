@@ -62,6 +62,10 @@ export interface EnemyState {
   inventory: string[]
   awareness?: Awareness      // undefined === 'unaware'
   bodyRoomId?: string        // room where enemy fell; set on unconscious/dead, absent means use EnemyData.roomId
+  // Present while actively chasing Jacob after losing him from an alert encounter.
+  // roomId overrides patrol/alarm positioning; cleared when contact is re-made+attacked
+  // or when turnsWithoutContact reaches the template's give-up threshold.
+  pursuit?: { roomId: string; turnsWithoutContact: number }
 }
 
 export interface TimeState {
