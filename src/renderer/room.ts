@@ -59,13 +59,15 @@ function enemyStatusSuffix(status: string | undefined): string {
 }
 
 export function enemiesInRoom(roomId: string, state: GameState, data: GameData): string[] {
-  const stationary = state.roomStates[roomId]?.enemyIds ?? []
+  // A pursuing enemy may have left their originally-stationary room behind.
+  const stationary = (state.roomStates[roomId]?.enemyIds ?? [])
+    .filter((id) => !state.enemyStates[id]?.pursuit)
   const patrolling = Object.values(data.enemyData)
     .filter((e) => {
-      if (!e.patrol && !e.alarmRoomId && !e.alarmPatrol) return false
       const es = state.enemyStates[e.id]
+      if (!e.patrol && !e.alarmRoomId && !e.alarmPatrol && !es?.pursuit) return false
       if (es && es.status !== 'active') return false
-      return enemyPosition(e, state.time.elapsed, state.flags) === roomId
+      return enemyPosition(e, state.time.elapsed, state.flags, es) === roomId
     })
     .map((e) => e.id)
   return [...new Set([...stationary, ...patrolling])]

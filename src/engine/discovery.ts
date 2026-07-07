@@ -15,7 +15,7 @@ export function checkDiscoveries(
   for (const enemy of Object.values(data.enemyData)) {
     const es = state.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
-    const room = enemyPosition(enemy, state.time.elapsed, state.flags)
+    const room = enemyPosition(enemy, state.time.elapsed, state.flags, es)
     activeGuardRooms.add(room)
   }
 

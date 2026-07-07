@@ -23,7 +23,7 @@ export function checkDisguise(
     const es = next.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
 
-    const enemyRoom = enemyPosition(enemy, next.time.elapsed, next.flags)
+    const enemyRoom = enemyPosition(enemy, next.time.elapsed, next.flags, es)
     if (enemyRoom !== currentRoom) continue
 
     const template = data.enemyTemplates[enemy.templateId]

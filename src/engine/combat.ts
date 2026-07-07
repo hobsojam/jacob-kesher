@@ -201,7 +201,7 @@ export function guardAmbush(
     if (es && es.status !== 'active') continue
     if ((es?.awareness ?? 'unaware') !== 'alert') continue
 
-    const guardRoom = enemyPosition(enemy, s.time.elapsed, s.flags)
+    const guardRoom = enemyPosition(enemy, s.time.elapsed, s.flags, es)
     if (guardRoom !== roomId) continue
 
     const template = data.enemyTemplates[enemy.templateId]

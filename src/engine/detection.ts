@@ -1,9 +1,10 @@
-import type { GameData, RoomData } from '../types/data'
+import type { GameData } from '../types/data'
 import type { GameState, NoiseLevel } from '../types/state'
 import { rollD20 } from './dice'
 import { enemyPosition } from './patrol'
 import { escalateAwareness } from './alarm'
 import { initEnemyState, enemyLabel, cap } from './room'
+import { roomDistance } from './graph'
 
 const NOISE_DC: Record<NoiseLevel, number | null> = {
   silent:   null,
@@ -38,7 +39,7 @@ export function checkDetection(
     const template = data.enemyTemplates[enemy.templateId]
     if (!template) continue
 
-    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags)
+    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags, es)
 
     const distance = roomDistance(sourceRoomId, enemyRoom, data.roomIndex)
     if (distance > template.detectionRadius) continue
@@ -62,25 +63,4 @@ export function checkDetection(
     state: changed ? { ...state, enemyStates: updatedEnemyStates } : state,
     messages,
   }
-}
-
-// BFS over exits (ignoring lock requirements — sound doesn't check doors)
-function roomDistance(fromId: string, toId: string, roomIndex: Record<string, RoomData>): number {
-  if (fromId === toId) return 0
-  const visited = new Set<string>()
-  const queue: Array<{ id: string; dist: number }> = [{ id: fromId, dist: 0 }]
-  while (queue.length > 0) {
-    const { id, dist } = queue.shift()!
-    if (visited.has(id)) continue
-    visited.add(id)
-    const room = roomIndex[id]
-    if (!room) continue
-    for (const exit of room.exits) {
-      if (exit.destinationId === toId) return dist + 1
-      if (!visited.has(exit.destinationId)) {
-        queue.push({ id: exit.destinationId, dist: dist + 1 })
-      }
-    }
-  }
-  return Infinity
 }

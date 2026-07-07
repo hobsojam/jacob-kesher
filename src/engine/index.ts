@@ -17,6 +17,7 @@ import { enemyPosition } from './patrol'
 import { checkDisguise } from './disguise'
 import { checkDiscoveries } from './discovery'
 import { checkReveals } from './reveals'
+import { startPursuit, advancePursuit } from './pursuit'
 import { initEnemyState, enemyLabel, cap } from './room'
 
 export interface EngineResult {
@@ -33,9 +34,11 @@ export function processAction(
   const result = dispatch(action, state, data)
   const messages = [...result.messages]
 
-  const moved =
-    action.type === 'move' &&
-    result.state.protagonist.currentRoom !== state.protagonist.currentRoom
+  // Broader than `moved` below: also true for `flee`, so a guard left behind
+  // mid-chase still starts pursuing even though flee skips the detection roll.
+  const roomChanged = result.state.protagonist.currentRoom !== state.protagonist.currentRoom
+
+  const moved = action.type === 'move' && roomChanged
 
   // Movement triggers a proximity check: nearby guards may hear or see Jacob enter.
   // run: skip detection roll — any active enemy in the room auto-alerts immediately.
@@ -89,10 +92,24 @@ export function processAction(
     messages.push(...m)
   }
 
-  // Alert guards in the room get a free attack — after disguise may have de-escalated
-  let afterAmbush = afterDisguise
-  if (moved || action.type === 'talk' || action.type === 'search') {
-    const { state: s, messages: m } = guardAmbush(afterDisguise, data)
+  // A guard left behind while alert (mid-fight, or simply present) gives chase
+  let afterPursuitStart = afterDisguise
+  if (roomChanged) {
+    const { state: s, messages: m } = startPursuit(
+      afterDisguise,
+      data,
+      state.protagonist.currentRoom,
+      result.state.protagonist.currentRoom,
+    )
+    afterPursuitStart = s
+    messages.push(...m)
+  }
+
+  // Alert guards in the room get a free attack — after disguise may have de-escalated.
+  // Includes 'flee' since it can land Jacob back in a room a pursuing guard already holds.
+  let afterAmbush = afterPursuitStart
+  if (moved || action.type === 'talk' || action.type === 'search' || action.type === 'flee') {
+    const { state: s, messages: m } = guardAmbush(afterPursuitStart, data)
     afterAmbush = s
     messages.push(...m)
   }
@@ -106,11 +123,18 @@ export function processAction(
   const { state: woken, messages: wakeMessages } = wakeEnemies(advanced, data)
   messages.push(...wakeMessages)
 
-  // Only roll for discovery on turns where time actually advances; zero-cost
-  // actions (drop) must not independently accumulate discovery risk
-  let afterDiscovery = woken
+  // Only advance pursuit/discovery on turns where time actually advances;
+  // zero-cost actions (drop) must not independently accumulate that risk
+  let afterPursuit = woken
   if (effectiveCost > 0) {
-    const { state: s, messages: m } = checkDiscoveries(woken, data)
+    const { state: s, messages: m } = advancePursuit(woken, data)
+    afterPursuit = s
+    messages.push(...m)
+  }
+
+  let afterDiscovery = afterPursuit
+  if (effectiveCost > 0) {
+    const { state: s, messages: m } = checkDiscoveries(afterPursuit, data)
     afterDiscovery = s
     messages.push(...m)
   }
@@ -214,7 +238,7 @@ function autoAlertEnemiesInRoom(
     const es = state.enemyStates[enemy.id]
     if (es && es.status !== 'active') continue
 
-    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags)
+    const enemyRoom = enemyPosition(enemy, state.time.elapsed, state.flags, es)
 
     if (enemyRoom !== roomId) continue
 
